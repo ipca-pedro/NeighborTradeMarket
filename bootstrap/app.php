@@ -25,9 +25,12 @@ return Application::configure(basePath: dirname(__DIR__))
         
         // Configurar os middlewares para API
         $middleware->api([
+            \Illuminate\Http\Middleware\HandleCors::class,
             \App\Http\Middleware\ApiMiddleware::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ]);
+        
+        // No Laravel 11, a proteção CSRF não é aplicada às rotas da API por padrão
         
         // Registrar o middleware de autenticação
         $middleware->alias([

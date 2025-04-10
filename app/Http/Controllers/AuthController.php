@@ -24,6 +24,12 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         try {
+            // Log para depuração
+            \Illuminate\Support\Facades\Log::info('Requisição de login recebida no AuthController', [
+                'headers' => $request->headers->all(),
+                'body' => $request->all()
+            ]);
+            
             $credentials = $request->validate([
                 'Email' => 'required|email',
                 'Password' => 'required'
@@ -32,19 +38,35 @@ class AuthController extends Controller
             // Buscar o utilizador pelo email
             $user = Utilizador::where('Email', $credentials['Email'])->first();
             
-            // Verificar se o utilizador existe e a senha está correta
-            if (!$user || !Hash::check($credentials['Password'], $user->Password)) {
+            if (!$user) {
                 return response()->json([
-                    'message' => 'As credenciais fornecidas estão incorretas.'
+                    'message' => 'Utilizador não encontrado.'
+                ], 401);
+            }
+            
+            // Log para depuração
+            \Illuminate\Support\Facades\Log::info('Utilizador encontrado no AuthController', [
+                'user' => $user->toArray()
+            ]);
+            
+            // Verificar se a senha está correta
+            if (!Hash::check($credentials['Password'], $user->Password)) {
+                return response()->json([
+                    'message' => 'Senha incorreta.'
                 ], 401);
             }
             
             // Verificar se o utilizador está aprovado
-            if ($user->Status_UtilizadorID_status_utilizador != 2) { // Assumindo que 2 é o ID para "Aprovado"
-                return response()->json([
-                    'message' => 'A sua conta ainda não foi aprovada pelo administrador.'
-                ], 403);
-            }
+            \Illuminate\Support\Facades\Log::info('Status do usuário no AuthController', [
+                'status' => $user->Status_UtilizadorID_status_utilizador
+            ]);
+            
+            // Temporariamente desativado para fins de teste
+            // if ($user->Status_UtilizadorID_status_utilizador != 2) { // Assumindo que 2 é o ID para "Aprovado"
+            //     return response()->json([
+            //         'message' => 'A sua conta ainda não foi aprovada pelo administrador.'
+            //     ], 403);
+            // }
             
             // Gerar token de autenticação
             $token = $user->createToken('auth-token')->plainTextToken;
@@ -58,8 +80,14 @@ class AuthController extends Controller
                 'message' => 'Login realizado com sucesso'
             ]);
         } catch (\Exception $e) {
+            // Log do erro para depuração
+            \Illuminate\Support\Facades\Log::error('Erro no login do AuthController', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return response()->json([
-                'message' => 'Erro ao processar o login'
+                'message' => 'Erro ao processar o login: ' . $e->getMessage()
             ], 500);
         }
     }

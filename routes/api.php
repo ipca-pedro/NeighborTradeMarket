@@ -42,6 +42,19 @@ Route::get('/test', [TestController::class, 'test']);
 // Rotas de teste básicas (mantidas para fins de diagnóstico)
 Route::get('/test', [TestController::class, 'test']);
 
+// Rota de teste simples que não requer controlador
+Route::get('/ping', function() {
+    return response()->json(['message' => 'pong']);
+});
+
+// Rota de teste para login que não usa o controlador existente
+Route::post('/test-login', function(\Illuminate\Http\Request $request) {
+    return response()->json([
+        'message' => 'Requisição de login recebida',
+        'data' => $request->all()
+    ]);
+});
+
 // Rotas protegidas que requerem autenticação
 Route::middleware('auth:sanctum')->group(function () {
     // Rotas de utilizador
