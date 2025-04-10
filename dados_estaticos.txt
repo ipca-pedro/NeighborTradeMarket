@@ -1,0 +1,101 @@
+-- Status para Utilizadores
+INSERT INTO Status_Utilizador (Descricao_status_utilizador) VALUES
+('Ativo'),
+('Inativo'),
+('Banido'),
+('Aguardando Aprovação');
+
+-- Status para Anúncios
+INSERT INTO Status_Anuncio (Descricao_status_anuncio) VALUES
+('Ativo'),
+('Pendente'),
+('Rejeitado'),
+('Concluído');
+
+-- Status para Mensagens
+INSERT INTO Status_Mensagem (Descricao_status_mensagem) VALUES
+('Enviada'),
+('Lida'),
+('Arquivada');
+
+-- Status para Aprovações
+INSERT INTO Status_Aprovacao (Descricao_Status_aprovacao) VALUES
+('Aprovado'),
+('Rejeitado'),
+('Em Análise');
+
+-- Status para Reclamações
+INSERT INTO Status_Reclamacao (Descricao_status_reclamacao) VALUES
+('Recebida'),
+('Em Investigação'),
+('Resolvida'),
+('Encerrada');
+
+-- Status para Trocas
+INSERT INTO Status_Troca (Descricao_status_troca) VALUES
+('Solicitada'),
+('Aceita'),
+('Recusada'),
+('Concluída');
+
+-- Notas de avaliação (estilo 1 a 5 estrelas)
+INSERT INTO Nota (Descricao_nota) VALUES
+('1 - Péssimo'),
+('2 - Ruim'),
+('3 - Razoável'),
+('4 - Bom'),
+('5 - Excelente');
+
+-- Moradas de exemplo
+INSERT INTO Morada (Rua) VALUES
+('Rua das Flores, nº 123'),
+('Avenida Central, nº 456'),
+('Travessa do Comércio, nº 789'),
+('Rua do Sol, nº 101'),
+('Avenida dos Pioneiros, nº 55'),
+('Rua da Esperança, nº 99'),
+('Rua do Mercado, nº 12'),
+('Rua Bela Vista, nº 222'),
+('Avenida das Amoreiras, nº 80'),
+('Rua do Pinhal, nº 35'),
+('Rua São Jorge, nº 61'),
+('Travessa da Liberdade, nº 7'),
+('Avenida das Laranjeiras, nº 300'),
+('Rua da Juventude, nº 44'),
+('Rua das Oliveiras, nº 88'),
+('Rua Padre António Vieira, nº 19'),
+('Rua do Carmo, nº 250'),
+('Avenida Atlântica, nº 321'),
+('Travessa dos Navegantes, nº 5'),
+('Rua João XXI, nº 65'),
+('Rua Nova da Estação, nº 110'),
+('Rua da Paz, nº 18'),
+('Avenida Beira-Mar, nº 70'),
+('Rua das Pedras, nº 140'),
+('Travessa São Francisco, nº 30'),
+('Rua do Ferro Velho, nº 3'),
+('Rua dos Lavradores, nº 20'),
+('Avenida dos Descobrimentos, nº 400'),
+('Rua Dom Afonso Henriques, nº 77'),
+('Rua 1º de Maio, nº 88'),
+('Rua do Campo Alegre, nº 212');
+
+
+-- Tipos de Item
+INSERT INTO Tipo_Item (Descricao_TipoItem) VALUES
+('Produto'),
+('Serviço'),
+('Doação');
+
+-- Categorias de Produto
+INSERT INTO Categoria (Descricao_Categoria) VALUES
+('Eletrónica'),
+('Móveis'),
+('Roupas'),
+('Livros'),
+('Brinquedos'),
+('Ferramentas'),
+('Veículos'),
+('Imóveis'),
+('Desporto'),
+('Outros');
