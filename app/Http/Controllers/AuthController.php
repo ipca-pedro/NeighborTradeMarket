@@ -74,7 +74,7 @@ class AuthController extends Controller
                 'date',
                 function ($attribute, $value, $fail) {
                     $minYear = 1900;
-                    $maxYear = now()->year - 18; // Usuário deve ter pelo menos 18 anos
+                    $maxYear = now()->year - 18; // Utilizador deve ter pelo menos 18 anos
                     $year = date('Y', strtotime($value));
     
                     if ($year < $minYear || $year > $maxYear) {
