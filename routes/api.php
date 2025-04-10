@@ -25,6 +25,7 @@ use App\Http\Controllers\TestController;
 
 // Rotas públicas de autenticação
 Route::post('/auth/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login']); // Rota alternativa para compatibilidade
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::get('/moradas', [AuthController::class, 'getMoradas']);
 
@@ -37,6 +38,9 @@ Route::post('/password/reset', [AuthController::class, 'resetPassword']);
 // Rotas de teste
 Route::get('/test', [TestController::class, 'test']);
 
+
+// Rotas de teste básicas (mantidas para fins de diagnóstico)
+Route::get('/test', [TestController::class, 'test']);
 
 // Rotas protegidas que requerem autenticação
 Route::middleware('auth:sanctum')->group(function () {

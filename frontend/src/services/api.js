@@ -32,13 +32,25 @@ export const moradaService = {
 export const authService = {
     login: async (email, password) => {
         try {
-            const response = await api.post('/auth/login', { Email: email, Password: password });
-            if (response.data.token) {
-                localStorage.setItem('token', response.data.token);
-                localStorage.setItem('user', JSON.stringify(response.data.user));
+            // Tentativa com a rota /auth/login
+            try {
+                const response = await api.post('/auth/login', { Email: email, Password: password });
+                if (response.data.token) {
+                    localStorage.setItem('token', response.data.token);
+                    localStorage.setItem('user', JSON.stringify(response.data.user));
+                }
+                return response.data;
+            } catch (authError) {
+                // Se falhar, tenta com a rota /login (para compatibilidade)
+                const response = await api.post('/login', { Email: email, Password: password });
+                if (response.data.token) {
+                    localStorage.setItem('token', response.data.token);
+                    localStorage.setItem('user', JSON.stringify(response.data.user));
+                }
+                return response.data;
             }
-            return response.data;
         } catch (error) {
+            console.error('Erro ao fazer login:', error);
             throw error.response?.data || error.message;
         }
     },

@@ -8,7 +8,8 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
 
 /**
  * Class Utilizador
@@ -41,11 +42,22 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @package App\Models
  */
-class Utilizador extends Model
+class Utilizador extends Authenticatable
 {
+	use HasApiTokens;
+	
 	protected $table = 'utilizador';
 	protected $primaryKey = 'ID_User';
 	public $timestamps = false;
+	
+	/**
+	 * The attributes that should be hidden for serialization.
+	 *
+	 * @var array<int, string>
+	 */
+	protected $hidden = [
+		'Password',
+	];
 
 	protected $casts = [
 		'Data_Nascimento' => 'datetime',
@@ -127,4 +139,34 @@ class Utilizador extends Model
 	{
 		return $this->hasMany(Notificacao::class, 'UtilizadorID_User');
 	}
+
+	/**
+     * Get the password for the user.
+     *
+     * @return string
+     */
+    public function getAuthPassword()
+    {
+        return $this->Password;
+    }
+
+    /**
+     * Get the login username to be used by the controller.
+     *
+     * @return string
+     */
+    public function getAuthIdentifierName()
+    {
+        return 'Email';
+    }
+
+    /**
+     * Get the column name for the "remember me" token.
+     *
+     * @return string
+     */
+    public function getRememberTokenName()
+    {
+        return 'remember_token';
+    }
 }
