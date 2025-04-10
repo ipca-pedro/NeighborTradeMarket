@@ -10,6 +10,7 @@ use App\Http\Controllers\TrocaController;
 use App\Http\Controllers\AvaliacaoController;
 use App\Http\Controllers\NotificacaoController;
 use App\Http\Controllers\CompraController;
+use App\Http\Controllers\TestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,7 +35,7 @@ Route::post('/password/reset', [AuthController::class, 'resetPassword']);
 
 
 // Rotas de teste
-Route::get('/test', [TestController::class, 'index']);
+Route::get('/test', [TestController::class, 'test']);
 
 
 // Rotas protegidas que requerem autenticação
