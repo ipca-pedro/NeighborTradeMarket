@@ -23,39 +23,45 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'Email' => 'required|email',
-            'Password' => 'required'
-        ]);
+        try {
+            $credentials = $request->validate([
+                'Email' => 'required|email',
+                'Password' => 'required'
+            ]);
 
-        // Buscar o utilizador pelo email
-        $user = Utilizador::where('Email', $credentials['Email'])->first();
-        
-        // Verificar se o utilizador existe e a senha está correta
-        if (!$user || !Hash::check($credentials['Password'], $user->Password)) {
+            // Buscar o utilizador pelo email
+            $user = Utilizador::where('Email', $credentials['Email'])->first();
+            
+            // Verificar se o utilizador existe e a senha está correta
+            if (!$user || !Hash::check($credentials['Password'], $user->Password)) {
+                return response()->json([
+                    'message' => 'As credenciais fornecidas estão incorretas.'
+                ], 401);
+            }
+            
+            // Verificar se o utilizador está aprovado
+            if ($user->Status_UtilizadorID_status_utilizador != 2) { // Assumindo que 2 é o ID para "Aprovado"
+                return response()->json([
+                    'message' => 'A sua conta ainda não foi aprovada pelo administrador.'
+                ], 403);
+            }
+            
+            // Gerar token de autenticação
+            $token = $user->createToken('auth-token')->plainTextToken;
+            
+            // Carregar relações importantes
+            $user->load(['morada', 'status_utilizador', 'tipouser', 'imagem']);
+            
             return response()->json([
-                'message' => 'As credenciais fornecidas estão incorretas.'
-            ], 401);
-        }
-        
-        // Verificar se o utilizador está aprovado
-        if ($user->Status_UtilizadorID_status_utilizador != 2) { // Assumindo que 2 é o ID para "Aprovado"
+                'user' => $user,
+                'token' => $token,
+                'message' => 'Login realizado com sucesso'
+            ]);
+        } catch (\Exception $e) {
             return response()->json([
-                'message' => 'A sua conta ainda não foi aprovada pelo administrador.'
-            ], 403);
+                'message' => 'Erro ao processar o login'
+            ], 500);
         }
-        
-        // Gerar token de autenticação
-        $token = $user->createToken('auth-token')->plainTextToken;
-        
-        // Carregar relações importantes
-        $user->load(['morada', 'status_utilizador', 'tipouser', 'imagem']);
-        
-        return response()->json([
-            'user' => $user,
-            'token' => $token,
-            'message' => 'Login realizado com sucesso'
-        ]);
     }
 
     /**
@@ -164,8 +170,18 @@ class AuthController extends Controller
      */
     public function getMoradas()
     {
-        $moradas = Morada::all(['ID_Morada', 'Rua', 'Cidade', 'Codigo_Postal']);
-        return response()->json($moradas);
+        try {
+            // Buscar apenas os campos que existem na tabela
+            $moradas = Morada::all();
+            return response()->json($moradas);
+        } catch (\Exception $e) {
+            // Registrar o erro e retornar uma resposta amigável
+            \Log::error('Erro ao buscar moradas: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Não foi possível obter a lista de moradas.',
+                'error' => config('app.debug') ? $e->getMessage() : null
+            ], 500);
+        }
     }
 
     /**
