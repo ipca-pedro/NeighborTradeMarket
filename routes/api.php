@@ -33,7 +33,6 @@ Route::post('/password/email', [AuthController::class, 'sendResetLinkEmail']);
 Route::get('/password/reset/{token}', [AuthController::class, 'showResetForm']);
 Route::post('/password/reset', [AuthController::class, 'resetPassword']);
 
-
 // Rotas de teste
 Route::get('/test', [TestController::class, 'test']);
 Route::get('/test/db-connection', [TestController::class, 'dbConnection']);
@@ -41,7 +40,6 @@ Route::get('/test/server-info', [TestController::class, 'serverInfo']);
 Route::get('/test/db-tables', [TestController::class, 'dbTables']);
 Route::get('/test/request-info', [TestController::class, 'requestInfo']);
 Route::middleware('auth:sanctum')->get('/test/auth', [TestController::class, 'authTest']);
-
 
 // Rotas protegidas que requerem autenticação
 Route::middleware('auth:sanctum')->group(function () {
@@ -116,6 +114,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/compras/{id}/confirmar-recebimento', [CompraController::class, 'confirmReceipt']);
     Route::get('/compras/status/opcoes', [CompraController::class, 'getStatusOptions']);
     Route::get('/vendas/pendentes', [CompraController::class, 'pendingSales']);
-
-    
 });
