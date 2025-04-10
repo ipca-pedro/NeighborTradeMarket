@@ -69,7 +69,19 @@ class AuthController extends Controller
             'Email' => 'required|string|email|max:255|unique:utilizador,Email',
             'Password' => 'required|string|min:8',
             'Password_confirmation' => 'required|same:Password',
-            'Data_Nascimento' => 'required|date',
+            'Data_Nascimento' => [
+                'required',
+                'date',
+                function ($attribute, $value, $fail) {
+                    $minYear = 1900;
+                    $maxYear = now()->year - 18; // Usuário deve ter pelo menos 18 anos
+                    $year = date('Y', strtotime($value));
+    
+                    if ($year < $minYear || $year > $maxYear) {
+                        $fail("A data de nascimento deve estar entre $minYear e $maxYear.");
+                    }
+                },
+            ],
             'CC' => 'required|string|max:20',
             'MoradaID_Morada' => 'required|integer|exists:morada,ID_Morada',
             'comprovativo_morada' => 'required|file|mimes:jpeg,png,jpg,pdf|max:2048'
