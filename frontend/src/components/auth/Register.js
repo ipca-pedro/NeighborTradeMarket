@@ -181,6 +181,8 @@ function Register() {
                                 value={formData.Data_Nascimento}
                                 onChange={handleChange}
                                 required
+                                min="1900-01-01"
+                                max={`${new Date().getFullYear() - 18}-12-31`}
                             />
                         </Form.Group>
                         
