@@ -517,6 +517,49 @@ Modelos de suporte:
 - `AnuncioForm`: Criação/edição de anúncios
 - `AnuncioDetails`: Detalhes do anúncio com imagens
 
+## Atualizações Recentes
+
+### Atualização (11/04/2025): Substituição de Publicidade por Anúncios Aleatórios
+
+A página inicial (landpage) foi modificada para exibir anúncios reais do sistema em vez de publicidade estática:
+
+1. **Carrossel Principal**: Agora exibe produtos aleatórios em destaque em vez de banners publicitários estáticos
+2. **Seções de Produtos/Serviços**: Exibe anúncios aleatórios aprovados do sistema
+3. **API de Anúncios Aleatórios**: Novo endpoint `/api/anuncios/aleatorios` que retorna anúncios aleatórios aprovados
+
+#### Arquivos Modificados:
+- `app/Http/Controllers/AnuncioController.php`: Adicionado método `getAnunciosAleatorios()`
+- `routes/api.php`: Adicionada rota para o novo endpoint
+- `frontend/src/services/anuncioService.js`: Adicionada função para obter anúncios aleatórios
+- `frontend/src/components/home/HomePage.js`: Modificado para usar anúncios reais em vez de publicidade estática
+
+### Atualização: Painel de Administração
+
+Implementamos um sistema completo de administração para o site:
+
+1. **Redirecionamento Automático**: Usuários administradores (TipoUserID_TipoUser = 1) são redirecionados automaticamente para o painel de administração após o login
+2. **Gerenciamento de Anúncios**: Interface para visualizar, aprovar ou rejeitar anúncios pendentes
+3. **Gestão de Usuários**: Aprovação de novos usuários no sistema
+4. **Rejeição com Feedback**: Possibilidade de incluir motivo ao rejeitar anúncios
+
+#### Arquivos Relacionados:
+- `frontend/src/components/admin/AdminDashboard.js`: Painel principal de administração
+- `frontend/src/components/admin/ProdutosPendentes.js`: Gerenciamento de anúncios pendentes
+- `app/Http/Controllers/AnuncioController.php`: Endpoints para aprovação/rejeição de anúncios
+- `frontend/src/components/auth/AdminRoute.js`: Componente para proteger rotas de administração
+
+### Atualização: Correção de Erros
+
+1. **Erro 500 na Criação de Anúncios**:
+   - Corrigido erro de violação de restrição de chave estrangeira na tabela `aprovacao`
+   - O campo `UtilizadorID_Admin` estava sendo definido como NULL, mas é NOT NULL no banco de dados
+   - Solução: Utilizar o ID do usuário administrador padrão (ID=1) como valor para este campo
+
+2. **Upload de Imagens Opcional**:
+   - Modificado o sistema para permitir a criação de anúncios sem imagens
+   - Removido o atributo 'required' do campo de upload de imagens no frontend
+   - Modificado o backend para tratar corretamente casos onde nenhuma imagem é enviada
+
 ## Funcionalidades Implementadas
 
 1. **Autenticação**
@@ -526,7 +569,11 @@ Modelos de suporte:
    - Aprovação de usuários por admin
 
 2. **Anúncios**
-   - Criação com múltiplas imagens
+   - Criação com múltiplas imagens (opcional, não obrigatório)
+   - Sistema de aprovação por administradores
+   - Rejeição com motivo/comentário
+   - Exibição aleatória na página inicial
+   - Limite de preço: até 9999.99
    - Categorização (produto/serviço)
    - Listagem com filtros
    - Aprovação por admin
