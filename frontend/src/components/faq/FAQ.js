@@ -11,7 +11,7 @@ const FAQ = () => {
                 <Accordion.Item eventKey="0">
                     <Accordion.Header>Como criar uma conta?</Accordion.Header>
                     <Accordion.Body>
-                        Para criar uma conta, clique no botão "Registrar" no topo da página. 
+                        Para criar uma conta, clique no botão "Registar" no topo da página. 
                         Preencha seus dados pessoais e aguarde a confirmação por email.
                     </Accordion.Body>
                 </Accordion.Item>
