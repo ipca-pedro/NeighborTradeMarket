@@ -12,14 +12,39 @@
 
 // Carregar as configurações do .env
 if (file_exists(__DIR__ . '/.env')) {
-    $env = parse_ini_file(__DIR__ . '/.env');
+    // Lê o arquivo .env linha por linha para evitar problemas com sintaxe
+    $env_file = file(__DIR__ . '/.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    $env = [];
+    
+    foreach ($env_file as $line) {
+        // Ignora comentários
+        if (strpos(trim($line), '#') === 0) {
+            continue;
+        }
+        
+        // Processa linhas com formato KEY=VALUE
+        if (strpos($line, '=') !== false) {
+            list($key, $value) = explode('=', $line, 2);
+            $key = trim($key);
+            $value = trim($value);
+            
+            // Remove aspas se existirem
+            if (strpos($value, '"') === 0 && strrpos($value, '"') === strlen($value) - 1) {
+                $value = substr($value, 1, -1);
+            } elseif (strpos($value, "'") === 0 && strrpos($value, "'") === strlen($value) - 1) {
+                $value = substr($value, 1, -1);
+            }
+            
+            $env[$key] = $value;
+        }
+    }
 } else {
     die("Arquivo .env não encontrado.\n");
 }
 
 // Configurações do banco de dados a partir do .env
 $db_host = $env['DB_HOST'] ?? 'localhost';
-$db_name = $env['DB_DATABASE'] ?? 'neighbortrademarket';
+$db_name = $env['DB_DATABASE'] ?? 'db_nt'; // Nome correto do banco de dados
 $db_user = $env['DB_USERNAME'] ?? 'root';
 $db_pass = $env['DB_PASSWORD'] ?? '';
 $db_port = $env['DB_PORT'] ?? '3306';
