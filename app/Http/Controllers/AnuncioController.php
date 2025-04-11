@@ -532,43 +532,17 @@ class AnuncioController extends Controller
                 }
             }
             
-                // Remover o anúncio
-                $anuncio->delete();
-                
-                DB::commit();
-                
-            return response()->json(['message' => 'Anúncio removido com sucesso']);
-        }
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return response()->json([
-            'message' => 'Erro ao remover anúncio: ' . $e->getMessage()
-        ], 500);
-    }
-        
-        DB::beginTransaction();
-        
-        try {
-            // Atualizar aprovação
-            $anuncio->aprovacao->update([
-                'Data_Aprovacao' => now(),
-                'UtilizadorID_Admin' => Auth::id(),
-                'Status_AprovacaoID_Status_Aprovacao' => 2 // Status aprovado
-            ]);
-            
-            // Atualizar status do anúncio
-            $anuncio->update([
-                'Status_AnuncioID_Status_Anuncio' => 2 // Status aprovado
-            ]);
+            // Remover o anúncio
+            $anuncio->delete();
             
             DB::commit();
             
-            return response()->json(['message' => 'Anúncio aprovado com sucesso']);
+            return response()->json(['message' => 'Anúncio removido com sucesso']);
             
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
-                'message' => 'Erro ao aprovar anúncio: ' . $e->getMessage()
+                'message' => 'Erro ao remover anúncio: ' . $e->getMessage()
             ], 500);
         }
     }
