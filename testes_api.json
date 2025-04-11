@@ -1,0 +1,726 @@
+{
+  "info": {
+    "name": "NeighborTrade API Tests",
+    "description": "Coleção de testes para a API do NeighborTrade",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Autenticação",
+      "description": "Endpoints para autenticação de utilizadores",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:8000/api/auth/login",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Email\": \"admin@example.com\",\n  \"Password\": \"senha123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Registro de Utilizador",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:8000/api/auth/register",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"User_Name\": \"novousuario\",\n  \"Name\": \"Novo Utilizador\",\n  \"Email\": \"novo@example.com\",\n  \"Password\": \"senha123\",\n  \"Password_confirmation\": \"senha123\",\n  \"Data_Nascimento\": \"1990-01-01\",\n  \"CC\": \"123456789\",\n  \"MoradaID_Morada\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:8000/api/auth/logout",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Obter Perfil",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8000/api/perfil",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Atualizar Perfil",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:8000/api/perfil",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "Name",
+                  "value": "Nome Atualizado",
+                  "type": "text"
+                },
+                {
+                  "key": "Email",
+                  "value": "atualizado@example.com",
+                  "type": "text"
+                },
+                {
+                  "key": "MoradaID_Morada",
+                  "value": "2",
+                  "type": "text"
+                },
+                {
+                  "key": "imagem",
+                  "type": "file",
+                  "src": "/path/to/image.jpg"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Recuperar Senha",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:8000/api/password/email",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Email\": \"usuario@example.com\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Anúncios",
+      "description": "Endpoints para gestão de anúncios",
+      "item": [
+        {
+          "name": "Listar Anúncios",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8000/api/anuncios",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Anúncios Aleatórios",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8000/api/anuncios/aleatorios?quantidade=4",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Detalhes do Anúncio",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8000/api/anuncios/1",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Criar Anúncio",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:8000/api/anuncios",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "Titulo",
+                  "value": "Notebook Dell Inspiron",
+                  "type": "text"
+                },
+                {
+                  "key": "Descricao",
+                  "value": "Notebook Dell Inspiron 15 3000, 8GB RAM, 256GB SSD, em ótimo estado",
+                  "type": "text"
+                },
+                {
+                  "key": "Preco",
+                  "value": "1299.99",
+                  "type": "text"
+                },
+                {
+                  "key": "CategoriaID_Categoria",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "Tipo_ItemID_Tipo",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "imagens[]",
+                  "type": "file",
+                  "src": "/path/to/image1.jpg"
+                },
+                {
+                  "key": "imagens[]",
+                  "type": "file",
+                  "src": "/path/to/image2.jpg"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Criar Anúncio (Sem Imagens)",
+          "description": "Teste para criar anúncio sem enviar imagens",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:8000/api/anuncios",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "Titulo",
+                  "value": "Serviço de Jardinagem",
+                  "type": "text"
+                },
+                {
+                  "key": "Descricao",
+                  "value": "Ofereço serviços de jardinagem para residências e empresas",
+                  "type": "text"
+                },
+                {
+                  "key": "Preco",
+                  "value": "50.00",
+                  "type": "text"
+                },
+                {
+                  "key": "CategoriaID_Categoria",
+                  "value": "2",
+                  "type": "text"
+                },
+                {
+                  "key": "Tipo_ItemID_Tipo",
+                  "value": "2",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Atualizar Anúncio",
+          "request": {
+            "method": "PUT",
+            "url": "http://localhost:8000/api/anuncios/1",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "Titulo",
+                  "value": "Notebook Dell Inspiron (Atualizado)",
+                  "type": "text"
+                },
+                {
+                  "key": "Descricao",
+                  "value": "Notebook Dell Inspiron 15 3000, 8GB RAM, 256GB SSD, em ótimo estado. Inclui carregador original.",
+                  "type": "text"
+                },
+                {
+                  "key": "Preco",
+                  "value": "1199.99",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Excluir Anúncio",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:8000/api/anuncios/1",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Meus Anúncios",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8000/api/meus-anuncios",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Anúncios por Categoria",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8000/api/anuncios/categoria/1",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Anúncios por Tipo",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8000/api/anuncios/tipo/1",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Administração",
+      "description": "Endpoints para administração do sistema",
+      "item": [
+        {
+          "name": "Listar Utilizadores Pendentes",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8000/api/admin/users/pending",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Aprovar Utilizador",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:8000/api/admin/users/2/approve",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Rejeitar Utilizador",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:8000/api/admin/users/3/reject",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"motivo\": \"Dados inconsistentes ou suspeitos\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Listar Anúncios Pendentes",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8000/api/admin/anuncios/pendentes",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Aprovar Anúncio",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:8000/api/admin/anuncios/1/aprovar",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Rejeitar Anúncio",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:8000/api/admin/anuncios/2/rejeitar",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"motivo\": \"Anúncio não está de acordo com as políticas da plataforma\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Listar Todos Utilizadores",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8000/api/admin/users",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dados do Sistema",
+      "description": "Endpoints para obter dados de suporte do sistema",
+      "item": [
+        {
+          "name": "Listar Moradas",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8000/api/moradas",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Listar Categorias",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8000/api/categorias",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Listar Tipos de Item",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8000/api/tipos-item",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Testes de Validação",
+      "description": "Testes para validar comportamentos específicos",
+      "item": [
+        {
+          "name": "Criar Anúncio com Preço Máximo",
+          "description": "Teste para verificar o limite máximo do campo Preco (9999.99)",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:8000/api/anuncios",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "Titulo",
+                  "value": "Produto com Preço Máximo",
+                  "type": "text"
+                },
+                {
+                  "key": "Descricao",
+                  "value": "Teste para verificar o limite máximo do campo Preco",
+                  "type": "text"
+                },
+                {
+                  "key": "Preco",
+                  "value": "9999.99",
+                  "type": "text"
+                },
+                {
+                  "key": "CategoriaID_Categoria",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "Tipo_ItemID_Tipo",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Criar Anúncio com Preço Excedendo Limite",
+          "description": "Teste para verificar o comportamento quando o preço excede o limite (10000.00)",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:8000/api/anuncios",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "Titulo",
+                  "value": "Produto com Preço Excedendo Limite",
+                  "type": "text"
+                },
+                {
+                  "key": "Descricao",
+                  "value": "Teste para verificar o comportamento quando o preço excede o limite",
+                  "type": "text"
+                },
+                {
+                  "key": "Preco",
+                  "value": "10000.00",
+                  "type": "text"
+                },
+                {
+                  "key": "CategoriaID_Categoria",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "Tipo_ItemID_Tipo",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login com Credenciais Inválidas",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:8000/api/auth/login",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Email\": \"naoexiste@example.com\",\n  \"Password\": \"senhaerrada\"\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -6,87 +6,70 @@ Plataforma para compra, venda e troca de produtos/serviços com sistema de aprov
 
 ### Pré-requisitos
 
-- **PHP**: Versão 8.2 ou superior
+- **XAMPP**: Versão com PHP 8.2 ou superior (inclui Apache e MySQL)
 - **Composer**: Última versão
-- **MySQL**: Versão 5.7 ou superior
 - **Node.js**: Versão 16.x ou superior
 - **npm**: Versão 8.x ou superior
-- **XAMPP**: Para ambiente de desenvolvimento local (opcional, mas recomendado)
 - **Git**: Para clonar o repositório
 
-### Instalação do Projeto
+### Passo a Passo para Configuração
 
-#### 1. Clonar o Repositório Principal
+#### 1. Preparar o Ambiente XAMPP
+
+1. **Iniciar os serviços do XAMPP**:
+   - Abra o Painel de Controle do XAMPP
+   - Inicie os serviços Apache e MySQL
+   - Verifique se os serviços estão rodando corretamente (luzes verdes)
+
+2. **Criar o Banco de Dados**:
+   - Abra o phpMyAdmin: http://localhost/phpmyadmin
+   - Crie um novo banco de dados chamado `neighbortrade`
+   - Importe o arquivo `ER.sql` que está na raiz do projeto
+
+#### 2. Clonar o Repositório
 
 ```bash
-git clone https://github.com/ipca-pedro/NeighborTrade.git
-cd NeighborTrade
+# Navegue até a pasta htdocs do XAMPP
+cd c:\xampp\htdocs
+
+# Clone o repositório
+git clone https://github.com/ipca-pedro/NeighborTradeMarket.git 
+
+# Entre na pasta do projeto
+cd NeighborTradeMarket
 ```
 
-#### 2. Configurar o Frontend
-
-O diretório `frontend` contém a aplicação React.js e está totalmente integrado ao repositório principal. Para configurá-lo:
-
-```bash
-# Navegue até o diretório frontend
-cd frontend
-
-# Instale as dependências
-npm install
-```
-
-#### 2. Configurar o Backend (Laravel)
+#### 3. Configurar o Backend (Laravel)
 
 1. **Instalar Dependências PHP**:
    ```bash
    composer install
    ```
 
-2. **Configurar Variáveis de Ambiente**:
-   - Copie o arquivo `.env.example` para `.env`:
-     ```bash
-     cp .env.example .env
-     ```
-   - Abra o arquivo `.env` e configure as seguintes variáveis:
-     ```
-     DB_CONNECTION=mysql
-     DB_HOST=127.0.0.1
-     DB_PORT=3306
-     DB_DATABASE=neighbortrade
-     DB_USERNAME=seu_usuario
-     DB_PASSWORD=sua_senha
-     ```
+2. **Configuração do Ambiente**:
+   - O arquivo `.env` já está incluído no repositório e pré-configurado
+   - Não é necessário criar ou modificar o arquivo `.env`
 
-3. **Gerar Chave da Aplicação**:
-   ```bash
-   php artisan key:generate
-   ```
-
-4. **Criar o Banco de Dados**:
-   - Crie um banco de dados MySQL chamado `neighbortrade`
-   - Ou importe o arquivo `ER.sql` que contém a estrutura completa do banco de dados
-
-5. **Executar Migrations** (se não importou o ER.sql):
-   ```bash
-   php artisan migrate
-   ```
-
-6. **Criar Link Simbólico para Storage**:
+3. **Criar Link Simbólico para Storage**:
    ```bash
    php artisan storage:link
    ```
 
-#### 3. Configurar o Frontend (React)
-
-1. **Navegar até a pasta do frontend**:
+4. **Limpar Cache (recomendado)**:
    ```bash
-   cd frontend
+   php artisan config:clear
+   php artisan cache:clear
    ```
 
-2. **Instalar Dependências JavaScript**:
-   ```bash
-   npm install
-   ```
+#### 4. Configurar o Frontend (React)
+
+```bash
+# Navegue até a pasta do frontend
+cd frontend
+
+# Instale as dependências JavaScript
+npm install
+```
 
 ### Executando o Projeto
 
@@ -98,6 +81,7 @@ php artisan serve
 ```
 O servidor estará disponível em `http://localhost:8000`
 
+
 #### 2. Iniciar o Frontend
 
 ```bash
@@ -105,6 +89,14 @@ O servidor estará disponível em `http://localhost:8000`
 npm start
 ```
 O frontend estará disponível em `http://localhost:3000`
+
+#### 3. Verificar Funcionamento
+
+1. Abra o navegador e acesse `http://localhost:3000`
+2. Verifique se a página inicial carrega corretamente
+3. Teste o login com as credenciais:
+   - **Admin**: admin@example.com / senha123
+   - **Usuário**: user@example.com / senha123
 
 ### Configurações Adicionais
 
@@ -130,7 +122,7 @@ return [
 O projeto utiliza o sistema de armazenamento do Laravel para salvar imagens de perfil e produtos:
 
 1. Certifique-se de que as pastas `storage/app/public/perfil` e `storage/app/public/produtos` existam e tenham permissões de escrita
-2. Se estiver usando Windows/XAMPP, verifique se o usuário do servidor web tem permissões de escrita nessas pastas
+2. Se estiver usando Winows/XAMPP, verifique se o Utilizado do servidor web tem permissões de escrita nessas pastas
 
 #### Banco de Dados
 
@@ -145,24 +137,29 @@ O arquivo `ER.sql` na raiz do projeto contém toda a estrutura do banco de dados
 ### Solução de Problemas Comuns
 
 1. **Erro de conexão com o banco de dados**:
-   - Verifique se o serviço MySQL está em execução
-   - Confirme as credenciais no arquivo `.env`
-   - Certifique-se de que o banco de dados `neighbortrade` existe
+   - Verifique se o serviço MySQL do XAMPP está em execução (luz verde no painel)
+   - Certifique-se de que o banco de dados `neighbortrade` foi criado e o arquivo `ER.sql` foi importado corretamente
+   - Se necessário, verifique as credenciais no arquivo `.env` (usuário padrão: root, sem senha)
 
-2. **Erro ao carregar moradas no frontend**:
-   - Verifique se o servidor backend está em execução
-   - Confirme se a configuração CORS está correta
-   - Verifique se existem moradas cadastradas no banco de dados
+2. **Erro 500 ao acessar o backend**:
+   - Execute `composer install` para garantir que todas as dependências estão instaladas
+   - Verifique se o arquivo `.env` existe na raiz do projeto
+   - Execute `php artisan config:clear` e `php artisan cache:clear`
+   - Verifique os logs em `storage/logs/laravel.log`
 
 3. **Erro ao fazer upload de imagens**:
-   - Verifique as permissões das pastas de armazenamento
-   - Confirme se o link simbólico foi criado corretamente
-   - Verifique os limites de tamanho de upload no PHP (`php.ini`)
+   - Verifique se o comando `php artisan storage:link` foi executado
+   - Certifique-se de que as pastas `storage/app/public/perfil` e `storage/app/public/produtos` existem e têm permissões de escrita
+   - Aumente os limites de upload no arquivo `php.ini` do XAMPP (post_max_size e upload_max_filesize)
 
-4. **Problemas com o diretório frontend**:
-   - Se o `npm install` falhar, verifique se o Node.js está instalado e atualizado
-   - Se houver erros de dependências, tente executar `npm install --legacy-peer-deps`
-   - Lembre-se que o frontend agora faz parte do repositório principal, então todas as alterações devem ser commitadas no repositório principal
+4. **Problemas com o frontend**:
+   - Se o `npm install` falhar, tente `npm install --legacy-peer-deps`
+   - Se o frontend não conectar com o backend, verifique se as URLs da API em `frontend/src/services/api.js` estão corretas
+   - Limpe o cache do navegador ou use o modo incógnito para testar
+
+5. **Erros de CORS**:
+   - Verifique se o arquivo `config/cors.php` está configurado corretamente
+   - Certifique-se de que o frontend está acessando a URL correta do backend
 
 ### Estrutura do Projeto
 - **Backend**: Laravel (PHP)
@@ -430,18 +427,30 @@ O arquivo `ER.sql` na raiz do projeto contém toda a estrutura do banco de dados
    - Negociação
    - Avaliações
 
-## Como Usar
+## Resumo de Configuração Rápida
 
-1. Clone o repositório
-2. Configure o `.env`
-3. Instale dependências:
+1. **Preparar ambiente**:
+   - Instale XAMPP e inicie Apache e MySQL
+   - Crie o banco de dados `neighbortrade` e importe `ER.sql`
+
+2. **Configurar projeto**:
    ```bash
+   # Clone o repositório na pasta htdocs
+   git clone https://github.com/ipca-pedro/NeighborTradeMarket.git NT
+   cd NT
+   
+   # Instale dependências do backend
    composer install
+   php artisan storage:link
+   
+   # Instale dependências do frontend
+   cd frontend
+   npm install
    ```
-4. Inicie o servidor:
-   ```bash
-   php artisan serve
-   ```
+
+3. **Executar projeto**:
+   - Backend: Acesse via Apache em `http://localhost/NT/public`
+   - Frontend: Execute `npm start` na pasta frontend
 
 ## Documentação da API
 
