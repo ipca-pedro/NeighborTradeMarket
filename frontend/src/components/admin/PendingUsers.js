@@ -118,7 +118,7 @@ const PendingUsers = () => {
                                             <td>
                                                 {user.imagem?.Caminho ? (
                                                     <a 
-                                                        href={`http://localhost/NT/public/${user.imagem.Caminho}`} 
+                                                        href={`http://localhost:8000/storage/${user.imagem.Caminho.replace('public/', '')}`} 
                                                         target="_blank" 
                                                         rel="noopener noreferrer"
                                                         className="btn btn-sm btn-outline-primary"

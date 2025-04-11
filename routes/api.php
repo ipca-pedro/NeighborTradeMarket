@@ -78,6 +78,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/admin/users', [AdminController::class, 'getAllUsers']);
     Route::post('/admin/users/{userId}/approve', [AdminController::class, 'approveUser']);
     Route::post('/admin/users/{userId}/reject', [AdminController::class, 'rejectUser']);
+    Route::put('/admin/users/{userId}/status', [AdminController::class, 'updateUserStatus']);
     
     // Rotas de administração de anúncios
     Route::get('/admin/anuncios/pendentes', [AnuncioController::class, 'anunciosPendentes']);

@@ -163,13 +163,35 @@ export const adminService = {
         }
     },
     
+    // Obter todos os usuários
+    getAllUsers: async () => {
+        try {
+            const response = await api.get('/admin/users');
+            return response.data;
+        } catch (error) {
+            console.error('Erro ao obter todos os usuários:', error);
+            throw error.response?.data || error.message;
+        }
+    },
+    
+    // Atualizar status de um usuário
+    updateUserStatus: async (userId, statusId) => {
+        try {
+            const response = await api.put(`/admin/users/${userId}/status`, { status: statusId });
+            return response.data;
+        } catch (error) {
+            console.error('Erro ao atualizar status do usuário:', error);
+            throw error.response?.data || error.message;
+        }
+    },
+    
     // Aprovar um usuário
     approveUser: async (userId) => {
         try {
             const response = await api.post(`/admin/users/${userId}/approve`);
             return response.data;
         } catch (error) {
-            console.error(`Erro ao aprovar usuário ${userId}:`, error);
+            console.error('Erro ao aprovar usuário:', error);
             throw error.response?.data || error.message;
         }
     },
@@ -177,10 +199,10 @@ export const adminService = {
     // Rejeitar um usuário
     rejectUser: async (userId, reason) => {
         try {
-            const response = await api.post(`/admin/users/${userId}/reject`, { reason });
+            const response = await api.post(`/admin/users/${userId}/reject`, { motivo: reason });
             return response.data;
         } catch (error) {
-            console.error(`Erro ao rejeitar usuário ${userId}:`, error);
+            console.error('Erro ao rejeitar usuário:', error);
             throw error.response?.data || error.message;
         }
     },

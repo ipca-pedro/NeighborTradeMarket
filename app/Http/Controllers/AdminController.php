@@ -64,18 +64,48 @@ class AdminController extends Controller
                 ], 400);
             }
             
-            // Criar registro de aprovação
-            $aprovacao = new Aprovacao([
-                'Data_Aprovacao' => now(),
-                'UtilizadorID_Admin' => $user->ID_User
-            ]);
+            // Verificar se já existe um registro de aprovação
+            if ($targetUser->AprovacaoID_aprovacao) {
+                // Atualizar o registro de aprovação existente
+                $aprovacao = Aprovacao::find($targetUser->AprovacaoID_aprovacao);
+                
+                if ($aprovacao) {
+                    $aprovacao->Data_Aprovacao = now();
+                    $aprovacao->Status_AprovacaoID_Status_Aprovacao = 2; // Status aprovado
+                    $aprovacao->UtilizadorID_Admin = $user->ID_User;
+                    $aprovacao->save();
+                } else {
+                    // Se não encontrar o registro, criar um novo
+                    $aprovacao = new Aprovacao([
+                        'Data_Aprovacao' => now(),
+                        'Status_AprovacaoID_Status_Aprovacao' => 2, // Status aprovado
+                        'UtilizadorID_Admin' => $user->ID_User
+                    ]);
+                    $aprovacao->save();
+                    $targetUser->AprovacaoID_aprovacao = $aprovacao->ID_aprovacao;
+                }
+            } else {
+                // Criar novo registro de aprovação
+                $aprovacao = new Aprovacao([
+                    'Data_Aprovacao' => now(),
+                    'Status_AprovacaoID_Status_Aprovacao' => 2, // Status aprovado
+                    'UtilizadorID_Admin' => $user->ID_User
+                ]);
+                
+                $aprovacao->save();
+                $targetUser->AprovacaoID_aprovacao = $aprovacao->ID_aprovacao;
+            }
             
-            $aprovacao->save();
-            
-            // Atualizar o utilizador
+            // Atualizar o status do utilizador
             $targetUser->Status_UtilizadorID_status_utilizador = 2; // 2 = Aprovado
-            $targetUser->AprovacaoID_aprovacao = $aprovacao->ID_aprovacao;
             $targetUser->save();
+            
+            // Log para debug
+            \Log::info('Utilizador aprovado com sucesso:', [
+                'userId' => $userId,
+                'aprovacaoId' => $aprovacao->ID_aprovacao,
+                'adminId' => $user->ID_User
+            ]);
             
             DB::commit();
             
@@ -85,6 +115,12 @@ class AdminController extends Controller
             
         } catch (\Exception $e) {
             DB::rollBack();
+            \Log::error('Erro ao aprovar utilizador:', [
+                'userId' => $userId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return response()->json([
                 'message' => 'Erro ao aprovar utilizador: ' . $e->getMessage()
             ], 500);
@@ -173,5 +209,65 @@ class AdminController extends Controller
             ->get();
             
         return response()->json($users);
+    }
+    
+    /**
+     * Atualizar o status de um utilizador
+     */
+    public function updateUserStatus(Request $request, $userId)
+    {
+        // Verificar se o utilizador autenticado é administrador
+        $user = Auth::user();
+        if ($user->TipoUserID_TipoUser != 1) {
+            return response()->json([
+                'message' => 'Acesso não autorizado'
+            ], 403);
+        }
+        
+        $request->validate([
+            'status' => 'required|integer|exists:status_utilizador,ID_status_utilizador'
+        ]);
+        
+        DB::beginTransaction();
+        
+        try {
+            // Buscar o utilizador a ser atualizado
+            $targetUser = Utilizador::find($userId);
+            
+            if (!$targetUser) {
+                return response()->json([
+                    'message' => 'Utilizador não encontrado'
+                ], 404);
+            }
+            
+            // Atualizar o status do utilizador
+            $targetUser->Status_UtilizadorID_status_utilizador = $request->status;
+            $targetUser->save();
+            
+            // Log para debug
+            \Log::info('Status do utilizador atualizado com sucesso:', [
+                'userId' => $userId,
+                'novoStatus' => $request->status,
+                'adminId' => $user->ID_User
+            ]);
+            
+            DB::commit();
+            
+            return response()->json([
+                'message' => 'Status do utilizador atualizado com sucesso'
+            ]);
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Erro ao atualizar status do utilizador:', [
+                'userId' => $userId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'message' => 'Erro ao atualizar status do utilizador: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

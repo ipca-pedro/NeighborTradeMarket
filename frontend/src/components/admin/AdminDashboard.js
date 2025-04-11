@@ -62,6 +62,24 @@ const AdminDashboard = () => {
                             </Card.Body>
                         </Card>
                     </Col>
+                    
+                    <Col md={6}>
+                        <Card className="h-100 shadow">
+                            <Card.Body className="d-flex flex-column">
+                                <Card.Title>Gestão de Utilizadores</Card.Title>
+                                <Card.Text>
+                                    Liste todos os utilizadores do sistema e altere seus estados (ativo, inativo, bloqueado, etc).
+                                </Card.Text>
+                                <div className="mt-auto">
+                                    <Link to="/admin/utilizadores">
+                                        <Button variant="primary" className="w-100">
+                                            Gerir Utilizadores
+                                        </Button>
+                                    </Link>
+                                </div>
+                            </Card.Body>
+                        </Card>
+                    </Col>
 
                     <Col md={6}>
                         <Card className="h-100 shadow">

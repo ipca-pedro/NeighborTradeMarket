@@ -13,8 +13,11 @@ function Register() {
         Password: '',
         Password_confirmation: '',
         Data_Nascimento: '',
-        MoradaID_Morada: ''
+        MoradaID_Morada: '',
+        CC: ''
     });
+    
+    const [comprovativoMorada, setComprovativoMorada] = useState(null);
     
     const [moradas, setMoradas] = useState([]);
     const [showMoradaModal, setShowMoradaModal] = useState(false);
@@ -56,7 +59,11 @@ function Register() {
     };
 
     const handleChange = (e) => {
-        if (e.target.type !== 'file') {
+        if (e.target.type === 'file') {
+            if (e.target.name === 'comprovativo_morada') {
+                setComprovativoMorada(e.target.files[0]);
+            }
+        } else {
             setFormData({
                 ...formData,
                 [e.target.name]: e.target.value
@@ -74,8 +81,14 @@ function Register() {
                 data.append(key, formData[key]);
             });
             
-
-
+            // Adicionar o comprovativo de morada
+            if (comprovativoMorada) {
+                data.append('comprovativo_morada', comprovativoMorada);
+            } else {
+                setError('É necessário fazer upload do comprovativo de morada.');
+                return;
+            }
+            
             console.log('Dados enviados:', Object.fromEntries(data));
             
             const response = await authService.register(data);
@@ -85,7 +98,11 @@ function Register() {
             navigate('/');
         } catch (err) {
             console.error('Erro ao registar:', err);
-            setError('Erro ao registar. Verifique os seus dados.');
+            if (err.response && err.response.data && err.response.data.message) {
+                setError(err.response.data.message);
+            } else {
+                setError('Erro ao registar. Verifique os seus dados.');
+            }
         }
     };
 
@@ -187,7 +204,31 @@ function Register() {
                             </div>
                         </Form.Group>
 
+                        <Form.Group className="mb-3">
+                            <Form.Label>Cartão de Cidadão (CC)</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="CC"
+                                value={formData.CC}
+                                onChange={handleChange}
+                                required
+                                placeholder="Insira o número do seu CC"
+                            />
+                        </Form.Group>
 
+                        <Form.Group className="mb-3">
+                            <Form.Label>Comprovativo de Morada</Form.Label>
+                            <Form.Control
+                                type="file"
+                                name="comprovativo_morada"
+                                onChange={handleChange}
+                                required
+                                accept=".jpg,.jpeg,.png,.pdf"
+                            />
+                            <Form.Text className="text-muted">
+                                Faça upload de um documento que comprove a sua morada (PDF, JPG, PNG - máx. 2MB)
+                            </Form.Text>
+                        </Form.Group>
 
                         <Button variant="primary" type="submit" className="w-100">
                             Registar

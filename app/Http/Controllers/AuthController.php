@@ -138,15 +138,29 @@ class AuthController extends Controller
             // Processar comprovativo de morada
             $imagemId = null;
             if ($request->hasFile('comprovativo_morada')) {
+                // Obter o próximo ID para o nome do arquivo
+                $nextId = DB::table('imagem')->max('ID_Imagem') + 1;
                 $file = $request->file('comprovativo_morada');
-                $filename = time() . '_' . $file->getClientOriginalName();
+                $extension = $file->getClientOriginalExtension();
+                $filename = 'aprova' . $nextId . '.' . $extension;
+                
+                // Armazenar o arquivo no diretório public/storage/comprovativos
+                // Isso garante que o arquivo seja acessível publicamente
                 $path = $file->storeAs('public/comprovativos', $filename);
                 
+                // Criar registro na tabela imagem
                 $imagem = new Imagem([
                     'Caminho' => $path
                 ]);
                 $imagem->save();
                 $imagemId = $imagem->ID_Imagem;
+                
+                // Log para debug
+                \Log::info('Comprovativo de morada armazenado:', [
+                    'path' => $path,
+                    'filename' => $filename,
+                    'imagemId' => $imagemId
+                ]);
             }
             
             // Verificar se temos uma imagem de perfil padrão para usar
@@ -165,6 +179,15 @@ class AuthController extends Controller
                 $imagemId = $imagem->ID_Imagem;
             }
             
+            // Criar registro de aprovação pendente
+            $aprovacao = new Aprovacao([
+                'Data_Aprovacao' => null,
+                'Comentario' => null,
+                'Status_AprovacaoID_Status_Aprovacao' => 1, // Status pendente
+                'UtilizadorID_Admin' => 1 // ID do administrador padrão (conforme memória)
+            ]);
+            $aprovacao->save();
+            
             // Criar utilizador com status pendente
             $user = new Utilizador([
                 'Name' => $request->Name,
@@ -175,7 +198,7 @@ class AuthController extends Controller
                 'CC' => $request->CC,
                 'MoradaID_Morada' => $moradaId,
                 'ImagemID_Imagem' => $imagemId,
-                'AprovacaoID_aprovacao' => null, // Sem aprovação inicial
+                'AprovacaoID_aprovacao' => $aprovacao->ID_aprovacao, // Associar à aprovação criada
                 'Status_UtilizadorID_status_utilizador' => 1, // Status pendente (ID 1)
                 'TipoUserID_TipoUser' => 2 // Tipo utilizador normal (ID 2)
             ]);

@@ -18,6 +18,7 @@ import PerfilUtilizador from './components/perfil/PerfilUsuario';
 import AdminDashboard from './components/admin/AdminDashboard';
 import PendingUsers from './components/admin/PendingUsers';
 import ProdutosPendentes from './components/admin/ProdutosPendentes';
+import AllUsers from './components/admin/AllUsers';
 
 // Componentes de Produtos
 import ListaProdutos from './components/produtos/ListaProdutos';
@@ -105,6 +106,7 @@ function App() {
           <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
           <Route path="/admin/utilizadores-pendentes" element={<AdminRoute><PendingUsers /></AdminRoute>} />
           <Route path="/admin/anuncios-pendentes" element={<AdminRoute><ProdutosPendentes /></AdminRoute>} />
+          <Route path="/admin/utilizadores" element={<AdminRoute><AllUsers /></AdminRoute>} />
           
           {/* Rota para URLs não encontrados */}
           <Route path="*" element={<Navigate to="/" />} />
