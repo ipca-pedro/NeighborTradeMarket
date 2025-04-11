@@ -135,6 +135,83 @@ function exportDatabase($pdo, $dump_file) {
     }
 }
 
+// Função para verificar se uma tabela existe
+function tableExists($pdo, $table) {
+    try {
+        $result = $pdo->query("SHOW TABLES LIKE '$table'");
+        return $result->rowCount() > 0;
+    } catch (PDOException $e) {
+        return false;
+    }
+}
+
+// Função para criar tabelas do Laravel que podem estar faltando
+function createLaravelTables($pdo) {
+    $laravelTables = [
+        'cache' => "CREATE TABLE `cache` (
+            `key` VARCHAR(255) NOT NULL,
+            `value` MEDIUMTEXT NOT NULL,
+            `expiration` INT(11) NOT NULL,
+            PRIMARY KEY (`key`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
+        
+        'cache_locks' => "CREATE TABLE `cache_locks` (
+            `key` VARCHAR(255) NOT NULL,
+            `owner` VARCHAR(255) NOT NULL,
+            `expiration` INT(11) NOT NULL,
+            PRIMARY KEY (`key`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
+        
+        'jobs' => "CREATE TABLE `jobs` (
+            `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+            `queue` VARCHAR(255) NOT NULL,
+            `payload` LONGTEXT NOT NULL,
+            `attempts` TINYINT(3) UNSIGNED NOT NULL,
+            `reserved_at` INT(10) UNSIGNED DEFAULT NULL,
+            `available_at` INT(10) UNSIGNED NOT NULL,
+            `created_at` INT(10) UNSIGNED NOT NULL,
+            PRIMARY KEY (`id`),
+            KEY `jobs_queue_index` (`queue`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
+        
+        'failed_jobs' => "CREATE TABLE `failed_jobs` (
+            `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+            `uuid` VARCHAR(255) NOT NULL,
+            `connection` TEXT NOT NULL,
+            `queue` TEXT NOT NULL,
+            `payload` LONGTEXT NOT NULL,
+            `exception` LONGTEXT NOT NULL,
+            `failed_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `failed_jobs_uuid_unique` (`uuid`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
+        
+        'sessions' => "CREATE TABLE `sessions` (
+            `id` VARCHAR(255) NOT NULL,
+            `user_id` BIGINT(20) UNSIGNED DEFAULT NULL,
+            `ip_address` VARCHAR(45) DEFAULT NULL,
+            `user_agent` TEXT DEFAULT NULL,
+            `payload` TEXT NOT NULL,
+            `last_activity` INT(11) NOT NULL,
+            PRIMARY KEY (`id`),
+            KEY `sessions_user_id_index` (`user_id`),
+            KEY `sessions_last_activity_index` (`last_activity`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+    ];
+    
+    foreach ($laravelTables as $table => $createSql) {
+        if (!tableExists($pdo, $table)) {
+            echo "Criando tabela $table que está faltando...\n";
+            try {
+                $pdo->exec($createSql);
+                echo "Tabela $table criada com sucesso.\n";
+            } catch (PDOException $e) {
+                echo "Erro ao criar tabela $table: " . $e->getMessage() . "\n";
+            }
+        }
+    }
+}
+
 // Função para importar os dados
 function importDatabase($pdo, $dump_file) {
     try {
@@ -144,6 +221,9 @@ function importDatabase($pdo, $dump_file) {
         }
         
         echo "Importando dados do arquivo: $dump_file\n";
+        
+        // Criar tabelas do Laravel que podem estar faltando
+        createLaravelTables($pdo);
         
         // Ler o arquivo de dump
         $sql = file_get_contents($dump_file);
@@ -156,11 +236,35 @@ function importDatabase($pdo, $dump_file) {
         foreach ($statements as $statement) {
             $statement = trim($statement);
             if (!empty($statement)) {
+                // Verificar se é um TRUNCATE e se a tabela existe
+                if (preg_match('/TRUNCATE TABLE `([^`]+)`/', $statement, $matches)) {
+                    $tableName = $matches[1];
+                    if (!tableExists($pdo, $tableName)) {
+                        echo "Pulando TRUNCATE para tabela inexistente: $tableName\n";
+                        continue;
+                    }
+                }
+                
+                // Verificar se é um INSERT e se a tabela existe
+                if (preg_match('/INSERT INTO `([^`]+)`/', $statement, $matches)) {
+                    $tableName = $matches[1];
+                    if (!tableExists($pdo, $tableName)) {
+                        echo "Pulando INSERT para tabela inexistente: $tableName\n";
+                        continue;
+                    }
+                }
+                
                 // Exibir apenas os primeiros 50 caracteres para não poluir o terminal
                 $preview = substr($statement, 0, 50) . (strlen($statement) > 50 ? '...' : '');
                 echo "Executando: $preview\n";
                 
-                $pdo->exec($statement);
+                try {
+                    $pdo->exec($statement);
+                } catch (PDOException $e) {
+                    echo "Erro ao executar: $preview\n";
+                    echo "Mensagem de erro: " . $e->getMessage() . "\n";
+                    // Continua a execução mesmo com erro
+                }
             }
         }
         
