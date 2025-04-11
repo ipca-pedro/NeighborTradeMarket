@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Form, Button, Alert, Row, Col, Card } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import api from '../../services/api';
+import { anuncioService } from '../../services/api';
 import Header from '../layout/Header';
 import Footer from '../layout/Footer';
 
 const CriarProduto = () => {
     const navigate = useNavigate();
-    const { currentUser } = useAuth();
+    const { currentUser, isAuthenticated } = useAuth();
     const [categorias, setCategorias] = useState([]);
+    const [tiposItem, setTiposItem] = useState([]);
     const [formData, setFormData] = useState({
         Titulo: '',
         Descricao: '',
         Preco: '',
-        CategoriaID: '',
-        Condicao: 'novo',
-        TipoItemID_TipoItem: '1' // 1 para produto, 2 para serviço
+        CategoriaID_Categoria: '',
+        Tipo_ItemID_Tipo: '1' // 1 para produto, 2 para serviço
     });
     const [imagens, setImagens] = useState([]);
     const [imagemPreview, setImagemPreview] = useState([]);
@@ -25,25 +25,83 @@ const CriarProduto = () => {
     const [success, setSuccess] = useState('');
 
     useEffect(() => {
-        // Carregar categorias ao montar o componente
-        const fetchCategorias = async () => {
+        // Carregar categorias e tipos de item ao montar o componente
+        const fetchData = async () => {
             try {
-                const response = await api.get('/categorias');
-                setCategorias(response.data);
+                // Carregar categorias
+                console.log('Tentando carregar categorias...');
+                const categorias = await anuncioService.getCategories();
+                setCategorias(categorias);
+                console.log('Categorias carregadas:', categorias);
+                
+                // Carregar tipos de item
+                console.log('Tentando carregar tipos de item...');
+                const tipos = await anuncioService.getItemTypes();
+                setTiposItem(tipos);
+                console.log('Tipos de item carregados:', tipos);
             } catch (err) {
-                console.error('Erro ao carregar categorias:', err);
+                console.error('Erro ao carregar dados:', err);
+                console.error('Detalhes do erro:', err.response?.data || err.message);
+                setError(`Erro ao carregar dados: ${err.response?.data?.message || err.message}`);
             }
         };
 
-        fetchCategorias();
+        fetchData();
     }, []);
+    
+    // Redirecionar para a página de login se o usuário não estiver autenticado
+    if (!isAuthenticated) {
+        return <Navigate to="/login" replace state={{ from: '/criar-anuncio', message: 'É necessário fazer login para criar um anúncio' }} />;
+    }
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
+        
+        // Tratamento especial para o campo Preco
+        if (name === 'Preco') {
+            // Permitir entrada vazia ou parcial durante a digitação
+            if (value === '' || value === '.' || value === ',') {
+                setFormData(prev => ({
+                    ...prev,
+                    [name]: value
+                }));
+                return;
+            }
+            
+            // Substituir vírgula por ponto (formato europeu para decimal)
+            let processedValue = value.replace(',', '.');
+            
+            // Verificar se é um número válido
+            if (isNaN(parseFloat(processedValue))) {
+                return; // Não atualiza se não for um número válido
+            }
+            
+            // Garantir que o valor não exceda 9999.99
+            const numValue = parseFloat(processedValue);
+            if (numValue > 9999.99) {
+                return; // Não atualiza o estado se o valor for maior que o permitido
+            }
+            
+            // Manter o valor como string para preservar zeros no final
+            // Apenas formatar se o usuário terminou de digitar (contém um ponto e já tem dígitos após o ponto)
+            if (processedValue.includes('.') && processedValue.split('.')[1].length > 0) {
+                // Limitar a 2 casas decimais mas manter como string
+                const parts = processedValue.split('.');
+                if (parts[1].length > 2) {
+                    processedValue = `${parts[0]}.${parts[1].substring(0, 2)}`;
+                }
+            }
+            
+            setFormData(prev => ({
+                ...prev,
+                [name]: processedValue
+            }));
+        } else {
+            setFormData(prev => ({
+                ...prev,
+                [name]: value
+            }));
+        }
     };
 
     const handleImagemChange = (e) => {
@@ -66,6 +124,20 @@ const CriarProduto = () => {
             setLoading(false);
             return;
         }
+        
+        // Validar o preço antes de enviar
+        const preco = parseFloat(formData.Preco);
+        if (isNaN(preco) || preco <= 0) {
+            setError('O preço deve ser um número positivo');
+            setLoading(false);
+            return;
+        }
+        
+        if (preco > 9999.99) {
+            setError('O preço máximo permitido é 9999.99€');
+            setLoading(false);
+            return;
+        }
 
         try {
             const formDataObj = new FormData();
@@ -83,11 +155,7 @@ const CriarProduto = () => {
             // Adicionar ID do utilizador
             formDataObj.append('UtilizadorID_User', currentUser.ID_User);
 
-            await api.post('/anuncios', formDataObj, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
+            await anuncioService.criarAnuncio(formDataObj);
 
             setSuccess('Anúncio criado com sucesso! Aguardando aprovação.');
             
@@ -96,9 +164,8 @@ const CriarProduto = () => {
                 Titulo: '',
                 Descricao: '',
                 Preco: '',
-                CategoriaID: '',
-                Condicao: 'novo',
-                TipoItemID_TipoItem: '1'
+                CategoriaID_Categoria: '',
+                Tipo_ItemID_Tipo: '1'
             });
             setImagens([]);
             setImagemPreview([]);
@@ -148,34 +215,38 @@ const CriarProduto = () => {
 
                                     <Row>
                                         <Col md={6}>
-                                            <Form.Group className="mb-3">
+                                            <Form.Group className="mb-4">
                                                 <Form.Label>Categoria</Form.Label>
-                                                <Form.Select
-                                                    name="CategoriaID"
-                                                    value={formData.CategoriaID}
+                                                <Form.Select 
+                                                    name="CategoriaID_Categoria" 
+                                                    value={formData.CategoriaID_Categoria}
                                                     onChange={handleChange}
                                                     required
                                                 >
                                                     <option value="">Selecione uma categoria</option>
                                                     {categorias.map(categoria => (
                                                         <option key={categoria.ID_Categoria} value={categoria.ID_Categoria}>
-                                                            {categoria.Nome}
+                                                            {categoria.Descricao_Categoria}
                                                         </option>
                                                     ))}
                                                 </Form.Select>
                                             </Form.Group>
                                         </Col>
                                         <Col md={6}>
-                                            <Form.Group className="mb-3">
-                                                <Form.Label>Tipo de Anúncio</Form.Label>
-                                                <Form.Select
-                                                    name="TipoItemID_TipoItem"
-                                                    value={formData.TipoItemID_TipoItem}
+                                            <Form.Group className="mb-4">
+                                                <Form.Label>Tipo</Form.Label>
+                                                <Form.Select 
+                                                    name="Tipo_ItemID_Tipo" 
+                                                    value={formData.Tipo_ItemID_Tipo}
                                                     onChange={handleChange}
                                                     required
                                                 >
-                                                    <option value="1">Produto</option>
-                                                    <option value="2">Serviço</option>
+                                                    <option value="">Selecione um tipo</option>
+                                                    {tiposItem.map(tipo => (
+                                                        <option key={tipo.ID_Tipo} value={tipo.ID_Tipo}>
+                                                            {tipo.Descricao_TipoItem}
+                                                        </option>
+                                                    ))}
                                                 </Form.Select>
                                             </Form.Group>
                                         </Col>
@@ -189,28 +260,20 @@ const CriarProduto = () => {
                                                     type="number"
                                                     step="0.01"
                                                     min="0"
+                                                    max="9999.99"
                                                     name="Preco"
                                                     value={formData.Preco}
                                                     onChange={handleChange}
                                                     required
                                                     placeholder="0.00"
                                                 />
+                                                <Form.Text className="text-muted">
+                                                    Valor máximo permitido: 9999.99€
+                                                </Form.Text>
                                             </Form.Group>
                                         </Col>
                                         <Col md={6}>
-                                            <Form.Group className="mb-3">
-                                                <Form.Label>Condição</Form.Label>
-                                                <Form.Select
-                                                    name="Condicao"
-                                                    value={formData.Condicao}
-                                                    onChange={handleChange}
-                                                    required
-                                                >
-                                                    <option value="novo">Novo</option>
-                                                    <option value="seminovo">Seminovo</option>
-                                                    <option value="usado">Usado</option>
-                                                </Form.Select>
-                                            </Form.Group>
+        
                                         </Col>
                                     </Row>
 
@@ -234,11 +297,10 @@ const CriarProduto = () => {
                                             multiple
                                             accept="image/*"
                                             onChange={handleImagemChange}
-                                            required
                                             className="mb-3"
                                         />
                                         <Form.Text className="text-muted mb-3 d-block">
-                                            Pode selecionar múltiplas imagens. A primeira será a imagem principal.
+                                            Pode selecionar múltiplas imagens (opcional). A primeira será a imagem principal.
                                         </Form.Text>
                                         
                                         {imagemPreview.length > 0 && (

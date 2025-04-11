@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Container, Form, Button, Alert, Row, Col } from 'react-bootstrap';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { authService } from '../../services/api';
-import { Form, Button, Container, Alert, Row, Col } from 'react-bootstrap';
 import Header from '../layout/Header';
 import Footer from '../layout/Footer';
 
@@ -10,16 +10,47 @@ function Login() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [redirectMessage, setRedirectMessage] = useState('');
     const navigate = useNavigate();
+    const location = useLocation();
+
+    // Verificar se há uma mensagem de redirecionamento na localização atual
+    useEffect(() => {
+        if (location.state && location.state.message) {
+            setRedirectMessage(location.state.message);
+        }
+    }, [location]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError('');
         try {
-            await authService.login(email, password);
-            navigate('/');
+            // Fazer login e obter resposta
+            const response = await authService.login(email, password);
+            
+            // Obter o usuário do localStorage (onde o authService o armazena)
+            const userStr = localStorage.getItem('user');
+            const user = userStr ? JSON.parse(userStr) : null;
+            
+            console.log('Usuário logado:', user);
+            
+            // Verificar se o usuário é administrador
+            if (user && user.TipoUserID_TipoUser === 1) {
+                console.log('Usuário é administrador, redirecionando para /admin');
+                // Redirecionar para a página de administração
+                navigate('/admin');
+            } else {
+                console.log('Usuário não é administrador, redirecionando para a página anterior ou home');
+                // Redirecionar para a página anterior se existir
+                if (location.state && location.state.from) {
+                    navigate(location.state.from);
+                } else {
+                    navigate('/');
+                }
+            }
         } catch (err) {
+            console.error('Erro de login:', err);
             setError('Email ou palavra-passe inválidos');
         } finally {
             setLoading(false);
@@ -35,6 +66,7 @@ function Login() {
                         <div className="bg-white p-4 rounded shadow">
                             <h2 className="text-center mb-4">Iniciar Sessão</h2>
                 {error && <Alert variant="danger">{error}</Alert>}
+                {redirectMessage && <Alert variant="info">{redirectMessage}</Alert>}
                 <Form onSubmit={handleSubmit}>
                     <Form.Group className="mb-3">
                         <Form.Label>Email</Form.Label>

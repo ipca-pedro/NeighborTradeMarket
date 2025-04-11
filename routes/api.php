@@ -29,6 +29,16 @@ Route::post('/login', [AuthController::class, 'login']); // Rota alternativa par
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::get('/moradas', [AuthController::class, 'getMoradas']);
 
+// Rotas públicas para categorias e tipos de item
+Route::get('/categorias', [AnuncioController::class, 'getCategories']);
+Route::get('/tipos-item', [AnuncioController::class, 'getItemTypes']);
+
+// Rota para obter anúncios aleatórios
+Route::get('/anuncios/aleatorios', [AnuncioController::class, 'getAnunciosAleatorios']);
+
+// Rota alternativa para obter anúncios do usuário (sem depender do middleware sanctum)
+Route::get('/user/{userId}/anuncios', [AnuncioController::class, 'myAds']);
+
 // Rotas de redefinição de senha
 Route::post('/password/email', [AuthController::class, 'sendResetLinkEmail']);
 Route::get('/password/reset/{token}', [AuthController::class, 'showResetForm']);
@@ -69,16 +79,20 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/admin/users/{userId}/approve', [AdminController::class, 'approveUser']);
     Route::post('/admin/users/{userId}/reject', [AdminController::class, 'rejectUser']);
     
+    // Rotas de administração de anúncios
+    Route::get('/admin/anuncios/pendentes', [AnuncioController::class, 'anunciosPendentes']);
+    Route::post('/admin/anuncios/{id}/aprovar', [AnuncioController::class, 'aprovarAnuncio']);
+    Route::post('/admin/anuncios/{id}/rejeitar', [AnuncioController::class, 'rejeitarAnuncio']);
+    
     // Rotas de anúncios
     Route::get('/anuncios', [AnuncioController::class, 'index']);
     Route::get('/anuncios/{id}', [AnuncioController::class, 'show']);
     Route::post('/anuncios', [AnuncioController::class, 'store']);
     Route::put('/anuncios/{id}', [AnuncioController::class, 'update']);
     Route::delete('/anuncios/{id}', [AnuncioController::class, 'destroy']);
-    Route::get('/meus-anuncios', [AnuncioController::class, 'userAds']);
+    Route::get('/meus-anuncios', [AnuncioController::class, 'myAds']);
     Route::post('/anuncios/{id}/sold', [AnuncioController::class, 'markAsSold']);
-    Route::get('/categorias', [AnuncioController::class, 'getCategories']);
-    Route::get('/tipos-item', [AnuncioController::class, 'getItemTypes']);
+    // Rotas movidas para fora do grupo de autenticação
     
     // Rotas de mensagens
     Route::get('/conversas', [MensagemController::class, 'getConversations']);

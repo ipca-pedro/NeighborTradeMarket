@@ -89,21 +89,47 @@ const Header = () => {
                     </div>
 
                     <div className="d-flex align-items-center">
+                        {currentUser && (
+                            <Button 
+                                as={Link} 
+                                to="/anuncios/novo" 
+                                variant="outline-light" 
+                                className="me-3"
+                            >
+                                <i className="fas fa-plus me-1"></i> Criar Anúncio
+                            </Button>
+                        )}
                         <Nav.Link href="#" className="text-white me-3">
                             <i className="far fa-comment-alt"></i>
                         </Nav.Link>
                         <div className="user-dropdown position-relative">
-                            <Nav.Link 
-                                href="#" 
-                                className="text-white" 
-                                onClick={toggleLoginPopup}
-                            >
-                                <i className="far fa-user"></i>
-                            </Nav.Link>
-                            {showLoginPopup && (
-                                <div className="position-absolute end-0 mt-2" style={{ zIndex: 1000, width: '300px' }}>
-                                    <LoginPopup onClose={() => setShowLoginPopup(false)} />
-                                </div>
+                            {currentUser ? (
+                                <Dropdown>
+                                    <Dropdown.Toggle variant="link" className="text-white p-0">
+                                        <i className="far fa-user"></i>
+                                    </Dropdown.Toggle>
+                                    <Dropdown.Menu align="end">
+                                        <Dropdown.Item as={Link} to="/perfil">Meu Perfil</Dropdown.Item>
+                                        <Dropdown.Item as={Link} to="/meus-anuncios">Meus Anúncios</Dropdown.Item>
+                                        <Dropdown.Divider />
+                                        <Dropdown.Item onClick={handleLogout}>Terminar Sessão</Dropdown.Item>
+                                    </Dropdown.Menu>
+                                </Dropdown>
+                            ) : (
+                                <>
+                                    <Nav.Link 
+                                        href="#" 
+                                        className="text-white" 
+                                        onClick={toggleLoginPopup}
+                                    >
+                                        <i className="far fa-user"></i>
+                                    </Nav.Link>
+                                    {showLoginPopup && (
+                                        <div className="position-absolute end-0 mt-2" style={{ zIndex: 1000, width: '300px' }}>
+                                            <LoginPopup onClose={() => setShowLoginPopup(false)} />
+                                        </div>
+                                    )}
+                                </>
                             )}
                         </div>
                     </div>

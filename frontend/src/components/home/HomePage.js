@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getAnunciosDestaque } from '../../services/anuncioService';
+import { getAnunciosDestaque, getAnunciosAleatorios } from '../../services/anuncioService';
 import { Container, Row, Col, Card, Button, Form, Carousel } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import Header from '../layout/Header';
@@ -9,25 +9,25 @@ import './HomePage.css';
 const HomePage = () => {
     const [produtos, setProdutos] = useState([]);
     const [servicos, setServicos] = useState([]);
+    const [produtosDestaque, setProdutosDestaque] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchAnuncios = async () => {
             try {
                 setLoading(true);
-                const anuncios = await getAnunciosDestaque();
                 
-                // Separar anúncios por tipo (1: Produto, 2: Serviço)
-                const produtosArray = anuncios.filter(anuncio => anuncio.TipoItemID_TipoItem === 1)
-                    .sort(() => Math.random() - 0.5)
-                    .slice(0, 6);
+                // Buscar anúncios aleatórios para produtos (6)
+                const produtosAleatorios = await getAnunciosAleatorios(6, 1); // Tipo 1: Produtos
+                setProdutos(produtosAleatorios);
                 
-                const servicosArray = anuncios.filter(anuncio => anuncio.TipoItemID_TipoItem === 2)
-                    .sort(() => Math.random() - 0.5)
-                    .slice(0, 3);
-
-                setProdutos(produtosArray);
-                setServicos(servicosArray);
+                // Buscar anúncios aleatórios para serviços (3)
+                const servicosAleatorios = await getAnunciosAleatorios(3, 2); // Tipo 2: Serviços
+                setServicos(servicosAleatorios);
+                
+                // Buscar 3 produtos em destaque para o carrossel
+                const destaqueAleatorios = await getAnunciosAleatorios(3, 1); // Tipo 1: Produtos para destaque
+                setProdutosDestaque(destaqueAleatorios);
             } catch (error) {
                 console.error('Erro ao procurar anúncios:', error);
             } finally {
@@ -95,42 +95,56 @@ const HomePage = () => {
         <>
             <Header />
 
-            {/* Banner Principal */}
+            {/* Banner Principal - Produtos em Destaque */}
             <section className="hero-section mb-5">
-                <Carousel>
-                    <Carousel.Item>
-                        <div className="d-flex align-items-center" style={{ backgroundColor: '#f0f0f0', height: '500px' }}>
-                            <Container>
-                                <Row className="align-items-center">
-                                    <Col md={6}>
-                                        <div className="hero-content">
-                                            <h1 className="mb-3">PROMOÇÕES DE VERÃO</h1>
-                                            <h2 className="mb-4">Google Pixel 6 Pro</h2>
-                                            <p className="mb-4">Aproveite 20% de desconto em todos os telemóveis Google Pixel da nova geração.</p>
-                                            <Button 
-                                                variant="primary" 
-                                                size="lg"
-                                                as={Link}
-                                                to="/anuncios/categoria/3"
-                                                className="px-4 py-2"
-                                                style={{ backgroundColor: '#F97316', borderColor: '#F97316' }}
-                                            >
-                                                COMPRAR AGORA <i className="fas fa-arrow-right ms-2"></i>
-                                            </Button>
-                                        </div>
-                                    </Col>
-                                    <Col md={6}>
-                                        <img 
-                                            src="/images/pixel-phone.png" 
-                                            alt="Google Pixel Phone" 
-                                            className="img-fluid"
-                                        />
-                                    </Col>
-                                </Row>
-                            </Container>
+                {loading ? (
+                    <div className="d-flex align-items-center justify-content-center" style={{ height: '500px', backgroundColor: '#f0f0f0' }}>
+                        <div className="spinner-border text-primary" role="status">
+                            <span className="visually-hidden">A carregar...</span>
                         </div>
-                    </Carousel.Item>
-                </Carousel>
+                    </div>
+                ) : (
+                    <Carousel>
+                        {produtosDestaque.map((produto, index) => (
+                            <Carousel.Item key={produto.ID_Item || index}>
+                                <div className="d-flex align-items-center" style={{ backgroundColor: '#f0f0f0', height: '500px' }}>
+                                    <Container>
+                                        <Row className="align-items-center">
+                                            <Col md={6}>
+                                                <div className="hero-content">
+                                                    <h1 className="mb-3">PRODUTO EM DESTAQUE</h1>
+                                                    <h2 className="mb-4">{produto.Titulo}</h2>
+                                                    <p className="mb-4">{produto.Descricao.substring(0, 120)}...</p>
+                                                    <div className="price-container mb-4">
+                                                        <span className="product-price" style={{ fontSize: '1.5rem' }}>{parseFloat(produto.Preco).toFixed(2)}€</span>
+                                                    </div>
+                                                    <Button 
+                                                        variant="primary" 
+                                                        size="lg"
+                                                        as={Link}
+                                                        to={`/anuncios/${produto.ID_Item}`}
+                                                        className="px-4 py-2"
+                                                        style={{ backgroundColor: '#F97316', borderColor: '#F97316' }}
+                                                    >
+                                                        VER DETALHES <i className="fas fa-arrow-right ms-2"></i>
+                                                    </Button>
+                                                </div>
+                                            </Col>
+                                            <Col md={6} className="text-center">
+                                                <img 
+                                                    src={produto.imagens?.[0]?.URL || '/images/no-image.jpg'} 
+                                                    alt={produto.Titulo} 
+                                                    className="img-fluid"
+                                                    style={{ maxHeight: '400px', objectFit: 'contain' }}
+                                                />
+                                            </Col>
+                                        </Row>
+                                    </Container>
+                                </div>
+                            </Carousel.Item>
+                        ))}
+                    </Carousel>
+                )}
             </section>
 
             {/* Categorias */}

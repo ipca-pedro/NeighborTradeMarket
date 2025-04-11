@@ -34,4 +34,17 @@ const procurarAnuncios = async (termo) => {
     }
 };
 
-export { getAnunciosDestaque, getAnunciosPorTipo, procurarAnuncios };
+const getAnunciosAleatorios = async (quantidade = 10, tipoItem = null) => {
+    try {
+        const params = { quantidade };
+        if (tipoItem) params.tipo = tipoItem;
+        
+        const response = await axios.get(`${API_URL}/anuncios/aleatorios`, { params });
+        return response.data;
+    } catch (error) {
+        console.error('Erro ao buscar anúncios aleatórios:', error);
+        return [];
+    }
+};
+
+export { getAnunciosDestaque, getAnunciosPorTipo, procurarAnuncios, getAnunciosAleatorios };

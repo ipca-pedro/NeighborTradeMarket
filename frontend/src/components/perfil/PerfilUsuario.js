@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { authService } from '../../services/api';
 import Header from '../layout/Header';
 import Footer from '../layout/Footer';
+import MeusAnuncios from './MeusAnuncios';
 
 const PerfilUtilizador = () => {
     const { currentUser } = useAuth();
@@ -145,10 +146,19 @@ const PerfilUtilizador = () => {
                                 <h5 className="mb-1">{currentUser?.Name}</h5>
                                 <p className="text-muted mb-3">@{currentUser?.User_Name}</p>
                                 <div className="d-flex justify-content-center mb-2">
-                                    <Button variant="primary" size="sm" className="me-2">
+                                    <Button 
+                                        variant="primary" 
+                                        size="sm" 
+                                        className="me-2"
+                                        onClick={() => setActiveTab('anuncios')}
+                                    >
                                         Meus Anúncios
                                     </Button>
-                                    <Button variant="outline-primary" size="sm">
+                                    <Button 
+                                        variant="outline-primary" 
+                                        size="sm"
+                                        onClick={() => setActiveTab('mensagens')}
+                                    >
                                         Mensagens
                                     </Button>
                                 </div>
@@ -363,9 +373,7 @@ const PerfilUtilizador = () => {
                                 <Card>
                                     <Card.Header as="h5">Meus Anúncios</Card.Header>
                                     <Card.Body>
-                                        <p className="text-center py-5">
-                                            Funcionalidade em desenvolvimento. Em breve poderá ver todos os seus anúncios aqui.
-                                        </p>
+                                        <MeusAnuncios />
                                     </Card.Body>
                                 </Card>
                             </Tab.Pane>

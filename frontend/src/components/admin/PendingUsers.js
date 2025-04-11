@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Table, Button, Modal, Form } from 'react-bootstrap';
-import api from '../../services/api';
+import { Container, Table, Button, Modal, Form, Alert, Card, Badge, Spinner } from 'react-bootstrap';
+import { adminService } from '../../services/api';
+import Header from '../layout/Header';
+import Footer from '../layout/Footer';
 
 const PendingUsers = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
+    const [error, setError] = useState('');
+    const [message, setMessage] = useState('');
+    const [showRejectModal, setShowRejectModal] = useState(false);
+    const [selectedUserId, setSelectedUserId] = useState(null);
+    const [rejectReason, setRejectReason] = useState('');
 
     useEffect(() => {
         loadPendingUsers();
@@ -14,10 +19,13 @@ const PendingUsers = () => {
 
     const loadPendingUsers = async () => {
         try {
-            const response = await api.get('/admin/pending-users');
-            setUsers(response.data);
+            setLoading(true);
+            const response = await adminService.getPendingUsers();
+            setUsers(response);
+            setError('');
         } catch (err) {
-            setError('Erro ao carregar utilizadores pendentes');
+            console.error('Erro ao carregar utilizadores pendentes:', err);
+            setError('Erro ao carregar utilizadores pendentes. Por favor, tente novamente.');
         } finally {
             setLoading(false);
         }
@@ -25,80 +33,166 @@ const PendingUsers = () => {
 
     const handleApprove = async (userId) => {
         try {
-            await api.post(`/admin/approve-user/${userId}`);
-            loadPendingUsers();
+            await adminService.approveUser(userId);
+            setMessage('Utilizador aprovado com sucesso!');
+            // Remover o usuário da lista
+            setUsers(users.filter(user => user.ID_User !== userId));
         } catch (err) {
-            setError('Erro ao aprovar utilizador');
+            console.error('Erro ao aprovar utilizador:', err);
+            setError('Erro ao aprovar utilizador. Por favor, tente novamente.');
         }
     };
 
-    const handleReject = async (userId) => {
+    const handleReject = (userId) => {
+        setSelectedUserId(userId);
+        setRejectReason('');
+        setShowRejectModal(true);
+    };
+
+    const confirmReject = async () => {
+        if (!rejectReason.trim()) {
+            return;
+        }
+
         try {
-            await api.post(`/admin/reject-user/${userId}`);
-            loadPendingUsers();
+            await adminService.rejectUser(selectedUserId, rejectReason);
+            setMessage('Utilizador rejeitado com sucesso!');
+            // Remover o usuário da lista
+            setUsers(users.filter(user => user.ID_User !== selectedUserId));
+            setShowRejectModal(false);
         } catch (err) {
-            setError('Erro ao rejeitar utilizador');
+            console.error('Erro ao rejeitar utilizador:', err);
+            setError('Erro ao rejeitar utilizador. Por favor, tente novamente.');
         }
     };
-
-    if (loading) return <div>A carregar...</div>;
-    if (error) return <div className="text-danger">{error}</div>;
 
     return (
-        <Container className="mt-4">
-            <h2>Utilizadores Pendentes</h2>
-            
-            <Table striped bordered hover>
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>Email</th>
-                        <th>CC</th>
-                        <th>Data de Nascimento</th>
-                        <th>Comprovativo</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {users.map(user => (
-                        <tr key={user.ID_User}>
-                            <td>{user.Name}</td>
-                            <td>{user.Email}</td>
-                            <td>{user.CC}</td>
-                            <td>{new Date(user.Data_Nascimento).toLocaleDateString()}</td>
-                            <td>
-                                <a 
-                                    href={`${process.env.REACT_APP_API_URL}/storage/${user.morada?.imagem?.Path}`} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                >
-                                    Ver Comprovativo
-                                </a>
-                            </td>
-                            <td>
-                                <Button 
-                                    variant="success" 
-                                    size="sm" 
-                                    className="me-2"
-                                    onClick={() => handleApprove(user.ID_User)}
-                                >
-                                    Aprovar
-                                </Button>
-                                <Button 
-                                    variant="danger" 
-                                    size="sm"
-                                    onClick={() => handleReject(user.ID_User)}
-                                >
-                                    Rejeitar
-                                </Button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </Table>
+        <>
+            <Header />
+            <Container className="my-5">
+                <Card className="shadow-sm mb-4">
+                    <Card.Header className="bg-primary text-white">
+                        <h2 className="mb-0">Utilizadores Pendentes</h2>
+                    </Card.Header>
+                    <Card.Body>
+                        {error && <Alert variant="danger">{error}</Alert>}
+                        {message && <Alert variant="success">{message}</Alert>}
 
+                        {loading ? (
+                            <div className="text-center py-5">
+                                <Spinner animation="border" variant="primary" />
+                                <p className="mt-3">Carregando utilizadores pendentes...</p>
+                            </div>
+                        ) : users.length === 0 ? (
+                            <Alert variant="info">Não há utilizadores pendentes de aprovação.</Alert>
+                        ) : (
+                            <Table responsive hover className="align-middle">
+                                <thead className="bg-light">
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Email</th>
+                                        <th>CC</th>
+                                        <th>Data de Nascimento</th>
+                                        <th>Documentos</th>
+                                        <th>Status</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {users.map(user => (
+                                        <tr key={user.ID_User}>
+                                            <td>
+                                                <div className="d-flex align-items-center">
+                                                    <div className="bg-light rounded-circle d-flex align-items-center justify-content-center me-2" style={{ width: '40px', height: '40px' }}>
+                                                        <span>{user.Name?.charAt(0) || '?'}</span>
+                                                    </div>
+                                                    <div>
+                                                        <div className="fw-bold">{user.Name}</div>
+                                                        <small className="text-muted">@{user.User_Name}</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>{user.Email}</td>
+                                            <td>{user.CC}</td>
+                                            <td>{new Date(user.Data_Nascimento).toLocaleDateString()}</td>
+                                            <td>
+                                                {user.imagem?.Caminho ? (
+                                                    <a 
+                                                        href={`http://localhost/NT/public/${user.imagem.Caminho}`} 
+                                                        target="_blank" 
+                                                        rel="noopener noreferrer"
+                                                        className="btn btn-sm btn-outline-primary"
+                                                    >
+                                                        <i className="fas fa-file-alt me-1"></i> Ver Documento
+                                                    </a>
+                                                ) : (
+                                                    <Badge bg="warning" text="dark">Sem documento</Badge>
+                                                )}
+                                            </td>
+                                            <td>
+                                                <Badge bg="warning">Pendente</Badge>
+                                            </td>
+                                            <td>
+                                                <Button 
+                                                    variant="success" 
+                                                    size="sm" 
+                                                    className="me-2"
+                                                    onClick={() => handleApprove(user.ID_User)}
+                                                >
+                                                    <i className="fas fa-check me-1"></i> Aprovar
+                                                </Button>
+                                                <Button 
+                                                    variant="danger" 
+                                                    size="sm"
+                                                    onClick={() => handleReject(user.ID_User)}
+                                                >
+                                                    <i className="fas fa-times me-1"></i> Rejeitar
+                                                </Button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </Table>
+                        )}
+                    </Card.Body>
+                </Card>
+            </Container>
 
-        </Container>
+            {/* Modal de Rejeição */}
+            <Modal show={showRejectModal} onHide={() => setShowRejectModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Rejeitar Utilizador</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Motivo da rejeição</Form.Label>
+                            <Form.Control
+                                as="textarea"
+                                rows={3}
+                                value={rejectReason}
+                                onChange={(e) => setRejectReason(e.target.value)}
+                                placeholder="Informe o motivo da rejeição do utilizador"
+                                required
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowRejectModal(false)}>
+                        Cancelar
+                    </Button>
+                    <Button 
+                        variant="danger" 
+                        onClick={confirmReject} 
+                        disabled={!rejectReason.trim()}
+                    >
+                        Confirmar Rejeição
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+            <Footer />
+        </>
     );
 };
 

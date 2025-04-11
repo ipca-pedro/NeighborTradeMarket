@@ -15,6 +15,7 @@ import ForgotPassword from './components/auth/ForgotPassword';
 import PerfilUtilizador from './components/perfil/PerfilUsuario';
 
 // Componentes de Admin
+import AdminDashboard from './components/admin/AdminDashboard';
 import PendingUsers from './components/admin/PendingUsers';
 import ProdutosPendentes from './components/admin/ProdutosPendentes';
 
@@ -22,6 +23,7 @@ import ProdutosPendentes from './components/admin/ProdutosPendentes';
 import ListaProdutos from './components/produtos/ListaProdutos';
 import DetalhesProduto from './components/produtos/DetalhesProduto';
 import CriarProduto from './components/produtos/CriarProduto';
+import MeusAnuncios from './components/perfil/MeusAnuncios';
 import HomePage from './components/home/HomePage';
 
 // Componentes de Informação
@@ -50,11 +52,20 @@ const ProtectedRoute = ({ children }) => {
 const AdminRoute = ({ children }) => {
   const { currentUser, loading } = useAuth();
   
+  // Verificar se há um usuário no localStorage
+  const userStr = localStorage.getItem('user');
+  const localUser = userStr ? JSON.parse(userStr) : null;
+  
   if (loading) {
     return <div className="d-flex justify-content-center p-5"><div className="spinner-border" role="status"></div></div>;
   }
   
-  if (!currentUser || currentUser.TipoUserID_TipoUser !== 2) { // Assumindo que 2 é o ID para admin
+  // Verificar se o usuário é administrador (usando currentUser ou localUser)
+  const isAdmin = (currentUser && currentUser.TipoUserID_TipoUser === 1) || 
+                 (localUser && localUser.TipoUserID_TipoUser === 1);
+  
+  if (!isAdmin) {
+    console.log('Usuário não é administrador, redirecionando para home');
     return <Navigate to="/" />;
   }
   
@@ -88,10 +99,12 @@ function App() {
           {/* Rotas Protegidas (requerem login) */}
           <Route path="/perfil" element={<ProtectedRoute><PerfilUtilizador /></ProtectedRoute>} />
           <Route path="/anuncios/novo" element={<ProtectedRoute><CriarProduto /></ProtectedRoute>} />
+          <Route path="/meus-anuncios" element={<ProtectedRoute><MeusAnuncios /></ProtectedRoute>} />
           
           {/* Rotas de Admin */}
+          <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
           <Route path="/admin/utilizadores-pendentes" element={<AdminRoute><PendingUsers /></AdminRoute>} />
-          <Route path="/admin/produtos-pendentes" element={<AdminRoute><ProdutosPendentes /></AdminRoute>} />
+          <Route path="/admin/anuncios-pendentes" element={<AdminRoute><ProdutosPendentes /></AdminRoute>} />
           
           {/* Rota para URLs não encontrados */}
           <Route path="*" element={<Navigate to="/" />} />

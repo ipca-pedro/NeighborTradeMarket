@@ -19,8 +19,6 @@ function Register() {
     const [moradas, setMoradas] = useState([]);
     const [showMoradaModal, setShowMoradaModal] = useState(false);
     const [selectedMorada, setSelectedMorada] = useState(null);
-    const [comprovativoMorada, setComprovativoMorada] = useState(null);
-    const [previewMorada, setPreviewMorada] = useState(null);
     const [error, setError] = useState('');
     const [registrationSuccess, setRegistrationSuccess] = useState(false);
     const navigate = useNavigate();
@@ -42,18 +40,7 @@ function Register() {
         fetchMoradas();
     }, []);
 
-    const handleComprovativoMorada = (e) => {
-        const file = e.target.files[0];
-        setComprovativoMorada(file);
 
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreviewMorada(reader.result);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
 
     const handleMoradaSelect = (morada) => {
         setSelectedMorada(morada);
@@ -87,10 +74,7 @@ function Register() {
                 data.append(key, formData[key]);
             });
             
-            // Adicionar os arquivos de comprovativo
-            if (comprovativoMorada) {
-                data.append('comprovativo_morada', comprovativoMorada);
-            }
+
 
             console.log('Dados enviados:', Object.fromEntries(data));
             
@@ -203,23 +187,7 @@ function Register() {
                             </div>
                         </Form.Group>
 
-                        <Form.Group className="mb-3">
-                            <Form.Label>Comprovativo de Morada</Form.Label>
-                            <Form.Control
-                                type="file"
-                                onChange={handleComprovativoMorada}
-                                required
-                                accept=".jpg,.jpeg,.png,.pdf"
-                            />
-                            {previewMorada && (
-                                <Image
-                                    src={previewMorada}
-                                    alt="Preview do Comprovativo de Morada"
-                                    style={{ maxWidth: '200px', marginTop: '10px' }}
-                                    thumbnail
-                                />
-                            )}
-                        </Form.Group>
+
 
                         <Button variant="primary" type="submit" className="w-100">
                             Registar
