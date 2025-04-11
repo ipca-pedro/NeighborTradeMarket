@@ -1,22 +1,39 @@
-/.phpunit.cache
+# Ignorar diretórios de dependências e cache
 /node_modules
-/public/build
-/public/hot
-/public/storage
-/storage/*.key
-/storage/pail
 /vendor
+/.phpunit.cache
+
+# Ignorar arquivos de ambiente e configuração local
 .env.backup
 .env.production
 .phpactor.json
 .phpunit.result.cache
 Homestead.json
 Homestead.yaml
+
+# Ignorar logs
 npm-debug.log
 yarn-error.log
+/storage/logs/*.log
+
+# Ignorar arquivos de build e storage público
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+
+# Ignorar arquivos de IDE e editores
 /auth.json
 /.fleet
 /.idea
 /.nova
 /.vscode
 /.zed
+
+# NÃO ignorar arquivos importantes de middleware
+!app/Http/Middleware/ApiMiddleware.php
+!app/Http/Middleware/VerifyCsrfToken.php
+!config/cors.php
+!config/sanctum.php
+!database/migrations/*_create_personal_access_tokens_table.php
