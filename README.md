@@ -69,6 +69,17 @@ cd frontend
 
 # Instale as dependências JavaScript
 npm install
+
+# Instalar pacotes necessários:
+
+# react-router-dom - Gestão de rotas
+npm install react-router-dom
+
+# react-bootstrap e bootstrap - Interface gráfica
+npm install react-bootstrap bootstrap
+
+# axios - Cliente HTTP para chamadas à API
+npm install axios
 ```
 
 ### Executando o Projeto
@@ -609,20 +620,6 @@ Implementamos um sistema completo de administração para o site:
    - Negociação
    - Avaliação pós-troca
 
-## Configuração
-
-1. Clone o repositório
-2. Configure o arquivo `.env` com suas credenciais de banco de dados
-3. Instale as dependências:
-   ```bash
-   composer install    # Backend
-   cd frontend && npm install  # Frontend
-   ```
-4. Inicie os servidores:
-   ```bash
-   php artisan serve         # Backend
-   cd frontend && npm start  # Frontend
-   ```
 
 ## Contribuição
 
@@ -642,78 +639,6 @@ Para contribuir:
 3. [Node.js](https://nodejs.org/) - Ambiente de execução JavaScript
 4. [Git](https://git-scm.com/downloads) - Sistema de controlo de versões
 
-### Configuração Passo a Passo
-
-1. **Clonar o Projeto na pasta C:\xampp\htdocs**
-```bash
-git clone https://github.com/ipca-pedro/NeighborTrade
-cd NT
-```
-
-2. **Configurar Base de Dados**
-- Iniciar Apache e MySQL no Painel de Controlo do XAMPP
-- Aceder ao http://localhost/phpmyadmin
-- Criar uma nova base de dados com o nome 'nt'
-
-3. **Configurar Backend (Laravel)**
-```bash
-# Instalar dependências PHP
-composer install
-
-# Copiar e configurar ficheiro de ambiente
-cp .env.example .env
-
-# Configurar .env com os dados da base de dados:
-DB_DATABASE=nt
-DB_USERNAME=root
-DB_PASSWORD=
-
-# Gerar chave da aplicação
-php artisan key:generate
-
-# Criar ligação simbólica para armazenamento
-php artisan storage:link
-
-# Executar migrações da base de dados
-php artisan migrate
-```
-
-4. **Configurar Frontend (React)**
-```bash
-# Criar e aceder à pasta do frontend
-cd frontend
-
-# Instalar dependências base do React
-npm install
-
-# Instalar pacotes necessários:
-
-# react-router-dom - Gestão de rotas
-npm install react-router-dom
-
-# react-bootstrap e bootstrap - Interface gráfica
-npm install react-bootstrap bootstrap
-
-# axios - Cliente HTTP para chamadas à API
-npm install axios
-```
-
-5. **Iniciar a Aplicação**
-
-Abrir dois terminais separados e executar:
-```bash
-# Terminal 1 - Servidor Laravel (Backend)
-cd NT
-php artisan serve
-
-# Terminal 2 - Servidor React (Frontend)
-cd NT/frontend
-npm start
-```
-
-A aplicação estará disponível em:
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:8000
 
 ### Estrutura do Projeto
 
