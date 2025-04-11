@@ -145,6 +145,29 @@ O arquivo `ER.sql` na raiz do projeto contém toda a estrutura do banco de dados
 - Imagens
 - Tokens de autenticação
 
+#### Sincronização de Dados entre Ambientes
+
+O projeto inclui um script PHP para facilitar a sincronização da base de dados entre os membros da equipe:
+
+1. **Exportar Dados**:
+   ```bash
+   php database_dump.php export
+   ```
+   Este comando gera um arquivo `database_dump.sql` com todos os dados atuais do banco de dados.
+
+2. **Importar Dados**:
+   ```bash
+   php database_dump.php import
+   ```
+   Este comando importa os dados do arquivo `database_dump.sql` para o banco de dados local.
+
+3. **Fluxo de Trabalho da Equipe**:
+   - Após fazer alterações significativas no banco de dados, execute o comando de exportação
+   - Faça commit do arquivo `database_dump.sql` gerado
+   - Quando outros membros da equipe fizerem pull, devem executar o comando de importação
+
+O script utiliza as mesmas configurações do arquivo `.env`, garantindo compatibilidade entre todos os ambientes de desenvolvimento.
+
 ### Solução de Problemas Comuns
 
 1. **Erro de conexão com o banco de dados**:
