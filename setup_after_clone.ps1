@@ -1,4 +1,4 @@
-# Script de configuração após clonar o repositório NeighborTrade
+git # Script de configuração após clonar o repositório NeighborTrade
 # Este script configura o ambiente após o clone, sem reinstalar o Sanctum
 
 Write-Host "Configurando o ambiente após clonar o repositório..." -ForegroundColor Cyan

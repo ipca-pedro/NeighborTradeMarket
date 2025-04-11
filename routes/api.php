@@ -31,7 +31,7 @@ Route::get('/moradas', [AuthController::class, 'getMoradas']);
 
 // Rotas públicas para categorias e tipos de item
 Route::get('/categorias', [AnuncioController::class, 'getCategories']);
-Route::get('/tipos-item', [AnuncioController::class, 'getItemTypes']);
+Route::get('/tipos-item', [AnuncioController::class, 'getTiposItem']);
 
 // Rota para obter anúncios aleatórios
 Route::get('/anuncios/aleatorios', [AnuncioController::class, 'getAnunciosAleatorios']);

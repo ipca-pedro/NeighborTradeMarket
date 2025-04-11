@@ -130,9 +130,8 @@ class AnuncioController extends Controller
             ], 403);
         }
         
-        // Validar comentário de rejeição
-        $validated = $request->validate([
-            'comentario' => 'required|string'
+        $request->validate([
+            'Comentario' => 'required|string'
         ]);
         
         try {
@@ -154,8 +153,8 @@ class AnuncioController extends Controller
                     ->update([
                         'Status_AprovacaoID_Status_Aprovacao' => 3, // Status rejeitado
                         'Data_Aprovacao' => now(),
-                        'UtilizadorID_Admin' => $user->ID_User, // ID do admin que rejeitou
-                        'Comentario' => $validated['comentario']
+                        'Comentario' => $request->Comentario,
+                        'UtilizadorID_Admin' => $user->ID_User // ID do admin que rejeitou
                     ]);
             }
             
@@ -178,7 +177,7 @@ class AnuncioController extends Controller
     public function byTipoItem($tipoItemId)
     {
         $anuncios = Anuncio::with(['utilizador', 'categorium', 'tipo_item', 'item_imagems.imagem'])
-            ->where('Tipo_ItemID_Tipo', $tipoItemId)
+            ->where('TipoItemID_TipoItem', $tipoItemId)
             ->where('Status_AnuncioID_Status_Anuncio', 2) // Status aprovado
             ->orderBy('ID_Anuncio', 'desc')
             ->get();
@@ -191,8 +190,9 @@ class AnuncioController extends Controller
      */
     public function byUser($userId)
     {
-        $anuncios = Anuncio::with(['utilizador', 'categorium', 'tipo_item', 'item_imagems.imagem', 'status_anuncio'])
+        $anuncios = Anuncio::with(['utilizador', 'categorium', 'tipo_item', 'item_imagems.imagem'])
             ->where('UtilizadorID_User', $userId)
+            ->where('Status_AnuncioID_Status_Anuncio', 2) // Status aprovado
             ->orderBy('ID_Anuncio', 'desc')
             ->get();
         
@@ -204,190 +204,86 @@ class AnuncioController extends Controller
      */
     public function store(Request $request)
     {
+        // Validar dados do anúncio
+        $validator = Validator::make($request->all(), [
+            'Titulo' => 'required|string|max:100',
+            'Descricao' => 'required|string',
+            'Preco' => 'required|numeric|max:9999.99', // Máximo permitido pelo campo decimal(6,2)
+            'CategoriaID_Categoria' => 'required|exists:categoria,ID_Categoria',
+            'TipoItemID_TipoItem' => 'required|exists:tipo_item,ID_Tipo',
+            'imagens.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048' // Imagens são opcionais agora
+        ]);
+        
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Dados inválidos',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+        
+        DB::beginTransaction();
+        
         try {
-            \Log::info('Iniciando criação de anúncio');
-            \Log::info('Dados recebidos: ' . json_encode($request->all()));
+            // Criar aprovação (pendente)
+            $aprovacao = new Aprovacao();
+            $aprovacao->Data_Criacao = now();
+            $aprovacao->Status_AprovacaoID_Status_Aprovacao = 1; // Status pendente
+            $aprovacao->UtilizadorID_Admin = 1; // Usando o ID do admin padrão (ID=1) conforme necessário pela restrição NOT NULL
+            $aprovacao->save();
             
-            // Tratar o preço antes da validação
-            $preco = $request->input('Preco');
-            \Log::info('Preço original: ' . $preco);
+            // Criar anúncio
+            $anuncio = new Anuncio();
+            $anuncio->Titulo = $request->Titulo;
+            $anuncio->Descricao = $request->Descricao;
+            $anuncio->Preco = $request->Preco;
+            $anuncio->Data_Criacao = now();
+            $anuncio->CategoriaID_Categoria = $request->CategoriaID_Categoria;
+            $anuncio->TipoItemID_TipoItem = $request->TipoItemID_TipoItem;
+            $anuncio->UtilizadorID_User = Auth::id();
+            $anuncio->AprovacaoID_aprovacao = $aprovacao->ID_aprovacao;
+            $anuncio->Status_AnuncioID_Status_Anuncio = 1; // Status pendente
+            $anuncio->save();
             
-            if (is_string($preco)) {
-                // Substituir vírgula por ponto se estiver no formato europeu
-                $preco = str_replace(',', '.', $preco);
-                
-                // Verificar se é um número válido
-                if (!is_numeric($preco)) {
-                    \Log::error('Preço inválido: ' . $preco);
-                    return response()->json([
-                        'message' => 'O preço deve ser um número válido.'
-                    ], 422);
-                }
-                
-                // Garantir que o preço está no formato correto para decimal(6,2)
-                // Limitar a 4 dígitos antes da vírgula e 2 depois
-                $precoFloat = (float) $preco;
-                if ($precoFloat > 9999.99) {
-                    \Log::error('Preço excede o valor máximo: ' . $precoFloat);
-                    return response()->json([
-                        'message' => 'O preço máximo permitido é 9999.99.'
-                    ], 422);
-                }
-                
-                // Formatar para garantir exatamente 2 casas decimais, preservando zeros
-                $preco = number_format($precoFloat, 2, '.', '');
-                
-                $request->merge(['Preco' => $preco]);
-                \Log::info('Preço formatado: ' . $preco);
-            }
-        
-            \Log::info('Preço recebido: ' . $request->input('Preco'));
-            \Log::info('Preço após tratamento: ' . $preco);
-            
-            // Validar os dados do anúncio
-            \Log::info('Iniciando validação dos dados');
-            $validated = $request->validate([
-                'Titulo' => 'required|string|max:255',
-                'Descricao' => 'required|string',
-                'Preco' => 'required|numeric|min:0',
-                'Tipo_ItemID_Tipo' => 'required|exists:tipo_item,ID_Tipo',
-                'CategoriaID_Categoria' => 'required|exists:categoria,ID_Categoria'
-                // A validação de imagens será feita separadamente
-            ]);
-            \Log::info('Validação concluída com sucesso');
-        
-            // Obter o ID do usuário autenticado ou do formulário
-            $userId = $request->input('UtilizadorID_User', Auth::id());
-            \Log::info('ID do usuário para o anúncio: ' . $userId);
-            
-            // Verificar se o usuário existe
-            \Log::info('Verificando se o usuário existe');
-            $userExists = DB::table('utilizador')->where('ID_User', $userId)->exists();
-            if (!$userExists) {
-                \Log::error('Usuário não encontrado: ' . $userId);
-                return response()->json([
-                    'message' => 'Usuário não encontrado. Por favor, faça login novamente.'
-                ], 404);
-            }
-            \Log::info('Usuário encontrado com sucesso');
-            
-            \Log::info('Iniciando transação no banco de dados');
-            DB::beginTransaction();
-            // Inserir diretamente na tabela de aprovação usando query builder
-            \Log::info('Inserindo aprovação diretamente');
-            $aprovacaoId = DB::table('aprovacao')->insertGetId([
-                'Data_Submissao' => now(),
-                'UtilizadorID_Admin' => 1, // Usando o ID do administrador padrão (ID=1)
-                'Status_AprovacaoID_Status_Aprovacao' => 1, // Status pendente
-                'Comentario' => ''
-            ]);
-            
-            \Log::info('Aprovação criada com ID: ' . $aprovacaoId);
-            
-            // Inserir diretamente na tabela de anúncio usando query builder
-            \Log::info('Inserindo anúncio diretamente');
-            $anuncioId = DB::table('anuncio')->insertGetId([
-                'Titulo' => $validated['Titulo'],
-                'Descricao' => $validated['Descricao'],
-                'Preco' => $validated['Preco'],
-                'UtilizadorID_User' => $userId,
-                'AprovacaoID_aprovacao' => $aprovacaoId,
-                'Tipo_ItemID_Tipo' => $validated['Tipo_ItemID_Tipo'],
-                'CategoriaID_Categoria' => $validated['CategoriaID_Categoria'],
-                'Status_AnuncioID_Status_Anuncio' => 1 // Status pendente
-            ]);
-            
-            \Log::info('Anúncio criado com ID: ' . $anuncioId);
-            
-            // Inicializar array de imagens vazio para o caso de não haver imagens
-            $imagensArray = [];
-            
-            // Processar imagens se existirem
+            // Processar imagens (se houver)
             if ($request->hasFile('imagens')) {
-                \Log::info('Processando imagens');
-                
-                // Verificar se imagens é um array ou um único arquivo
                 $imagens = $request->file('imagens');
-                if (!is_array($imagens)) {
-                    $imagens = [$imagens]; // Converter para array se for um único arquivo
-                    \Log::info('Convertendo única imagem para array');
-                }
                 
-                \Log::info('Total de imagens: ' . count($imagens));
-                
-                // Garantir que o diretório de armazenamento existe
-                $storagePath = storage_path('app/public/anuncios');
-                if (!file_exists($storagePath)) {
-                    mkdir($storagePath, 0755, true);
+                foreach ($imagens as $key => $imagemFile) {
+                    // Gerar nome único para o arquivo
+                    $imagemNome = time() . '_' . $key . '.' . $imagemFile->getClientOriginalExtension();
+                    
+                    // Salvar arquivo no storage
+                    $imagemPath = $imagemFile->storeAs('anuncios/' . $anuncio->ID_Anuncio, $imagemNome, 'public');
+                    
+                    // Criar registro de imagem
+                    $imagem = new Imagem();
+                    $imagem->Caminho = $imagemPath;
+                    $imagem->save();
+                    
+                    // Criar relação entre anúncio e imagem
+                    $itemImagem = new ItemImagem();
+                    $itemImagem->AnuncioID_Anuncio = $anuncio->ID_Anuncio;
+                    $itemImagem->ImagemID_Imagem = $imagem->ID_Imagem;
+                    $itemImagem->Principal = ($key == 0) ? 1 : 0; // Primeira imagem é a principal
+                    $itemImagem->save();
                 }
-                
-                foreach ($imagens as $index => $imagem) {
-                    try {
-                        // Validar a imagem
-                        if ($imagem && $imagem->isValid()) {
-                            \Log::info('Processando imagem ' . ($index + 1) . ': ' . $imagem->getClientOriginalName());
-                            
-                            // Gerar um nome único para a imagem
-                            $nomeImagem = time() . '_' . $index . '_' . $imagem->getClientOriginalName();
-                            $path = $imagem->storeAs('anuncios', $nomeImagem, 'public');
-                            
-                            \Log::info('Imagem salva em: ' . $path);
-                            
-                            // Primeiro criar um registro na tabela imagem
-                            \Log::info('Criando registro na tabela imagem');
-                            $imagemId = DB::table('imagem')->insertGetId([
-                                'Caminho' => $path
-                            ]);
-                            
-                            \Log::info('Imagem criada com ID: ' . $imagemId);
-                            
-                            // Agora associar a imagem ao anúncio na tabela item_imagem
-                            \Log::info('Associando imagem ao anúncio na tabela item_imagem');
-                            \Log::info('Dados para inserção: ItemID_Item=' . $anuncioId . ', ImagemID_Imagem=' . $imagemId);
-                            
-                            DB::table('item_imagem')->insert([
-                                'ItemID_Item' => $anuncioId,
-                                'ImagemID_Imagem' => $imagemId
-                            ]);
-                            
-                            \Log::info('Registro de imagem associado ao anúncio com sucesso');
-                        } else {
-                            \Log::warning('Imagem inválida: ' . $imagem->getClientOriginalName());
-                        }
-                    } catch (\Exception $e) {
-                        \Log::error('Erro ao processar imagem ' . ($index + 1) . ': ' . $e->getMessage());
-                        \Log::error('Stack trace: ' . $e->getTraceAsString());
-                        // Continuamos processando as outras imagens mesmo se uma falhar
-                    }
-                }
-            } else {
-                \Log::info('Nenhuma imagem enviada com o anúncio - isto é permitido');
-                // Continuar sem imagens - o anúncio será criado sem imagens associadas
             }
             
             DB::commit();
-            \Log::info('Transação confirmada com sucesso');
             
-            // Buscar o anúncio completo para retornar na resposta
-            $anuncioCompleto = DB::table('anuncio')->where('ID_Anuncio', $anuncioId)->first();
+            // Carregar relações para retornar no response
+            $anuncio->load(['categorium', 'tipo_item', 'item_imagems.imagem', 'utilizador', 'aprovacao']);
             
             return response()->json([
-                'message' => 'Anúncio criado com sucesso!',
-                'anuncio' => $anuncioCompleto
+                'message' => 'Anúncio criado com sucesso e aguardando aprovação',
+                'anuncio' => $anuncio
             ], 201);
         } catch (\Exception $e) {
-            // Se houver uma transação ativa, faça o rollback
-            if (DB::transactionLevel() > 0) {
-                DB::rollBack();
-                \Log::error('Rollback da transação realizado');
-            }
-            
+            DB::rollBack();
             \Log::error('Erro ao criar anúncio: ' . $e->getMessage());
-            \Log::error('Stack trace: ' . $e->getTraceAsString());
             
             return response()->json([
-                'message' => 'Erro ao criar anúncio: ' . $e->getMessage(),
-                'error_details' => $e->getTraceAsString()
+                'message' => 'Erro ao criar anúncio: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -397,7 +293,7 @@ class AnuncioController extends Controller
      */
     public function show($id)
     {
-        $anuncio = Anuncio::with(['utilizador', 'categorium', 'tipo_item', 'item_imagems.imagem', 'status_anuncio', 'aprovacao'])
+        $anuncio = Anuncio::with(['utilizador', 'categorium', 'tipo_item', 'item_imagems.imagem', 'aprovacao'])
             ->find($id);
         
         if (!$anuncio) {
@@ -420,75 +316,123 @@ class AnuncioController extends Controller
         
         // Verificar se o usuário é o dono do anúncio
         if ($anuncio->UtilizadorID_User != Auth::id() && !Auth::user()->isAdmin()) {
-            return response()->json(['message' => 'Você não tem permissão para editar este anúncio'], 403);
+            return response()->json(['message' => 'Você não tem permissão para atualizar este anúncio'], 403);
         }
         
-        // Tratar o preço antes da validação
-        $preco = $request->input('Preco');
-        if (is_string($preco) && strpos($preco, ',') !== false) {
-            $preco = str_replace(',', '.', $preco);
-            $request->merge(['Preco' => $preco]);
-        }
-        
-        // Validar os dados do anúncio
-        $validated = $request->validate([
-            'Titulo' => 'required|string|max:255',
-            'Descricao' => 'required|string',
-            'Preco' => 'required|numeric|min:0',
-            'Tipo_ItemID_Tipo' => 'required|exists:tipo_item,ID_Tipo',
-            'CategoriaID_Categoria' => 'required|exists:categoria,ID_Categoria'
-            // A validação de imagens será feita separadamente
+        // Validar dados do anúncio
+        $validator = Validator::make($request->all(), [
+            'Titulo' => 'sometimes|required|string|max:100',
+            'Descricao' => 'sometimes|required|string',
+            'Preco' => 'sometimes|required|numeric|max:9999.99', // Máximo permitido pelo campo decimal(6,2)
+            'CategoriaID_Categoria' => 'sometimes|required|exists:categoria,ID_Categoria',
+            'TipoItemID_TipoItem' => 'sometimes|required|exists:tipo_item,ID_Tipo',
+            'imagens.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
+        
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Dados inválidos',
+                'errors' => $validator->errors()
+            ], 422);
+        }
         
         DB::beginTransaction();
         
         try {
-            // Atualizar anúncio
-            $anuncio->update([
-                'Titulo' => $request->Titulo,
-                'Descricao' => $request->Descricao,
-                'Preco' => $request->Preco,
-                'Tipo_ItemID_Tipo' => $request->Tipo_ItemID_Tipo,
-                'CategoriaID_Categoria' => $request->CategoriaID_Categoria,
-                'Status_AnuncioID_Status_Anuncio' => 1 // Voltar para pendente após edição
-            ]);
+            // Atualizar dados do anúncio
+            if ($request->has('Titulo')) {
+                $anuncio->Titulo = $request->Titulo;
+            }
             
-            // Processar novas imagens se existirem
+            if ($request->has('Descricao')) {
+                $anuncio->Descricao = $request->Descricao;
+            }
+            
+            if ($request->has('Preco')) {
+                $anuncio->Preco = $request->Preco;
+            }
+            
+            if ($request->has('CategoriaID_Categoria')) {
+                $anuncio->CategoriaID_Categoria = $request->CategoriaID_Categoria;
+            }
+            
+            if ($request->has('TipoItemID_TipoItem')) {
+                $anuncio->TipoItemID_TipoItem = $request->TipoItemID_TipoItem;
+            }
+            
+            // Se o anúncio já foi aprovado, voltar para pendente após atualização
+            if ($anuncio->Status_AnuncioID_Status_Anuncio == 2) {
+                $anuncio->Status_AnuncioID_Status_Anuncio = 1; // Status pendente
+                
+                // Atualizar aprovação
+                $aprovacao = DB::table('aprovacao')->where('ID_aprovacao', $anuncio->AprovacaoID_aprovacao)->first();
+                
+                if ($aprovacao) {
+                    DB::table('aprovacao')
+                        ->where('ID_aprovacao', $anuncio->AprovacaoID_aprovacao)
+                        ->update([
+                            'Status_AprovacaoID_Status_Aprovacao' => 1, // Status pendente
+                            'Data_Aprovacao' => null,
+                            'Comentario' => null,
+                            'UtilizadorID_Admin' => 1 // Usando o ID do admin padrão (ID=1)
+                        ]);
+                }
+            }
+            
+            $anuncio->save();
+            
+            // Processar novas imagens (se houver)
             if ($request->hasFile('imagens')) {
-                // Garantir que o diretório de armazenamento existe
-                $storagePath = storage_path('app/public/anuncios');
-                if (!file_exists($storagePath)) {
-                    mkdir($storagePath, 0755, true);
+                $imagens = $request->file('imagens');
+                
+                // Remover imagens antigas se solicitado
+                if ($request->has('remover_imagens_antigas') && $request->remover_imagens_antigas) {
+                    foreach ($anuncio->item_imagems as $item_imagem) {
+                        // Remover arquivo físico
+                        if ($item_imagem->imagem && Storage::exists('public/' . $item_imagem->imagem->Caminho)) {
+                            Storage::delete('public/' . $item_imagem->imagem->Caminho);
+                        }
+                        
+                        // Remover registro na tabela item_imagem
+                        $item_imagem->delete();
+                        
+                        // Remover a imagem
+                        if ($item_imagem->imagem) {
+                            $item_imagem->imagem->delete();
+                        }
+                    }
                 }
                 
-                foreach ($request->file('imagens') as $index => $file) {
-                    \Log::info('Processando imagem ' . ($index + 1) . ': ' . $file->getClientOriginalName());
+                foreach ($imagens as $key => $imagemFile) {
+                    // Gerar nome único para o arquivo
+                    $imagemNome = time() . '_' . $key . '.' . $imagemFile->getClientOriginalExtension();
                     
-                    // Gerar um nome único para a imagem
-                    $filename = time() . '_' . $index . '_' . $file->getClientOriginalName();
-                    $path = $file->storeAs('anuncios', $filename, 'public');
+                    // Salvar arquivo no storage
+                    $imagemPath = $imagemFile->storeAs('anuncios/' . $anuncio->ID_Anuncio, $imagemNome, 'public');
                     
-                    // Criar imagem
-                    $imagem = new Imagem([
-                        'Caminho' => $path
-                    ]);
+                    // Criar registro de imagem
+                    $imagem = new Imagem();
+                    $imagem->Caminho = $imagemPath;
                     $imagem->save();
                     
-                    // Associar imagem ao anúncio - CORREÇÃO: nome da tabela em minúsculas
-                    DB::table('item_imagem')->insert([
-                        'ItemID_Item' => $anuncio->ID_Anuncio,
-                        'ImagemID_Imagem' => $imagem->ID_Imagem
-                    ]);
+                    // Criar relação entre anúncio e imagem
+                    $itemImagem = new ItemImagem();
+                    $itemImagem->AnuncioID_Anuncio = $anuncio->ID_Anuncio;
+                    $itemImagem->ImagemID_Imagem = $imagem->ID_Imagem;
+                    $itemImagem->Principal = ($key == 0 && !$anuncio->item_imagems()->exists()) ? 1 : 0; // Primeira imagem é a principal se não houver outras
+                    $itemImagem->save();
                 }
             }
             
             DB::commit();
             
+            // Carregar relações para retornar no response
+            $anuncio->load(['categorium', 'tipo_item', 'item_imagems.imagem', 'utilizador', 'aprovacao']);
+            
             return response()->json([
                 'message' => 'Anúncio atualizado com sucesso e aguardando aprovação',
                 'anuncio' => $anuncio
             ]);
-            
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -540,6 +484,7 @@ class AnuncioController extends Controller
             return response()->json(['message' => 'Anúncio removido com sucesso']);
             
         } catch (\Exception $e) {
+            \Log::error('Erro ao remover anúncio: ' . $e->getMessage());
             DB::rollBack();
             return response()->json([
                 'message' => 'Erro ao remover anúncio: ' . $e->getMessage()
@@ -547,7 +492,48 @@ class AnuncioController extends Controller
         }
     }
     
-    // Removed duplicate method definition to resolve syntax error
+    /**
+     * Rejeitar um anúncio (apenas admin)
+     */
+    public function rejeitar(Request $request, $id)
+    {
+        $request->validate([
+            'Comentario' => 'required|string'
+        ]);
+        
+        $anuncio = Anuncio::with('aprovacao')->find($id);
+        
+        if (!$anuncio) {
+            return response()->json(['message' => 'Anúncio não encontrado'], 404);
+        }
+        
+        DB::beginTransaction();
+        
+        try {
+            // Atualizar aprovação
+            $anuncio->aprovacao->update([
+                'Data_Aprovacao' => now(),
+                'Comentario' => $request->Comentario,
+                'UtilizadorID_Admin' => Auth::id(),
+                'Status_AprovacaoID_Status_Aprovacao' => 3 // Status rejeitado
+            ]);
+            
+            // Atualizar status do anúncio
+            $anuncio->update([
+                'Status_AnuncioID_Status_Anuncio' => 3 // Status rejeitado
+            ]);
+            
+            DB::commit();
+            
+            return response()->json(['message' => 'Anúncio rejeitado com sucesso']);
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Erro ao rejeitar anúncio: ' . $e->getMessage()
+            ], 500);
+        }
+    }
     
     /**
      * Obter todas as categorias disponíveis
@@ -563,221 +549,146 @@ class AnuncioController extends Controller
                 'message' => 'Erro ao obter categorias: ' . $e->getMessage()
             ], 500);
         }
-        
-        // Remover o anúncio
-        $anuncio->delete();
-        
-        DB::commit();
-        
-        return response()->json(['message' => 'Anúncio removido com sucesso']);
-        
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return response()->json([
-            'message' => 'Erro ao remover anúncio: ' . $e->getMessage()
-        ], 500);
-        
-    }
-}
-
-// Removed duplicate method definition to resolve syntax error
-
-/**
- * Rejeitar um anúncio (apenas admin)
- */
-public function rejeitar(Request $request, $id)
-{
-    $request->validate([
-        'Comentario' => 'required|string'
-    ]);
-    
-    $anuncio = Anuncio::with('aprovacao')->find($id);
-    
-    if (!$anuncio) {
-        return response()->json(['message' => 'Anúncio não encontrado'], 404);
     }
     
-    DB::beginTransaction();
-    
-    try {
-        // Atualizar aprovação
-        $anuncio->aprovacao->update([
-            'Data_Aprovacao' => now(),
-            'Comentario' => $request->Comentario,
-            'UtilizadorID_Admin' => Auth::id(),
-            'Status_AprovacaoID_Status_Aprovacao' => 3 // Status rejeitado
-        ]);
-        
-        // Atualizar status do anúncio
-        $anuncio->update([
-            'Status_AnuncioID_Status_Anuncio' => 3 // Status rejeitado
-        ]);
-        
-        DB::commit();
-        
-        return response()->json(['message' => 'Anúncio rejeitado com sucesso']);
-        
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return response()->json([
-            'message' => 'Erro ao rejeitar anúncio: ' . $e->getMessage()
-        ], 500);
-    }
-}
-
-/**
- * Obter todas as categorias disponíveis
- */
-public function getCategories()
-{
-    try {
-        $categorias = DB::table('categoria')->get();
-        return response()->json($categorias);
-    } catch (\Exception $e) {
-        \Log::error('Erro ao obter categorias: ' . $e->getMessage());
-        return response()->json([
-            'message' => 'Erro ao obter categorias: ' . $e->getMessage()
-        ], 500);
-    }
-}
-
-/**
- * Obter todos os tipos de item disponíveis
- */
-public function getTiposItem()
-{
-    try {
-        $tiposItem = DB::table('tipo_item')->get();
-        return response()->json($tiposItem);
-    } catch (\Exception $e) {
-        \Log::error('Erro ao obter tipos de item: ' . $e->getMessage());
-        return response()->json([
-            'message' => 'Erro ao obter tipos de item: ' . $e->getMessage()
-        ], 500);
-    }
-}
-
-/**
- * Obter anúncios aleatórios aprovados
- */
-public function getAnunciosAleatorios(Request $request)
-{
-    try {
-        // Obter o número de anúncios solicitados ou usar um valor padrão
-        $quantidade = $request->input('quantidade', 10);
-        
-        // Obter o tipo de item (opcional)
-        $tipoItemId = $request->input('tipo');
-        
-        // Consulta base
-        $query = Anuncio::with(['utilizador', 'categorium', 'tipo_item', 'item_imagems.imagem'])
-            ->where('Status_AnuncioID_Status_Anuncio', 2); // Status aprovado
-        
-        // Filtrar por tipo de item se especificado
-        if ($tipoItemId) {
-            $query->where('TipoItemID_TipoItem', $tipoItemId);
-        }
-        
-        // Obter anúncios aleatórios
-        $anuncios = $query->inRandomOrder()
-            ->limit($quantidade)
-            ->get();
-        
-        return response()->json($anuncios);
-    } catch (\Exception $e) {
-        \Log::error('Erro ao obter anúncios aleatórios: ' . $e->getMessage());
-        return response()->json([
-            'message' => 'Erro ao obter anúncios aleatórios: ' . $e->getMessage(),
-            'anuncios' => []
-        ], 500);
-    }
-}
-
-/**
- * Obter anúncios do usuário logado
- */
-public function myAds(Request $request)
-{
-    try {
-        // Tentar obter o ID do usuário de várias formas para maior robustez
-        $userId = null;
-        
-        // Tentar obter via Auth facade
-        if (Auth::check()) {
-            $userId = Auth::id();
-            \Log::info('ID do usuário obtido via Auth::id(): ' . $userId);
-        }
-        
-        // Se não conseguiu via Auth, tentar via session
-        if (!$userId && session()->has('user_id')) {
-            $userId = session('user_id');
-            \Log::info('ID do usuário obtido via session: ' . $userId);
-        }
-        
-        // Se ainda não conseguiu, tentar via request
-        if (!$userId && $request->has('user_id')) {
-            $userId = $request->input('user_id');
-            \Log::info('ID do usuário obtido via request parameter: ' . $userId);
-        }
-        
-        // Se não conseguiu de nenhuma forma, retornar erro
-        if (!$userId) {
-            \Log::warning('Tentativa de acessar meus-anuncios sem autenticação');
-            return response()->json([
-                'message' => 'Usuário não autenticado',
-                'anuncios' => []
-            ], 401);
-        }
-        
+    /**
+     * Obter todos os tipos de item disponíveis
+     */
+    public function getTiposItem()
+    {
         try {
-            // Tentar carregar com o relacionamento de aprovação
-            $anuncios = Anuncio::with([
-                'categorium', 
-                'tipo_item', 
-                'item_imagems.imagem', 
-                'utilizador'
-            ])
-            ->where('UtilizadorID_User', $userId)
-            ->orderBy('ID_Anuncio', 'desc')
-            ->get();
-            
-            // Tentar carregar o relacionamento de aprovação separadamente para evitar erros
-            foreach ($anuncios as $anuncio) {
-                try {
-                    // Carregar o relacionamento de aprovação manualmente
-                    $aprovacao = DB::table('aprovacao')
-                        ->where('ID_aprovacao', $anuncio->AprovacaoID_aprovacao)
-                        ->first();
-                    
-                    if ($aprovacao) {
-                        // Adicionar manualmente ao objeto do anúncio
-                        $anuncio->aprovacao = $aprovacao;
-                    } else if ($anuncio->AprovacaoID_aprovacao) {
-                        \Log::warning('Anúncio com ID ' . $anuncio->ID_Anuncio . ' tem AprovacaoID_aprovacao definido mas o registro não foi encontrado');
-                    }
-                } catch (\Exception $approvalException) {
-                    \Log::warning('Erro ao carregar aprovação para anúncio ' . $anuncio->ID_Anuncio . ': ' . $approvalException->getMessage());
-                }
-            }
-        } catch (\Exception $innerException) {
-            // Se houver erro no carregamento dos anúncios, registrar e retornar array vazio
-            \Log::error('Erro ao carregar anúncios: ' . $innerException->getMessage());
-            
+            $tipos = DB::table('tipo_item')->get();
+            return response()->json($tipos);
+        } catch (\Exception $e) {
+            \Log::error('Erro ao obter tipos de item: ' . $e->getMessage());
             return response()->json([
-                'message' => 'Erro ao carregar anúncios',
+                'message' => 'Erro ao obter tipos de item: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    /**
+     * Obter anúncios aleatórios aprovados
+     */
+    public function getAnunciosAleatorios(Request $request)
+    {
+        try {
+            // Obter o número de anúncios solicitados ou usar um valor padrão
+            $quantidade = $request->input('quantidade', 10);
+            
+            // Obter o tipo de item (opcional)
+            $tipoItemId = $request->input('tipo');
+            
+            // Consulta base
+            $query = Anuncio::with(['utilizador', 'categorium', 'tipo_item', 'item_imagems.imagem'])
+                ->where('Status_AnuncioID_Status_Anuncio', 2); // Status aprovado
+            
+            // Filtrar por tipo de item se especificado
+            if ($tipoItemId) {
+                $query->where('TipoItemID_TipoItem', $tipoItemId);
+            }
+            
+            // Obter anúncios aleatórios
+            $anuncios = $query->inRandomOrder()
+                ->limit($quantidade)
+                ->get();
+            
+            return response()->json($anuncios);
+        } catch (\Exception $e) {
+            \Log::error('Erro ao obter anúncios aleatórios: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Erro ao obter anúncios aleatórios: ' . $e->getMessage(),
                 'anuncios' => []
             ], 500);
         }
+    }
     
-        // Log para depuração
-        \Log::info('Anúncios do usuário ' . $userId . ' carregados com sucesso:', ['count' => $anuncios->count()]);
+    /**
+     * Obter anúncios do usuário logado
+     */
+    public function myAds(Request $request)
+    {
+        try {
+            // Tentar obter o ID do usuário de várias formas para maior robustez
+            $userId = null;
+            
+            // Tentar obter via Auth facade
+            if (Auth::check()) {
+                $userId = Auth::id();
+                \Log::info('ID do usuário obtido via Auth::id(): ' . $userId);
+            }
+            
+            // Se não conseguiu via Auth, tentar via session
+            if (!$userId && session()->has('user_id')) {
+                $userId = session('user_id');
+                \Log::info('ID do usuário obtido via session: ' . $userId);
+            }
+            
+            // Se ainda não conseguiu, tentar via request
+            if (!$userId && $request->has('user_id')) {
+                $userId = $request->input('user_id');
+                \Log::info('ID do usuário obtido via request parameter: ' . $userId);
+            }
+            
+            // Se não conseguiu de nenhuma forma, retornar erro
+            if (!$userId) {
+                \Log::warning('Tentativa de acessar meus-anuncios sem autenticação');
+                return response()->json([
+                    'message' => 'Usuário não autenticado',
+                    'anuncios' => []
+                ], 401);
+            }
+            
+            try {
+                // Tentar carregar com o relacionamento de aprovação
+                $anuncios = Anuncio::with([
+                    'categorium', 
+                    'tipo_item', 
+                    'item_imagems.imagem', 
+                    'utilizador'
+                ])
+                ->where('UtilizadorID_User', $userId)
+                ->orderBy('ID_Anuncio', 'desc')
+                ->get();
+                
+                // Tentar carregar o relacionamento de aprovação separadamente para evitar erros
+                foreach ($anuncios as $anuncio) {
+                    try {
+                        // Carregar o relacionamento de aprovação manualmente
+                        $aprovacao = DB::table('aprovacao')
+                            ->where('ID_aprovacao', $anuncio->AprovacaoID_aprovacao)
+                            ->first();
+                        
+                        if ($aprovacao) {
+                            // Adicionar manualmente ao objeto do anúncio
+                            $anuncio->aprovacao = $aprovacao;
+                        } else if ($anuncio->AprovacaoID_aprovacao) {
+                            \Log::warning('Anúncio com ID ' . $anuncio->ID_Anuncio . ' tem AprovacaoID_aprovacao definido mas o registro não foi encontrado');
+                        }
+                    } catch (\Exception $approvalException) {
+                        \Log::warning('Erro ao carregar aprovação para anúncio ' . $anuncio->ID_Anuncio . ': ' . $approvalException->getMessage());
+                    }
+                }
+            } catch (\Exception $innerException) {
+                // Se houver erro no carregamento dos anúncios, registrar e retornar array vazio
+                \Log::error('Erro ao carregar anúncios: ' . $innerException->getMessage());
+                
+                return response()->json([
+                    'message' => 'Erro ao carregar anúncios',
+                    'anuncios' => []
+                ], 500);
+            }
         
-        return response()->json($anuncios);
-    } catch (\Exception $e) {
-        \Log::error('Erro ao obter anúncios do usuário: ' . $e->getMessage());
-        return response()->json([
-            'message' => 'Erro ao obter anúncios: ' . $e->getMessage(),
-            'anuncios' => []
-        ], 500);
+            // Log para depuração
+            \Log::info('Anúncios do usuário ' . $userId . ' carregados com sucesso:', ['count' => $anuncios->count()]);
+            
+            return response()->json($anuncios);
+        } catch (\Exception $e) {
+            \Log::error('Erro ao obter anúncios do usuário: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Erro ao obter anúncios: ' . $e->getMessage(),
+                'anuncios' => []
+            ], 500);
+        }
     }
 }
