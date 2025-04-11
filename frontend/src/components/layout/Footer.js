@@ -19,9 +19,9 @@ const Footer = () => {
                                 <h5 className="mt-2">NeighborTrade</h5>
                             </Link>
                         </div>
-                        <p className="mb-2">(+351) 555-0104</p>
-                        <p className="mb-2">4517 Washington Ave.</p>
-                        <p className="mb-2">Manchester, Kentucky 39495</p>
+                        <p className="mb-2">(+351) 253 802 190</p>
+                        <p className="mb-2">Campus do IPCA</p>
+                        <p className="mb-2">Lugar do Aldão, 4750-810 Barcelos</p>
                         <p className="mb-3">info@neighbortrade.com</p>
                         {/* Removidos os links para redes sociais */}
                     </Col>

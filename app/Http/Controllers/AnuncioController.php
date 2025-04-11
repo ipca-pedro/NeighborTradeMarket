@@ -532,31 +532,19 @@ class AnuncioController extends Controller
                 }
             }
             
-            // Remover o anúncio
-            $anuncio->delete();
-            
-            DB::commit();
-            
+                // Remover o anúncio
+                $anuncio->delete();
+                
+                DB::commit();
+                
             return response()->json(['message' => 'Anúncio removido com sucesso']);
-            
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'message' => 'Erro ao remover anúncio: ' . $e->getMessage()
-            ], 500);
         }
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'message' => 'Erro ao remover anúncio: ' . $e->getMessage()
+        ], 500);
     }
-    
-    /**
-     * Aprovar um anúncio (apenas admin)
-     */
-    public function aprovar($id)
-    {
-        $anuncio = Anuncio::with('aprovacao')->find($id);
-        
-        if (!$anuncio) {
-            return response()->json(['message' => 'Anúncio não encontrado'], 404);
-        }
         
         DB::beginTransaction();
         
@@ -585,48 +573,7 @@ class AnuncioController extends Controller
         }
     }
     
-    /**
-     * Rejeitar um anúncio (apenas admin)
-     */
-    public function rejeitar(Request $request, $id)
-    {
-        $request->validate([
-            'Comentario' => 'required|string'
-        ]);
-        
-        $anuncio = Anuncio::with('aprovacao')->find($id);
-        
-        if (!$anuncio) {
-            return response()->json(['message' => 'Anúncio não encontrado'], 404);
-        }
-        
-        DB::beginTransaction();
-        
-        try {
-            // Atualizar aprovação
-            $anuncio->aprovacao->update([
-                'Data_Aprovacao' => now(),
-                'Comentario' => $request->Comentario,
-                'UtilizadorID_Admin' => Auth::id(),
-                'Status_AprovacaoID_Status_Aprovacao' => 3 // Status rejeitado
-            ]);
-            
-            // Atualizar status do anúncio
-            $anuncio->update([
-                'Status_AnuncioID_Status_Anuncio' => 3 // Status rejeitado
-            ]);
-            
-            DB::commit();
-            
-            return response()->json(['message' => 'Anúncio rejeitado com sucesso']);
-            
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'message' => 'Erro ao rejeitar anúncio: ' . $e->getMessage()
-            ], 500);
-        }
-    }
+    // Removed duplicate method definition to resolve syntax error
     
     /**
      * Obter todas as categorias disponíveis
@@ -655,46 +602,11 @@ class AnuncioController extends Controller
         return response()->json([
             'message' => 'Erro ao remover anúncio: ' . $e->getMessage()
         ], 500);
+        
     }
 }
 
-/**
- * Aprovar um anúncio (apenas admin)
- */
-public function aprovar($id)
-{
-    $anuncio = Anuncio::with('aprovacao')->find($id);
-    
-    if (!$anuncio) {
-        return response()->json(['message' => 'Anúncio não encontrado'], 404);
-    }
-    
-    DB::beginTransaction();
-    
-    try {
-        // Atualizar aprovação
-        $anuncio->aprovacao->update([
-            'Data_Aprovacao' => now(),
-            'UtilizadorID_Admin' => Auth::id(),
-            'Status_AprovacaoID_Status_Aprovacao' => 2 // Status aprovado
-        ]);
-        
-        // Atualizar status do anúncio
-        $anuncio->update([
-            'Status_AnuncioID_Status_Anuncio' => 2 // Status aprovado
-        ]);
-        
-        DB::commit();
-        
-        return response()->json(['message' => 'Anúncio aprovado com sucesso']);
-        
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return response()->json([
-            'message' => 'Erro ao aprovar anúncio: ' . $e->getMessage()
-        ], 500);
-    }
-}
+// Removed duplicate method definition to resolve syntax error
 
 /**
  * Rejeitar um anúncio (apenas admin)
