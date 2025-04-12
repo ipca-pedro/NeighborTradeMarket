@@ -3,8 +3,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
-// Contexto de Autenticação
+// Contextos
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ChatProvider } from './contexts/ChatContext';
 
 // Componentes de Autenticação
 import Login from './components/auth/Login';
@@ -76,7 +77,8 @@ const AdminRoute = ({ children }) => {
 function App() {
   return (
     <AuthProvider>
-      <Router>
+      <ChatProvider>
+        <Router>
         <Routes>
           {/* Rotas Públicas */}
           <Route path="/" element={<HomePage />} />
@@ -111,7 +113,8 @@ function App() {
           {/* Rota para URLs não encontrados */}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
-      </Router>
+        </Router>
+      </ChatProvider>
     </AuthProvider>
   );
 }

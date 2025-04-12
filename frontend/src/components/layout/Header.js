@@ -1,18 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Navbar, Nav, Container, Form, Button, Dropdown, Modal } from 'react-bootstrap';
+import { Navbar, Nav, Container, Form, Button, Dropdown } from 'react-bootstrap';
+import ChatBot from '../chat/ChatBot';
 import { useAuth } from '../../contexts/AuthContext';
 import LoginPopup from '../auth/LoginPopup';
 import CategoryMenu from './CategoryMenu';
+import HelpModal from '../help/HelpModal';
 
 const Header = () => {
     const [showLoginPopup, setShowLoginPopup] = useState(false);
     const [showCategoryMenu, setShowCategoryMenu] = useState(false);
+    const [showHelpModal, setShowHelpModal] = useState(false);
     const { currentUser, logout } = useAuth();
     const navigate = useNavigate();
     const searchRef = useRef(null);
     const [searchTerm, setSearchTerm] = useState('');
-    const [showHelpModal, setShowHelpModal] = useState(false);
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -38,7 +40,6 @@ const Header = () => {
         setShowCategoryMenu(!showCategoryMenu);
     };
 
-    // Fechar popups ao clicar fora deles
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (showLoginPopup && !event.target.closest('.user-dropdown')) {
@@ -58,8 +59,6 @@ const Header = () => {
 
     return (
         <header>
-            {/* Removido a seção de links para redes sociais */}
-
             <Navbar bg="primary" variant="dark" expand="lg" className="py-3">
                 <Container>
                     <Navbar.Brand as={Link} to="/">
@@ -69,7 +68,6 @@ const Header = () => {
                             height="40" 
                             className="d-inline-block align-top"
                         />
-
                     </Navbar.Brand>
 
                     <div className="search-bar mx-auto flex-grow-1 px-4">
@@ -156,75 +154,30 @@ const Header = () => {
                     </div>
 
                     <Nav className="ms-4">
-                        <Nav.Link href="#" className="d-flex align-items-center">
+                        <Nav.Link 
+                            onClick={() => document.querySelector('.chat-toggle-button').click()} 
+                            className="d-flex align-items-center"
+                            style={{ cursor: 'pointer' }}
+                        >
                             <i className="fas fa-headset me-2"></i>
                             <span>Apoio ao Cliente</span>
                         </Nav.Link>
-                        <Nav.Link onClick={() => setShowHelpModal(true)} className="d-flex align-items-center ms-3" style={{ cursor: 'pointer' }}>
+                        <Nav.Link 
+                            onClick={() => setShowHelpModal(true)} 
+                            className="d-flex align-items-center ms-3"
+                            style={{ cursor: 'pointer' }}
+                        >
                             <i className="fas fa-question-circle me-2"></i>
                             <span>Precisa de Ajuda</span>
                         </Nav.Link>
 
-                        {/* Modal de Ajuda */}
-                        <Modal
-                            show={showHelpModal}
-                            onHide={() => setShowHelpModal(false)}
-                            centered
-                            className="contact-modal"
-                        >
-                            <Modal.Header closeButton className="bg-primary text-white">
-                                <Modal.Title>
-                                    <i className="fas fa-info-circle me-2"></i>
-                                    Informações de Contacto
-                                </Modal.Title>
-                            </Modal.Header>
-                            <Modal.Body className="p-4">
-                                <div className="contact-info">
-                                    <div className="mb-4">
-                                        <h5 className="text-primary">
-                                            <i className="fas fa-envelope me-2"></i>
-                                            Email
-                                        </h5>
-                                        <p className="ms-4 mb-0">
-                                            <a href="mailto:info@neighbortrade.com" className="text-decoration-none">
-                                                info@neighbortrade.com
-                                            </a>
-                                        </p>
-                                    </div>
-                                    
-                                    <div className="mb-4">
-                                        <h5 className="text-primary">
-                                            <i className="fas fa-phone me-2"></i>
-                                            Telefone
-                                        </h5>
-                                        <p className="ms-4 mb-0">
-                                            <a href="tel:+351253802190" className="text-decoration-none">
-                                                (+351) 253 802 190
-                                            </a>
-                                        </p>
-                                    </div>
+                        <HelpModal 
+                            show={showHelpModal} 
+                            onHide={() => setShowHelpModal(false)} 
+                        />
 
-                                    <div className="mb-4">
-                                        <h5 className="text-primary">
-                                            <i className="fas fa-map-marker-alt me-2"></i>
-                                            Morada
-                                        </h5>
-                                        <p className="ms-4 mb-0">
-                                            Campus do IPCA<br />
-                                            Lugar do Aldão<br />
-                                            4750-810 Barcelos
-                                        </p>
-                                    </div>
-
-
-                                </div>
-                            </Modal.Body>
-                        </Modal>
+                        <ChatBot />
                     </Nav>
-
-                    <div className="ms-auto">
-                        <span>(+351) 253 802 190</span>
-                    </div>
                 </Container>
             </Navbar>
         </header>

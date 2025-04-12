@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Badge } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
+import NoProductsFound from './NoProductsFound';
 import api from '../../services/api';
 
 const ListaProdutos = () => {
+    const { categoriaId } = useParams();
     const [produtos, setProdutos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -15,7 +17,15 @@ const ListaProdutos = () => {
     const carregarProdutos = async () => {
         try {
             const response = await api.getProdutos();
-            setProdutos(response.data);
+            let produtosFiltrados = response.data;
+            
+            if (categoriaId) {
+                produtosFiltrados = response.data.filter(produto => 
+                    produto.CategoriaID === parseInt(categoriaId)
+                );
+            }
+            
+            setProdutos(produtosFiltrados);
         } catch (err) {
             setError('Erro ao carregar produtos');
         } finally {
@@ -24,11 +34,21 @@ const ListaProdutos = () => {
     };
 
     if (loading) {
-        return <div>Carregando...</div>;
+        return (
+            <Container className="text-center py-5">
+                <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Carregando...</span>
+                </div>
+            </Container>
+        );
     }
 
     if (error) {
-        return <div className="text-danger">{error}</div>;
+        return <NoProductsFound />;
+    }
+
+    if (produtos.length === 0) {
+        return <NoProductsFound />;
     }
 
     return (
