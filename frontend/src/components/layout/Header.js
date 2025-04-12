@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Navbar, Nav, Container, Form, Button, Dropdown } from 'react-bootstrap';
+import { Navbar, Nav, Container, Form, Button, Dropdown, Modal } from 'react-bootstrap';
 import { useAuth } from '../../contexts/AuthContext';
 import LoginPopup from '../auth/LoginPopup';
 import CategoryMenu from './CategoryMenu';
@@ -12,6 +12,7 @@ const Header = () => {
     const navigate = useNavigate();
     const searchRef = useRef(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [showHelpModal, setShowHelpModal] = useState(false);
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -68,16 +69,16 @@ const Header = () => {
                             height="40" 
                             className="d-inline-block align-top"
                         />
-                        <span className="ms-2">NeighborTrade</span>
+
                     </Navbar.Brand>
 
-                    <div className="search-bar mx-auto">
+                    <div className="search-bar mx-auto flex-grow-1 px-4">
                         <Form onSubmit={handleSearch} className="d-flex">
                             <Form.Control
                                 ref={searchRef}
                                 type="search"
-                                placeholder="Pesquisar por qualquer coisa..."
-                                className="me-2"
+                                placeholder="Pesquisar por qualquer produto"
+                                className="me-2 text-center"
                                 aria-label="Pesquisar"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -159,14 +160,70 @@ const Header = () => {
                             <i className="fas fa-headset me-2"></i>
                             <span>Apoio ao Cliente</span>
                         </Nav.Link>
-                        <Nav.Link href="#" className="d-flex align-items-center ms-3">
+                        <Nav.Link onClick={() => setShowHelpModal(true)} className="d-flex align-items-center ms-3" style={{ cursor: 'pointer' }}>
                             <i className="fas fa-question-circle me-2"></i>
                             <span>Precisa de Ajuda</span>
                         </Nav.Link>
+
+                        {/* Modal de Ajuda */}
+                        <Modal
+                            show={showHelpModal}
+                            onHide={() => setShowHelpModal(false)}
+                            centered
+                            className="contact-modal"
+                        >
+                            <Modal.Header closeButton className="bg-primary text-white">
+                                <Modal.Title>
+                                    <i className="fas fa-info-circle me-2"></i>
+                                    Informações de Contacto
+                                </Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body className="p-4">
+                                <div className="contact-info">
+                                    <div className="mb-4">
+                                        <h5 className="text-primary">
+                                            <i className="fas fa-envelope me-2"></i>
+                                            Email
+                                        </h5>
+                                        <p className="ms-4 mb-0">
+                                            <a href="mailto:info@neighbortrade.com" className="text-decoration-none">
+                                                info@neighbortrade.com
+                                            </a>
+                                        </p>
+                                    </div>
+                                    
+                                    <div className="mb-4">
+                                        <h5 className="text-primary">
+                                            <i className="fas fa-phone me-2"></i>
+                                            Telefone
+                                        </h5>
+                                        <p className="ms-4 mb-0">
+                                            <a href="tel:+351253802190" className="text-decoration-none">
+                                                (+351) 253 802 190
+                                            </a>
+                                        </p>
+                                    </div>
+
+                                    <div className="mb-4">
+                                        <h5 className="text-primary">
+                                            <i className="fas fa-map-marker-alt me-2"></i>
+                                            Morada
+                                        </h5>
+                                        <p className="ms-4 mb-0">
+                                            Campus do IPCA<br />
+                                            Lugar do Aldão<br />
+                                            4750-810 Barcelos
+                                        </p>
+                                    </div>
+
+
+                                </div>
+                            </Modal.Body>
+                        </Modal>
                     </Nav>
 
                     <div className="ms-auto">
-                        <span>+351 202-555-0104</span>
+                        <span>(+351) 253 802 190</span>
                     </div>
                 </Container>
             </Navbar>
