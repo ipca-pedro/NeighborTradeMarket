@@ -8,7 +8,7 @@ import Footer from '../layout/Footer';
 
 const CriarProduto = () => {
     const navigate = useNavigate();
-    const { currentUser, isAuthenticated } = useAuth();
+    const { currentUser, isAuthenticated, loading: authLoading } = useAuth();
     const [categorias, setCategorias] = useState([]);
     const [tiposItem, setTiposItem] = useState([]);
     const [formData, setFormData] = useState({
@@ -52,6 +52,26 @@ const CriarProduto = () => {
     // Redirecionar para a página de login se o usuário não estiver autenticado
     if (!isAuthenticated) {
         return <Navigate to="/login" replace state={{ from: '/criar-anuncio', message: 'É necessário fazer login para criar um anúncio' }} />;
+    }
+
+    // Se o usuário está autenticado mas não tem currentUser, tentar obter novamente
+    if (isAuthenticated && !currentUser) {
+        return <div className="d-flex justify-content-center align-items-center min-vh-100">
+            <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">A carregar...</span>
+            </div>
+        </div>;
+    }
+
+    // Se o usuário não tem ID, mostrar erro
+    if (currentUser && !currentUser.ID_User) {
+        return <div className="text-center py-5">
+            <h3 className="text-danger">Erro de Autenticação</h3>
+            <p className="text-muted">Não foi possível obter o ID do usuário. Por favor, faça logout e login novamente.</p>
+            <Button variant="primary" onClick={() => navigate('/logout')}>
+                Fazer Logout
+            </Button>
+        </div>;
     }
 
     const handleChange = (e) => {
@@ -124,17 +144,36 @@ const CriarProduto = () => {
             setLoading(false);
             return;
         }
-        
-        // Validar o preço antes de enviar
+
+        // Validar e formatar dados
         const preco = parseFloat(formData.Preco);
-        if (isNaN(preco) || preco <= 0) {
-            setError('O preço deve ser um número positivo');
+        if (isNaN(preco) || preco <= 0 || preco > 9999.99) {
+            setError('Por favor, insira um preço válido (entre 0.01 e 9999.99)');
             setLoading(false);
             return;
         }
-        
-        if (preco > 9999.99) {
-            setError('O preço máximo permitido é 9999.99€');
+
+        // Validar título
+        const titulo = formData.Titulo?.trim();
+        if (!titulo || titulo.length > 100) {
+            setError('Por favor, insira um título válido (máximo 100 caracteres)');
+            setLoading(false);
+            return;
+        }
+
+        // Validar descrição
+        const descricao = formData.Descricao?.trim();
+        if (!descricao) {
+            setError('Por favor, insira uma descrição para o anúncio');
+            setLoading(false);
+            return;
+        }
+
+        // Validar categoria e tipo
+        const categoriaId = parseInt(formData.CategoriaID_Categoria);
+        const tipoId = parseInt(formData.Tipo_ItemID_Tipo);
+        if (isNaN(categoriaId) || isNaN(tipoId)) {
+            setError('Por favor, selecione uma categoria e um tipo válidos');
             setLoading(false);
             return;
         }
@@ -143,17 +182,20 @@ const CriarProduto = () => {
             const formDataObj = new FormData();
             
             // Adicionar dados do produto
-            Object.keys(formData).forEach(key => {
-                formDataObj.append(key, formData[key]);
-            });
+            formDataObj.append('Titulo', titulo);
+            formDataObj.append('Descricao', descricao);
+            formDataObj.append('Preco', preco.toFixed(2)); // Enviar como string com 2 casas decimais
+            formDataObj.append('CategoriaID_Categoria', categoriaId);
+            formDataObj.append('Tipo_ItemID_Tipo', tipoId);
+            formDataObj.append('UtilizadorID_User', parseInt(currentUser.ID_User));
+            formDataObj.append('Status_AnuncioID_Status_Anuncio', 1); // 1 para status pendente
 
             // Adicionar imagens
-            imagens.forEach(imagem => {
-                formDataObj.append('imagens[]', imagem);
+            imagens.forEach((imagem, index) => {
+                if (imagem) {
+                    formDataObj.append(`imagens[${index}]`, imagem);
+                }
             });
-
-            // Adicionar ID do utilizador
-            formDataObj.append('UtilizadorID_User', currentUser.ID_User);
 
             await anuncioService.criarAnuncio(formDataObj);
 
@@ -175,8 +217,18 @@ const CriarProduto = () => {
                 navigate('/anuncios');
             }, 2000);
         } catch (err) {
-            console.error('Erro completo:', err);
-            setError(err.response?.data?.message || 'Erro ao criar anúncio. Tente novamente.');
+            console.error('Erro ao criar anúncio:', err);
+            
+            // Mostrar erros específicos do backend
+            if (err.response?.data?.errors) {
+                let errorMessage = 'Erro ao criar anúncio:\n';
+                Object.entries(err.response.data.errors).forEach(([field, messages]) => {
+                    errorMessage += `-${field}: ${messages.join(', ')}\n`;
+                });
+                setError(errorMessage);
+            } else {
+                setError(err.response?.data?.message || 'Erro ao criar anúncio. Por favor, tente novamente.');
+            }
         } finally {
             setLoading(false);
         }

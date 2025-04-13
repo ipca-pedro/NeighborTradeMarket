@@ -21,16 +21,61 @@ use Illuminate\Database\Eloquent\Model;
  */
 class StatusAnuncio extends Model
 {
-	protected $table = 'status_anuncio';
-	protected $primaryKey = 'ID_Status_Anuncio';
-	public $timestamps = false;
+    // Constantes para status
+    const STATUS_PENDENTE = 1;
+    const STATUS_APROVADO = 2;
+    const STATUS_REJEITADO = 3;
 
-	protected $fillable = [
-		'Descricao_status_anuncio'
-	];
+    protected $table = 'status_anuncio';
+    protected $primaryKey = 'ID_Status_Anuncio';
+    public $timestamps = false;
 
-	public function anuncios()
-	{
-		return $this->hasMany(Anuncio::class, 'Status_AnuncioID_Status_Anuncio');
-	}
+    protected $fillable = [
+        'Descricao_status_anuncio'
+    ];
+
+    /**
+     * Verifica se um status é válido
+     *
+     * @param int $statusId
+     * @return bool
+     */
+    public static function isValidStatus($statusId)
+    {
+        return in_array($statusId, [
+            self::STATUS_PENDENTE,
+            self::STATUS_APROVADO,
+            self::STATUS_REJEITADO
+        ]);
+    }
+
+    /**
+     * Obtém o status por ID
+     *
+     * @param int $statusId
+     * @return StatusAnuncio|null
+     */
+    public static function getStatusById($statusId)
+    {
+        return self::find($statusId);
+    }
+
+    /**
+     * Obtém todos os status válidos
+     *
+     * @return Collection
+     */
+    public static function getAllValidStatus()
+    {
+        return self::whereIn('ID_Status_Anuncio', [
+            self::STATUS_PENDENTE,
+            self::STATUS_APROVADO,
+            self::STATUS_REJEITADO
+        ])->get();
+    }
+
+    public function anuncios()
+    {
+        return $this->hasMany(Anuncio::class, 'Status_AnuncioID_Status_Anuncio');
+    }
 }
