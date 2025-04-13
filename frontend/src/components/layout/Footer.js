@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Container, Row, Col, ListGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import HelpModal from '../help/HelpModal';
 
 const Footer = () => {
+    const [showHelpModal, setShowHelpModal] = useState(false);
+
     return (
         <footer className="bg-dark text-white pt-5 pb-4">
             <Container>
@@ -75,7 +78,7 @@ const Footer = () => {
                                 <Link to="/sobre-nos" className="text-white text-decoration-none">Sobre Nós</Link>
                             </ListGroup.Item>
                             <ListGroup.Item className="bg-transparent border-0 p-0 mb-2">
-                                <Link to="/contactos" className="text-white text-decoration-none">Contactos</Link>
+                                <Link to="#" onClick={(e) => { e.preventDefault(); setShowHelpModal(true); }} className="text-white text-decoration-none">Contactos</Link>
                             </ListGroup.Item>
                         </ListGroup>
                     </Col>
@@ -106,6 +109,11 @@ const Footer = () => {
                     <p className="mb-0">NeighborTrade {new Date().getFullYear()}. Todos os direitos reservados.</p>
                 </div>
             </Container>
+
+            <HelpModal
+                show={showHelpModal}
+                onHide={() => setShowHelpModal(false)}
+            />
         </footer>
     );
 };

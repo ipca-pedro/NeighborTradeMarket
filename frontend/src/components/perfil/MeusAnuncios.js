@@ -117,7 +117,7 @@ const MeusAnuncios = () => {
                     <i className="fas fa-box-open fa-3x text-muted mb-3"></i>
                     <h5>Você ainda não tem anúncios</h5>
                     <p className="text-muted">Comece a vender ou trocar seus itens agora mesmo!</p>
-                    <Link to="/anuncios/criar">
+                    <Link to="/anuncios/novo">
                         <Button variant="primary">
                             <i className="fas fa-plus me-2"></i> Criar Anúncio
                         </Button>
@@ -130,7 +130,7 @@ const MeusAnuncios = () => {
             <>
                 <div className="d-flex justify-content-between align-items-center mb-4">
                     <h5 className="mb-0">Total: {anuncios.length} anúncios</h5>
-                    <Link to="/anuncios/criar">
+                    <Link to="/anuncios/novo">
                         <Button variant="primary" size="sm">
                             <i className="fas fa-plus me-1"></i> Novo Anúncio
                         </Button>

@@ -6,11 +6,32 @@ import { useAuth } from '../../contexts/AuthContext';
 import LoginPopup from '../auth/LoginPopup';
 import CategoryMenu from './CategoryMenu';
 import HelpModal from '../help/HelpModal';
+import NotificationDropdown from '../notifications/NotificationDropdown';
 
 const Header = () => {
     const [showLoginPopup, setShowLoginPopup] = useState(false);
     const [showCategoryMenu, setShowCategoryMenu] = useState(false);
     const [showHelpModal, setShowHelpModal] = useState(false);
+    const [showMessagesDropdown, setShowMessagesDropdown] = useState(false);
+    const [messages, setMessages] = useState([]);
+    const [showNotificationsDropdown, setShowNotificationsDropdown] = useState(false);
+    const [notifications, setNotifications] = useState([]);
+    const [unreadCount, setUnreadCount] = useState(0);
+
+    // Simular a atualização do contador de notificações não lidas
+    useEffect(() => {
+        setUnreadCount(notifications.filter(n => !n.read).length);
+    }, [notifications]);
+
+    const handleReadNotifications = (notificationIds) => {
+        setNotifications(prevNotifications =>
+            prevNotifications.map(notification =>
+                notificationIds.includes(notification.id)
+                    ? { ...notification, read: true }
+                    : notification
+            )
+        );
+    };
     const { currentUser, logout } = useAuth();
     const navigate = useNavigate();
     const searchRef = useRef(null);
@@ -49,13 +70,19 @@ const Header = () => {
                 !event.target.closest('.category-menu')) {
                 setShowCategoryMenu(false);
             }
+            if (showMessagesDropdown && !event.target.closest('.messages-dropdown')) {
+                setShowMessagesDropdown(false);
+            }
+            if (showNotificationsDropdown && !event.target.closest('.notifications-dropdown')) {
+                setShowNotificationsDropdown(false);
+            }
         };
 
         document.addEventListener('mousedown', handleClickOutside);
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [showLoginPopup, showCategoryMenu]);
+    }, [showLoginPopup, showCategoryMenu, showMessagesDropdown, showNotificationsDropdown]);
 
     return (
         <header>
@@ -98,9 +125,68 @@ const Header = () => {
                                 <i className="fas fa-plus me-1"></i> Criar Anúncio
                             </Button>
                         )}
-                        <Nav.Link href="#" className="text-white me-3">
-                            <i className="far fa-comment-alt"></i>
-                        </Nav.Link>
+                        <div className="position-relative me-3 notifications-dropdown">
+                            <Nav.Link 
+                                href="#" 
+                                className="text-white position-relative" 
+                                onClick={() => setShowNotificationsDropdown(!showNotificationsDropdown)}
+                            >
+                                <i className="fas fa-bell"></i>
+                                {unreadCount > 0 && (
+                                    <span 
+                                        className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                        style={{ fontSize: '0.65rem', marginTop: '-3px' }}
+                                    >
+                                        {unreadCount}
+                                    </span>
+                                )}
+                            </Nav.Link>
+                            {showNotificationsDropdown && (
+                                <NotificationDropdown 
+                                    notifications={notifications}
+                                    onRead={handleReadNotifications}
+                                />
+                            )}
+                        </div>
+                        <div className="position-relative me-3 messages-dropdown">
+                            <Nav.Link 
+                                href="#" 
+                                className="text-white" 
+                                onClick={() => setShowMessagesDropdown(!showMessagesDropdown)}
+                            >
+                                <i className="far fa-comment-alt"></i>
+                            </Nav.Link>
+                            {showMessagesDropdown && (
+                                <div 
+                                    className="position-absolute bg-white shadow rounded" 
+                                    style={{ 
+                                        top: '100%', 
+                                        right: 0, 
+                                        width: '300px', 
+                                        zIndex: 1000 
+                                    }}
+                                >
+                                    <div className="p-3 border-bottom">
+                                        <h6 className="mb-0">Mensagens</h6>
+                                    </div>
+                                    <div className="messages-list" style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                                        {messages.length === 0 ? (
+                                            <div className="p-4 text-center text-muted">
+                                                <i className="far fa-comment-alt fa-2x mb-2"></i>
+                                                <p className="mb-0">Você ainda não tem mensagens</p>
+                                                <small>Quando iniciar uma conversa, ela aparecerá aqui</small>
+                                            </div>
+                                        ) : (
+                                            messages.map(message => (
+                                                <div key={message.id} className="p-3 border-bottom hover-bg-light">
+                                                    {/* Aqui vai o conteúdo de cada mensagem quando implementado */}
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                         <div className="user-dropdown position-relative">
                             {currentUser ? (
                                 <Dropdown>
