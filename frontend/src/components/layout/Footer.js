@@ -69,7 +69,7 @@ const Footer = () => {
                                 <Link to="/rastrear-encomenda" className="text-white text-decoration-none">Rastrear Encomenda</Link>
                             </ListGroup.Item>
                             <ListGroup.Item className="bg-transparent border-0 p-0 mb-2">
-                                <Link to="/apoio-cliente" className="text-white text-decoration-none">Apoio ao Cliente</Link>
+                                <Link to="/faq" className="text-white text-decoration-none">Apoio ao Cliente</Link>
                             </ListGroup.Item>
                             <ListGroup.Item className="bg-transparent border-0 p-0 mb-2">
                                 <Link to="/sobre-nos" className="text-white text-decoration-none">Sobre Nós</Link>
@@ -103,7 +103,7 @@ const Footer = () => {
                 <hr className="my-4" />
                 
                 <div className="text-center">
-                    <p className="mb-0">NeighborTrade © {new Date().getFullYear()}. Todos os direitos reservados.</p>
+                    <p className="mb-0">NeighborTrade {new Date().getFullYear()}. Todos os direitos reservados.</p>
                 </div>
             </Container>
         </footer>

@@ -52,7 +52,7 @@ export const authService = {
                 if (response.data.token) {
                     localStorage.setItem('token', response.data.token);
                     localStorage.setItem('user', JSON.stringify(response.data.user));
-                    console.log('Usuário armazenado no localStorage:', response.data.user);
+                    console.log('Utilizador armazenado no localStorage:', response.data.user);
                     console.log('TipoUserID_TipoUser:', response.data.user.TipoUserID_TipoUser);
                 }
                 return response.data;
@@ -152,57 +152,57 @@ export const authService = {
 };
 
 export const adminService = {
-    // Obter usuários pendentes
+    // Obter utilizadores pendentes
     getPendingUsers: async () => {
         try {
             const response = await api.get('/admin/users/pending');
             return response.data;
         } catch (error) {
-            console.error('Erro ao obter usuários pendentes:', error);
+            console.error('Erro ao obter utilizadores pendentes:', error);
             throw error.response?.data || error.message;
         }
     },
     
-    // Obter todos os usuários
+    // Obter todos os utilizadores
     getAllUsers: async () => {
         try {
             const response = await api.get('/admin/users');
             return response.data;
         } catch (error) {
-            console.error('Erro ao obter todos os usuários:', error);
+            console.error('Erro ao obter todos os utilizadores:', error);
             throw error.response?.data || error.message;
         }
     },
     
-    // Atualizar status de um usuário
+    // Atualizar status de um utilizador
     updateUserStatus: async (userId, statusId) => {
         try {
             const response = await api.put(`/admin/users/${userId}/status`, { status: statusId });
             return response.data;
         } catch (error) {
-            console.error('Erro ao atualizar status do usuário:', error);
+            console.error('Erro ao atualizar status do utilizador:', error);
             throw error.response?.data || error.message;
         }
     },
     
-    // Aprovar um usuário
+    // Aprovar um utilizador
     approveUser: async (userId) => {
         try {
             const response = await api.post(`/admin/users/${userId}/approve`);
             return response.data;
         } catch (error) {
-            console.error('Erro ao aprovar usuário:', error);
+            console.error('Erro ao aprovar utilizador:', error);
             throw error.response?.data || error.message;
         }
     },
     
-    // Rejeitar um usuário
+    // Rejeitar um utilizador
     rejectUser: async (userId, reason) => {
         try {
             const response = await api.post(`/admin/users/${userId}/reject`, { motivo: reason });
             return response.data;
         } catch (error) {
-            console.error('Erro ao rejeitar usuário:', error);
+            console.error('Erro ao rejeitar utilizador:', error);
             throw error.response?.data || error.message;
         }
     },
@@ -264,10 +264,10 @@ export const anuncioService = {
         }
     },
     
-    // Obter anúncios do usuário atual
+    // Obter anúncios do utilizador atual
     getMeusAnuncios: async () => {
         try {
-            // Tentar obter o ID do usuário do localStorage
+            // Tentar obter o ID do utilizador do localStorage
             const userData = localStorage.getItem('user');
             let userId = null;
             
@@ -275,15 +275,15 @@ export const anuncioService = {
                 try {
                     const user = JSON.parse(userData);
                     userId = user.id || user.ID_Utilizador;
-                    console.log('ID do usuário obtido do localStorage:', userId);
+                    console.log('ID do utilizador obtido do localStorage:', userId);
                 } catch (e) {
-                    console.error('Erro ao analisar dados do usuário:', e);
+                    console.error('Erro ao analisar dados do utilizador:', e);
                 }
             }
             
             let response;
             
-            // Se temos o ID do usuário, usar a rota alternativa
+            // Se temos o ID do utilizador, usar a rota alternativa
             if (userId) {
                 response = await api.get(`/user/${userId}/anuncios`);
                 console.log('Usando rota alternativa para obter anúncios');
@@ -348,7 +348,7 @@ export const anuncioService = {
         }
     },
     
-    // Obter anúncios do usuário logado
+    // Obter anúncios do utilizador logado
     getMeusAnuncios: async () => {
         try {
             const response = await api.get('/meus-anuncios');

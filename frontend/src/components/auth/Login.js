@@ -29,19 +29,19 @@ function Login() {
             // Fazer login e obter resposta
             const response = await authService.login(email, password);
             
-            // Obter o usuário do localStorage (onde o authService o armazena)
+            // Obter o utilizador do localStorage (onde o authService o armazena)
             const userStr = localStorage.getItem('user');
             const user = userStr ? JSON.parse(userStr) : null;
             
-            console.log('Usuário logado:', user);
+            console.log('Utilizador logado:', user);
             
-            // Verificar se o usuário é administrador
+            // Verificar se o utilizador é administrador
             if (user && user.TipoUserID_TipoUser === 1) {
-                console.log('Usuário é administrador, redirecionando para /admin');
+                console.log('Utilizador é administrador, redirecionando para /admin');
                 // Redirecionar para a página de administração
                 navigate('/admin');
             } else {
-                console.log('Usuário não é administrador, redirecionando para a página anterior ou home');
+                console.log('Utilizador não é administrador, redirecionando para a página anterior ou home');
                 // Redirecionar para a página anterior se existir
                 if (location.state && location.state.from) {
                     navigate(location.state.from);

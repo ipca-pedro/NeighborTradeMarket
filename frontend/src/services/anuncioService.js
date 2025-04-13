@@ -7,7 +7,7 @@ const getAnunciosDestaque = async () => {
         const response = await axios.get(`${API_URL}/anuncios`);
         return response.data;
     } catch (error) {
-        console.error('Erro ao buscar anúncios em destaque:', error);
+        console.error('Erro ao procurar anúncios em destaque:', error);
         return [];
     }
 };
@@ -17,7 +17,7 @@ const getAnunciosPorTipo = async (tipoItemId) => {
         const response = await axios.get(`${API_URL}/anuncios/tipo/${tipoItemId}`);
         return response.data;
     } catch (error) {
-        console.error(`Erro ao buscar anúncios do tipo ${tipoItemId}:`, error);
+        console.error(`Erro ao procurar anúncios do tipo ${tipoItemId}:`, error);
         return [];
     }
 };
@@ -42,7 +42,7 @@ const getAnunciosAleatorios = async (quantidade = 10, tipoItem = null) => {
         const response = await axios.get(`${API_URL}/anuncios/aleatorios`, { params });
         return response.data;
     } catch (error) {
-        console.error('Erro ao buscar anúncios aleatórios:', error);
+        console.error('Erro ao procurar anúncios aleatórios:', error);
         return [];
     }
 };
