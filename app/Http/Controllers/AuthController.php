@@ -118,7 +118,7 @@ class AuthController extends Controller
             ],
             'CC' => 'required|string|max:20',
             'MoradaID_Morada' => 'required|integer|exists:morada,ID_Morada',
-            'comprovativo_morada' => 'required|file|mimes:jpeg,png,jpg,pdf|max:2048'
+            'comprovativo_morada' => 'required|file|mimes:jpeg,png,jpg,pdf|max:5120'
         ]);
 
         DB::beginTransaction();
@@ -138,29 +138,49 @@ class AuthController extends Controller
             // Processar comprovativo de morada
             $imagemId = null;
             if ($request->hasFile('comprovativo_morada')) {
-                // Obter o próximo ID para o nome do arquivo
-                $nextId = DB::table('imagem')->max('ID_Imagem') + 1;
-                $file = $request->file('comprovativo_morada');
-                $extension = $file->getClientOriginalExtension();
-                $filename = 'aprova' . $nextId . '.' . $extension;
-                
-                // Armazenar o arquivo no diretório public/storage/comprovativos
-                // Isso garante que o arquivo seja acessível publicamente
-                $path = $file->storeAs('public/comprovativos', $filename);
-                
-                // Criar registro na tabela imagem
-                $imagem = new Imagem([
-                    'Caminho' => $path
-                ]);
-                $imagem->save();
-                $imagemId = $imagem->ID_Imagem;
-                
-                // Log para debug
-                \Log::info('Comprovativo de morada armazenado:', [
-                    'path' => $path,
-                    'filename' => $filename,
-                    'imagemId' => $imagemId
-                ]);
+                try {
+                    // Criar diretório de comprovativos se não existir
+                    $diretorioBase = 'comprovativos';
+                    if (!Storage::disk('public')->exists($diretorioBase)) {
+                        Storage::disk('public')->makeDirectory($diretorioBase);
+                    }
+                    
+                    // Criar diretório específico para o tipo de documento (PDF ou imagem)
+                    $file = $request->file('comprovativo_morada');
+                    $extension = $file->getClientOriginalExtension();
+                    $isPdf = strtolower($extension) === 'pdf';
+                    $tipoDir = $isPdf ? 'pdfs' : 'imagens';
+                    $diretorioTipo = $diretorioBase . '/' . $tipoDir;
+                    
+                    if (!Storage::disk('public')->exists($diretorioTipo)) {
+                        Storage::disk('public')->makeDirectory($diretorioTipo);
+                    }
+                    
+                    // Gerar nome único para o arquivo
+                    $userId = DB::table('utilizador')->max('ID_User') + 1; // Próximo ID de usuário
+                    $timestamp = now()->format('YmdHis');
+                    $filename = 'user_' . $userId . '_' . $timestamp . '.' . $extension;
+                    
+                    // Armazenar o arquivo no diretório apropriado
+                    $path = $file->storeAs($diretorioTipo, $filename, 'public');
+                    
+                    // Criar registro na tabela imagem
+                    $imagem = new Imagem();
+                    $imagem->Caminho = $path;
+                    $imagem->save();
+                    $imagemId = $imagem->ID_Imagem;
+                    
+                    // Log para debug
+                    \Log::info('Comprovativo de morada armazenado:', [
+                        'path' => $path,
+                        'filename' => $filename,
+                        'tipo' => $isPdf ? 'PDF' : 'Imagem',
+                        'imagemId' => $imagemId
+                    ]);
+                } catch (\Exception $e) {
+                    \Log::error('Erro ao salvar comprovativo de morada: ' . $e->getMessage());
+                    throw $e; // Propagar o erro para ser capturado no bloco catch principal
+                }
             }
             
             // Verificar se temos uma imagem de perfil padrão para usar

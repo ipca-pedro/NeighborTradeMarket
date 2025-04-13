@@ -35,17 +35,21 @@ function Login() {
             
             console.log('Utilizador logado:', user);
             
-            // Verificar se o utilizador é administrador
+            // Verificar se o utilizador é administrador (TipoUserID_TipoUser === 1)
             if (user && user.TipoUserID_TipoUser === 1) {
                 console.log('Utilizador é administrador, redirecionando para /admin');
-                // Redirecionar para a página de administração
-                navigate('/admin');
+                // Forçar um pequeno atraso para garantir que o localStorage seja atualizado
+                setTimeout(() => {
+                    // Redirecionar para a página de administração
+                    navigate('/admin', { replace: true });
+                }, 100);
             } else {
                 console.log('Utilizador não é administrador, redirecionando para a página anterior ou home');
                 // Redirecionar para a página anterior se existir
                 if (location.state && location.state.from) {
                     navigate(location.state.from);
                 } else {
+                    // Redirecionar para a landpage principal
                     navigate('/');
                 }
             }

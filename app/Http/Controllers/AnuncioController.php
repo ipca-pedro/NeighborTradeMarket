@@ -228,7 +228,8 @@ class AnuncioController extends Controller
             'Preco' => 'required|numeric|min:0.01|max:9999.99',
             'CategoriaID_Categoria' => 'required|exists:categoria,ID_Categoria',
             'Tipo_ItemID_Tipo' => 'required|exists:tipo_item,ID_Tipo',
-            'imagens.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'imagens' => 'nullable|array',
+            'imagens.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120' // Aumentado para 5MB e adicionado webp
         ]);
 
         if ($validator->fails()) {
@@ -243,9 +244,9 @@ class AnuncioController extends Controller
 
             // Criar aprovação (pendente)
             $aprovacao = new Aprovacao();
-            $aprovacao->Data_Criacao = now();
+            $aprovacao->Data_Submissao = now(); // Corrigido: Data_Submissao em vez de Data_Criacao
             $aprovacao->Status_AprovacaoID_Status_Aprovacao = 1;
-            $aprovacao->UtilizadorID_Admin = null; // A ser definido quando aprovado
+            $aprovacao->UtilizadorID_Admin = 1; // Usando ID 1 como admin padrão conforme memória
             $aprovacao->save();
 
             // Criar anúncio
@@ -263,21 +264,39 @@ class AnuncioController extends Controller
             // Processar imagens
             if ($request->hasFile('imagens')) {
                 $imagens = $request->file('imagens');
-
-                foreach ($imagens as $key => $imagemFile) {
-                    $imagemNome = time() . '_' . $key . '.' . $imagemFile->getClientOriginalExtension();
-                    $imagemPath = $imagemFile->storeAs('anuncios/' . $anuncio->ID_Anuncio, $imagemNome, 'public');
-
-                    $imagem = new Imagem();
-                    $imagem->Caminho = $imagemPath;
-                    $imagem->save();
-
-                    $itemImagem = new ItemImagem();
-                    $itemImagem->AnuncioID_Anuncio = $anuncio->ID_Anuncio;
-                    $itemImagem->ImagemID_Imagem = $imagem->ID_Imagem;
-                    $itemImagem->Principal = ($key == 0) ? 1 : 0;
-                    $itemImagem->save();
+                
+                // Criar diretório se não existir
+                $diretorio = 'anuncios/' . $anuncio->ID_Anuncio;
+                if (!Storage::disk('public')->exists($diretorio)) {
+                    Storage::disk('public')->makeDirectory($diretorio);
                 }
+                
+                foreach ($imagens as $key => $imagemFile) {
+                    try {
+                        // Gerar nome único para a imagem
+                        $imagemNome = uniqid() . '_' . $key . '.' . $imagemFile->getClientOriginalExtension();
+                        $imagemPath = $imagemFile->storeAs($diretorio, $imagemNome, 'public');
+                        
+                        // Salvar informações da imagem no banco
+                        $imagem = new Imagem();
+                        $imagem->Caminho = $imagemPath;
+                        $imagem->save();
+                        
+                        // Associar imagem ao anúncio
+                        $itemImagem = new ItemImagem();
+                        $itemImagem->AnuncioID_Anuncio = $anuncio->ID_Anuncio;
+                        $itemImagem->ImagemID_Imagem = $imagem->ID_Imagem;
+                        $itemImagem->Principal = ($key == 0) ? 1 : 0; // Primeira imagem como principal
+                        $itemImagem->save();
+                        
+                        \Log::info('Imagem salva com sucesso: ' . $imagemPath);
+                    } catch (\Exception $e) {
+                        \Log::error('Erro ao salvar imagem: ' . $e->getMessage());
+                        // Continuar com as próximas imagens mesmo se uma falhar
+                    }
+                }
+            } else {
+                \Log::info('Nenhuma imagem enviada para o anúncio ID: ' . $anuncio->ID_Anuncio);
             }
 
             DB::commit();
