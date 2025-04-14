@@ -1,34 +1,50 @@
-# Ignorar diretórios de dependências e cache
+# Laravel specific
 /node_modules
+/public/hot
+/public/storage
+/storage/*.key
+/vendor
+.env
+.env.backup
+.phpunit.result.cache
+docker-compose.override.yml
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
+/.idea
+/.vscode
+
+# Permitir arquivos de imagens e comprovativos
+!/storage/app/public/anuncios
+!/storage/app/public/anuncios/**
+!/storage/app/public/comprovativos
+!/storage/app/public/comprovativos/**
+!/storage/app/public/comprovativo
+!/storage/app/public/comprovativo/**
+
+# Ignorar arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# Ignorar diretórios de dependências e cache
 /vendor
 /.phpunit.cache
 
 # Ignorar arquivos de ambiente e configuração local
-.env.backup
-.env.production
 .phpactor.json
-.phpunit.result.cache
-Homestead.json
-Homestead.yaml
 
 # Ignorar logs
-npm-debug.log
-yarn-error.log
 /storage/logs/*.log
 
 # Ignorar arquivos de build e storage público
 /public/build
-/public/hot
-/public/storage
-/storage/*.key
 /storage/pail
 
 # Ignorar arquivos de IDE e editores
 /auth.json
 /.fleet
-/.idea
 /.nova
-/.vscode
 /.zed
 
 # NÃO ignorar arquivos importantes de middleware

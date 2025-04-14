@@ -784,3 +784,47 @@ git push origin feature/nome-da-feature
 ```
 
 4. Crie um Pull Request
+
+## Configuração das Imagens
+
+Após clonar o repositório, siga estes passos para configurar corretamente as imagens dos anúncios:
+
+1. Crie os diretórios necessários para as imagens:
+```bash
+mkdir -p storage/app/public/perfil
+mkdir -p storage/app/public/anuncios
+mkdir -p storage/app/public/comprovativos/pdfs
+```
+
+2. Crie o link simbólico para a pasta storage:
+```bash
+php artisan storage:link
+```
+
+3. Copie as imagens do diretório `resources/images` para os respectivos diretórios em `storage/app/public/`:
+```bash
+cp -r resources/images/perfil/* storage/app/public/perfil/
+cp -r resources/images/anuncios/* storage/app/public/anuncios/
+cp -r resources/images/comprovativos/* storage/app/public/comprovativos/
+```
+
+4. Execute o script SQL para inserir os dados das imagens no banco de dados:
+```bash
+mysql -u seu_usuario -p sua_base_de_dados < database/seeders/sql/imagens.sql
+```
+
+## Estrutura dos Diretórios de Imagens
+
+```
+storage/app/public/
+├── perfil/
+│   └── default.png
+├── anuncios/
+│   └── [ID_do_anuncio]/
+│       └── imagens_do_anuncio
+└── comprovativos/
+    └── pdfs/
+        └── documentos_dos_usuarios
+```
+
+Certifique-se de que todos os diretórios foram criados e as permissões estão corretas antes de executar a aplicação.

@@ -262,7 +262,7 @@ class AnuncioController extends Controller
             if (!is_numeric($userId)) {
                 // Se não for numérico, buscar o ID do usuário pelo email
                 $user = Auth::user();
-                $userId = $user->ID_Utilizador;
+                $userId = $user->ID_User;
                 \Log::info('Convertendo email para ID: ' . Auth::id() . ' -> ' . $userId);
             }
             
