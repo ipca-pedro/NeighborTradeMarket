@@ -61,12 +61,29 @@ class AuthController extends Controller
                 'status' => $user->Status_UtilizadorID_status_utilizador
             ]);
             
-            // Temporariamente desativado para fins de teste
-            // if ($user->Status_UtilizadorID_status_utilizador != 2) { // Assumindo que 2 é o ID para "Aprovado"
-            //     return response()->json([
-            //         'message' => 'A sua conta ainda não foi aprovada pelo administrador.'
-            //     ], 403);
-            // }
+            // Verificar se o utilizador está aprovado (status 2 = Aprovado)
+            if ($user->Status_UtilizadorID_status_utilizador != 2) { 
+                $statusMessage = '';
+                
+                // Mensagens personalizadas com base no status
+                switch ($user->Status_UtilizadorID_status_utilizador) {
+                    case 1: // Pendente
+                        $statusMessage = 'A sua conta ainda está pendente de aprovação pelo administrador.';
+                        break;
+                    case 3: // Inativo
+                        $statusMessage = 'A sua conta está inativa. Por favor, contacte o administrador.';
+                        break;
+                    case 8: // Rejeitado
+                        $statusMessage = 'O seu pedido de registo foi rejeitado pelo administrador.';
+                        break;
+                    default:
+                        $statusMessage = 'A sua conta não está autorizada a fazer login. Por favor, contacte o administrador.';
+                }
+                
+                return response()->json([
+                    'message' => $statusMessage
+                ], 403);
+            }
             
             // Gerar token de autenticação
             $token = $user->createToken('auth-token')->plainTextToken;

@@ -166,14 +166,16 @@ class AdminController extends Controller
             // Criar registro de rejeição (usando a mesma tabela de aprovação)
             $aprovacao = new Aprovacao([
                 'Data_Aprovacao' => now(),
+                'Data_Submissao' => now(),
+                'Comentario' => $request->motivo,
                 'UtilizadorID_Admin' => $user->ID_User,
-                'Motivo_Rejeicao' => $request->motivo
+                'Status_AprovacaoID_Status_Aprovacao' => 3 // Status de rejeição na tabela Aprovação
             ]);
             
             $aprovacao->save();
             
             // Atualizar o utilizador
-            $targetUser->Status_UtilizadorID_status_utilizador = 3; // 3 = Rejeitado
+            $targetUser->Status_UtilizadorID_status_utilizador = 8; // 8 = Rejeitado
             $targetUser->AprovacaoID_aprovacao = $aprovacao->ID_aprovacao;
             $targetUser->save();
             
@@ -269,5 +271,26 @@ class AdminController extends Controller
                 'message' => 'Erro ao atualizar status do utilizador: ' . $e->getMessage()
             ], 500);
         }
+    }
+    
+    /**
+     * Obter contagem de utilizadores pendentes para notificações
+     */
+    public function getPendingUsersCount()
+    {
+        // Verificar se o utilizador autenticado é administrador
+        $user = Auth::user();
+        if ($user->TipoUserID_TipoUser != 1) { // Assumindo que 1 é o ID para administradores
+            return response()->json([
+                'message' => 'Acesso não autorizado'
+            ], 403);
+        }
+        
+        // Contar utilizadores pendentes (status 1 = pendente)
+        $count = Utilizador::where('Status_UtilizadorID_status_utilizador', 1)->count();
+            
+        return response()->json([
+            'count' => $count
+        ]);
     }
 }

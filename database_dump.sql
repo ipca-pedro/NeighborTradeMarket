@@ -1,5 +1,5 @@
 -- NeighborTrade Database Dump
--- Gerado em: 2025-04-11 17:23:44
+-- Gerado em: 2025-04-14 23:28:18
 
 SET FOREIGN_KEY_CHECKS=0;
 
@@ -11,11 +11,15 @@ INSERT INTO `anuncio` (`ID_Anuncio`, `Titulo`, `Descricao`, `Preco`, `Utilizador
 
 -- Dados da tabela `aprovacao`
 TRUNCATE TABLE `aprovacao`;
-INSERT INTO `aprovacao` (`ID_aprovacao`, `Comentario`, `Data_Submissao`, `Data_Aprovacao`, `UtilizadorID_Admin`, `Status_AprovacaoID_Status_Aprovacao`) VALUES ('1', 'Administrador do sistema', '2025-04-10 17:49:36', '2025-04-10 17:49:36', '1', '1');
-INSERT INTO `aprovacao` (`ID_aprovacao`, `Comentario`, `Data_Submissao`, `Data_Aprovacao`, `UtilizadorID_Admin`, `Status_AprovacaoID_Status_Aprovacao`) VALUES ('2', 'Usuário de teste', '2025-04-10 17:49:36', '2025-04-10 17:49:36', '1', '1');
+INSERT INTO `aprovacao` (`ID_aprovacao`, `Comentario`, `Data_Submissao`, `Data_Aprovacao`, `UtilizadorID_Admin`, `Status_AprovacaoID_Status_Aprovacao`) VALUES ('1', 'Administrador do sistema', '2025-04-10 17:49:36', '2025-04-14 20:35:20', '1', '2');
+INSERT INTO `aprovacao` (`ID_aprovacao`, `Comentario`, `Data_Submissao`, `Data_Aprovacao`, `UtilizadorID_Admin`, `Status_AprovacaoID_Status_Aprovacao`) VALUES ('2', 'Usuário de teste', '2025-04-10 17:49:36', '2025-04-14 20:35:24', '1', '2');
 INSERT INTO `aprovacao` (`ID_aprovacao`, `Comentario`, `Data_Submissao`, `Data_Aprovacao`, `UtilizadorID_Admin`, `Status_AprovacaoID_Status_Aprovacao`) VALUES ('19', '', '2025-04-10 23:49:54', '2025-04-11 00:06:35', '1', '2');
 INSERT INTO `aprovacao` (`ID_aprovacao`, `Comentario`, `Data_Submissao`, `Data_Aprovacao`, `UtilizadorID_Admin`, `Status_AprovacaoID_Status_Aprovacao`) VALUES ('20', '', '2025-04-11 00:19:45', '2025-04-11 00:20:51', '1', '2');
 INSERT INTO `aprovacao` (`ID_aprovacao`, `Comentario`, `Data_Submissao`, `Data_Aprovacao`, `UtilizadorID_Admin`, `Status_AprovacaoID_Status_Aprovacao`) VALUES ('21', '', '2025-04-11 00:24:39', '2025-04-11 00:26:27', '1', '2');
+INSERT INTO `aprovacao` (`ID_aprovacao`, `Comentario`, `Data_Submissao`, `Data_Aprovacao`, `UtilizadorID_Admin`, `Status_AprovacaoID_Status_Aprovacao`) VALUES ('22', NULL, NULL, '2025-04-14 20:35:27', '1', '2');
+INSERT INTO `aprovacao` (`ID_aprovacao`, `Comentario`, `Data_Submissao`, `Data_Aprovacao`, `UtilizadorID_Admin`, `Status_AprovacaoID_Status_Aprovacao`) VALUES ('23', NULL, NULL, NULL, '1', '1');
+INSERT INTO `aprovacao` (`ID_aprovacao`, `Comentario`, `Data_Submissao`, `Data_Aprovacao`, `UtilizadorID_Admin`, `Status_AprovacaoID_Status_Aprovacao`) VALUES ('24', 'Nao quero fêmeas aqui.', '2025-04-14 20:53:56', '2025-04-14 20:53:56', '1', '3');
+INSERT INTO `aprovacao` (`ID_aprovacao`, `Comentario`, `Data_Submissao`, `Data_Aprovacao`, `UtilizadorID_Admin`, `Status_AprovacaoID_Status_Aprovacao`) VALUES ('25', NULL, NULL, '2025-04-14 21:16:03', '1', '2');
 
 -- Dados da tabela `cache`
 TRUNCATE TABLE `cache`;
@@ -24,40 +28,30 @@ INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES ('laravel_cache_d189a3
 
 -- Dados da tabela `categoria`
 TRUNCATE TABLE `categoria`;
-INSERT INTO `categoria` (`ID_Categoria`, `Descricao_Categoria`) VALUES ('1', 'Eletrônicos');
+INSERT INTO `categoria` (`ID_Categoria`, `Descricao_Categoria`) VALUES ('1', 'Informática');
 INSERT INTO `categoria` (`ID_Categoria`, `Descricao_Categoria`) VALUES ('2', 'Móveis');
 INSERT INTO `categoria` (`ID_Categoria`, `Descricao_Categoria`) VALUES ('3', 'Roupas');
 INSERT INTO `categoria` (`ID_Categoria`, `Descricao_Categoria`) VALUES ('4', 'Livros');
-INSERT INTO `categoria` (`ID_Categoria`, `Descricao_Categoria`) VALUES ('5', 'Esportes');
-INSERT INTO `categoria` (`ID_Categoria`, `Descricao_Categoria`) VALUES ('6', 'Outros');
-INSERT INTO `categoria` (`ID_Categoria`, `Descricao_Categoria`) VALUES ('7', 'Eletrónica');
-INSERT INTO `categoria` (`ID_Categoria`, `Descricao_Categoria`) VALUES ('8', 'Móveis');
-INSERT INTO `categoria` (`ID_Categoria`, `Descricao_Categoria`) VALUES ('9', 'Roupas');
-INSERT INTO `categoria` (`ID_Categoria`, `Descricao_Categoria`) VALUES ('10', 'Livros');
-INSERT INTO `categoria` (`ID_Categoria`, `Descricao_Categoria`) VALUES ('11', 'Brinquedos');
-INSERT INTO `categoria` (`ID_Categoria`, `Descricao_Categoria`) VALUES ('12', 'Ferramentas');
-INSERT INTO `categoria` (`ID_Categoria`, `Descricao_Categoria`) VALUES ('13', 'Veículos');
-INSERT INTO `categoria` (`ID_Categoria`, `Descricao_Categoria`) VALUES ('14', 'Imóveis');
-INSERT INTO `categoria` (`ID_Categoria`, `Descricao_Categoria`) VALUES ('15', 'Desporto');
-INSERT INTO `categoria` (`ID_Categoria`, `Descricao_Categoria`) VALUES ('16', 'Outros');
+INSERT INTO `categoria` (`ID_Categoria`, `Descricao_Categoria`) VALUES ('5', 'Brinquedos');
+INSERT INTO `categoria` (`ID_Categoria`, `Descricao_Categoria`) VALUES ('6', 'Ferramentas');
+INSERT INTO `categoria` (`ID_Categoria`, `Descricao_Categoria`) VALUES ('7', 'Veículos');
+INSERT INTO `categoria` (`ID_Categoria`, `Descricao_Categoria`) VALUES ('8', 'Imóveis');
+INSERT INTO `categoria` (`ID_Categoria`, `Descricao_Categoria`) VALUES ('9', 'Desporto');
+INSERT INTO `categoria` (`ID_Categoria`, `Descricao_Categoria`) VALUES ('10', 'Outros');
 
 -- Dados da tabela `imagem`
 TRUNCATE TABLE `imagem`;
 INSERT INTO `imagem` (`ID_Imagem`, `Caminho`) VALUES ('1', 'public/perfil/default.png');
 INSERT INTO `imagem` (`ID_Imagem`, `Caminho`) VALUES ('2', 'anuncios/1744330785_0_transferir.jpeg');
 INSERT INTO `imagem` (`ID_Imagem`, `Caminho`) VALUES ('3', 'anuncios/1744331079_0_transferir.jpeg');
+INSERT INTO `imagem` (`ID_Imagem`, `Caminho`) VALUES ('4', 'comprovativos/pdfs/user_3_20250414201839.pdf');
+INSERT INTO `imagem` (`ID_Imagem`, `Caminho`) VALUES ('5', 'comprovativos/pdfs/user_4_20250414203244.pdf');
+INSERT INTO `imagem` (`ID_Imagem`, `Caminho`) VALUES ('6', 'comprovativos/pdfs/user_5_20250414205617.pdf');
 
 -- Dados da tabela `item_imagem`
 TRUNCATE TABLE `item_imagem`;
 INSERT INTO `item_imagem` (`ItemID_Item`, `ImagemID_Imagem`) VALUES ('2', '2');
 INSERT INTO `item_imagem` (`ItemID_Item`, `ImagemID_Imagem`) VALUES ('3', '3');
-
--- Dados da tabela `migrations`
-TRUNCATE TABLE `migrations`;
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES ('1', '0001_01_01_000000_create_users_table', '1');
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES ('2', '0001_01_01_000001_create_cache_table', '1');
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES ('3', '0001_01_01_000002_create_jobs_table', '1');
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES ('4', '2025_04_10_212110_create_personal_access_tokens_table', '2');
 
 -- Dados da tabela `morada`
 TRUNCATE TABLE `morada`;
@@ -101,11 +95,6 @@ INSERT INTO `nota` (`ID_Nota`, `Descricao_nota`) VALUES ('2', '2 Estrelas');
 INSERT INTO `nota` (`ID_Nota`, `Descricao_nota`) VALUES ('3', '3 Estrelas');
 INSERT INTO `nota` (`ID_Nota`, `Descricao_nota`) VALUES ('4', '4 Estrelas');
 INSERT INTO `nota` (`ID_Nota`, `Descricao_nota`) VALUES ('5', '5 Estrelas');
-INSERT INTO `nota` (`ID_Nota`, `Descricao_nota`) VALUES ('6', '1 - Péssimo');
-INSERT INTO `nota` (`ID_Nota`, `Descricao_nota`) VALUES ('7', '2 - Ruim');
-INSERT INTO `nota` (`ID_Nota`, `Descricao_nota`) VALUES ('8', '3 - Razoável');
-INSERT INTO `nota` (`ID_Nota`, `Descricao_nota`) VALUES ('9', '4 - Bom');
-INSERT INTO `nota` (`ID_Nota`, `Descricao_nota`) VALUES ('10', '5 - Excelente');
 
 -- Dados da tabela `personal_access_tokens`
 TRUNCATE TABLE `personal_access_tokens`;
@@ -140,6 +129,34 @@ INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `n
 INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('29', 'App\\Models\\Utilizador', '2', 'auth-token', '8a219b18867d4605bbe5eafa4ac26d0d86208472fb842ec4c613f3934ec75b1b', '[\"*\"]', NULL, NULL, '2025-04-11 00:47:30', '2025-04-11 00:47:30');
 INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('30', 'App\\Models\\Utilizador', '2', 'auth-token', '9275d79d49d6e5c7f39e99b5a0a2735abedea4d0db754b4107480309117fc11f', '[\"*\"]', NULL, NULL, '2025-04-11 00:47:41', '2025-04-11 00:47:41');
 INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('31', 'App\\Models\\Utilizador', '2', 'auth-token', 'a96ccca96afeb9accd78ed87ef74f52b3fb1973e86a5b4bc6eadb24f349ffaed', '[\"*\"]', NULL, NULL, '2025-04-11 00:47:54', '2025-04-11 00:47:54');
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('32', 'App\\Models\\Utilizador', '2', 'auth-token', 'd7177affb6355d4feb4e8ea3f1d1ea70c02e0a2d25cdeb89e961d00bec6d9e38', '[\"*\"]', '2025-04-14 18:51:51', NULL, '2025-04-13 13:41:14', '2025-04-14 18:51:51');
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('33', 'App\\Models\\Utilizador', '1', 'auth-token', '3c1d9d0f26f4094934388a14613e6ed6c4b0a8c79416ad3bcbe8b4c21c56b2c6', '[\"*\"]', '2025-04-14 18:54:00', NULL, '2025-04-14 18:53:57', '2025-04-14 18:54:00');
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('34', 'App\\Models\\Utilizador', '1', 'auth-token', '05c9c3aeebb66ac3a61c66a943d51e5b0b364fa6e3e80622278a5dbdd5f5d6e6', '[\"*\"]', NULL, NULL, '2025-04-14 18:54:21', '2025-04-14 18:54:21');
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('35', 'App\\Models\\Utilizador', '1', 'auth-token', 'b7a57d630b6b997f21e415449177ffd2e7e3cef48a6d728d138f8e35841d63a1', '[\"*\"]', '2025-04-14 18:56:34', NULL, '2025-04-14 18:56:29', '2025-04-14 18:56:34');
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('36', 'App\\Models\\Utilizador', '1', 'auth-token', '732621ff764a5389d664784135dc42158976442576805e514aa74a6549d43e90', '[\"*\"]', NULL, NULL, '2025-04-14 18:57:04', '2025-04-14 18:57:04');
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('37', 'App\\Models\\Utilizador', '2', 'auth-token', '38e1ac044731a04307bdb56afa416c55d5db4dc4b42fa3d30ac74258f075ca1f', '[\"*\"]', '2025-04-14 18:57:35', NULL, '2025-04-14 18:57:30', '2025-04-14 18:57:35');
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('38', 'App\\Models\\Utilizador', '2', 'auth-token', 'ac4ec0701d3a1c88601d58c3c7c77b08df0ff48fcd75fd39f48e1cc82f3bd0f2', '[\"*\"]', NULL, NULL, '2025-04-14 18:58:34', '2025-04-14 18:58:34');
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('39', 'App\\Models\\Utilizador', '2', 'auth-token', '8f4edd1e993d97838a74dc96b2373ab483d921512c169476e71116a96f7b1fc8', '[\"*\"]', NULL, NULL, '2025-04-14 18:58:48', '2025-04-14 18:58:48');
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('40', 'App\\Models\\Utilizador', '1', 'auth-token', 'b2885e41af1cc7ffb4683dd7154ee947c932a1d23d3e35456f07580b66cdfeb0', '[\"*\"]', '2025-04-14 19:04:51', NULL, '2025-04-14 18:59:38', '2025-04-14 19:04:51');
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('41', 'App\\Models\\Utilizador', '1', 'auth-token', 'b0a7bcd224d291865f9087567172416b24eceacb87694a03f3b9a1d7ecc8e673', '[\"*\"]', '2025-04-14 19:12:31', NULL, '2025-04-14 19:08:19', '2025-04-14 19:12:31');
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('42', 'App\\Models\\Utilizador', '1', 'auth-token', 'c94eac40137e98e04972ec70e1fd0f8b840d24b6cafaa3ef406239b4fce3c176', '[\"*\"]', NULL, NULL, '2025-04-14 19:12:49', '2025-04-14 19:12:49');
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('43', 'App\\Models\\Utilizador', '2', 'auth-token', '960bb2a8518197c4476e6511d707a0023446e300c32e041345bedf813b0f03ec', '[\"*\"]', '2025-04-14 20:15:28', NULL, '2025-04-14 19:13:15', '2025-04-14 20:15:28');
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('44', 'App\\Models\\Utilizador', '1', 'auth-token', 'be7f31aa55e586783cd6d94969a980d75060de5f35674f28e02c7ae1c774de8e', '[\"*\"]', '2025-04-14 20:16:10', NULL, '2025-04-14 20:16:02', '2025-04-14 20:16:10');
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('45', 'App\\Models\\Utilizador', '2', 'auth-token', '792060ae4151ecaba8ab409a2a39da9aa1b431a0f23645db9c57834cc9a82e40', '[\"*\"]', '2025-04-14 20:17:04', NULL, '2025-04-14 20:16:44', '2025-04-14 20:17:04');
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('46', 'App\\Models\\Utilizador', '3', 'auth-token', 'cb99bb81d46af9216eef23019f44e169baebcc9bb01c888954c5567da7923119', '[\"*\"]', '2025-04-14 20:19:16', NULL, '2025-04-14 20:19:12', '2025-04-14 20:19:16');
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('47', 'App\\Models\\Utilizador', '3', 'auth-token', '37e2b56a43c0928bcc589b4d2255c7468fad357202e7e5d9c848558368dd10b8', '[\"*\"]', '2025-04-14 20:20:09', NULL, '2025-04-14 20:19:56', '2025-04-14 20:20:09');
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('48', 'App\\Models\\Utilizador', '1', 'auth-token', '8500f461a36cae9b56faed9d5fbfafde581f3d08132bc1a0fc9c34575bc11527', '[\"*\"]', '2025-04-14 20:27:43', NULL, '2025-04-14 20:27:37', '2025-04-14 20:27:43');
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('49', 'App\\Models\\Utilizador', '1', 'auth-token', '5b67f76c7f727a3d59c284f58c0fb7dcdd6563438f5a191401684ae5f571fa0e', '[\"*\"]', '2025-04-14 20:33:48', NULL, '2025-04-14 20:33:25', '2025-04-14 20:33:48');
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('50', 'App\\Models\\Utilizador', '1', 'auth-token', '5e6b6366e5a87ec54601e9d3f01768f50fcca31909ef8896fe638ce209cdfebe', '[\"*\"]', '2025-04-14 20:35:37', NULL, '2025-04-14 20:34:08', '2025-04-14 20:35:37');
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('51', 'App\\Models\\Utilizador', '1', 'auth-token', 'fe250efbf6aa81e1adaef1e504def934d7312d78588cbc2d23cf3192f95f39fc', '[\"*\"]', '2025-04-14 20:36:29', NULL, '2025-04-14 20:36:03', '2025-04-14 20:36:29');
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('52', 'App\\Models\\Utilizador', '1', 'auth-token', 'e273761a70c976d2cd13c6cb187c871a7444a7dd35ffd43396c4100a44aedb92', '[\"*\"]', '2025-04-14 20:55:19', NULL, '2025-04-14 20:37:08', '2025-04-14 20:55:19');
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('53', 'App\\Models\\Utilizador', '1', 'auth-token', '72a1cd84f22c04aa382193fa3b775192f1c173c9eecd703b69ba3e08eb2c5310', '[\"*\"]', '2025-04-14 21:08:53', NULL, '2025-04-14 20:56:54', '2025-04-14 21:08:53');
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('54', 'App\\Models\\Utilizador', '5', 'auth-token', '525be813c9b57ced2efc5e08f2f88509fbf4a565d457ab1a67148192eb7829b6', '[\"*\"]', '2025-04-14 21:09:24', NULL, '2025-04-14 21:09:23', '2025-04-14 21:09:24');
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('55', 'App\\Models\\Utilizador', '1', 'auth-token', '7066694a519efa7d15739bc708c2699359e25cbf103b99290afd87f705a8917c', '[\"*\"]', '2025-04-14 21:15:04', NULL, '2025-04-14 21:09:59', '2025-04-14 21:15:04');
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('56', 'App\\Models\\Utilizador', '3', 'auth-token', 'f71a93897dd209389826239cd61002431dce7927d3885c1f1f4256efea4391f9', '[\"*\"]', '2025-04-14 21:15:41', NULL, '2025-04-14 21:15:40', '2025-04-14 21:15:41');
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('57', 'App\\Models\\Utilizador', '1', 'auth-token', '58165d4a872dbc37a3130691c02d47936101c1c5590647b3f72e91eecdfd2b3e', '[\"*\"]', '2025-04-14 21:16:03', NULL, '2025-04-14 21:15:57', '2025-04-14 21:16:03');
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('58', 'App\\Models\\Utilizador', '5', 'auth-token', 'fc08568a8527c71ce91c9646d5dfd1211844ddde9544494deaff64f958d7ef86', '[\"*\"]', '2025-04-14 21:18:19', NULL, '2025-04-14 21:16:17', '2025-04-14 21:18:19');
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('59', 'App\\Models\\Utilizador', '1', 'auth-token', 'a1495454f494d50c14d00f3d643fa4770693b6e95a88a8e25ce69b8a2c2b213c', '[\"*\"]', '2025-04-14 21:19:02', NULL, '2025-04-14 21:18:45', '2025-04-14 21:19:02');
 
 -- Dados da tabela `referenciatipo`
 TRUNCATE TABLE `referenciatipo`;
@@ -157,38 +174,27 @@ INSERT INTO `status_anuncio` (`ID_Status_Anuncio`, `Descricao_status_anuncio`) V
 INSERT INTO `status_anuncio` (`ID_Status_Anuncio`, `Descricao_status_anuncio`) VALUES ('2', 'Inativo');
 INSERT INTO `status_anuncio` (`ID_Status_Anuncio`, `Descricao_status_anuncio`) VALUES ('3', 'Vendido');
 INSERT INTO `status_anuncio` (`ID_Status_Anuncio`, `Descricao_status_anuncio`) VALUES ('4', 'Pendente');
-INSERT INTO `status_anuncio` (`ID_Status_Anuncio`, `Descricao_status_anuncio`) VALUES ('5', 'Ativo');
-INSERT INTO `status_anuncio` (`ID_Status_Anuncio`, `Descricao_status_anuncio`) VALUES ('6', 'Pendente');
 INSERT INTO `status_anuncio` (`ID_Status_Anuncio`, `Descricao_status_anuncio`) VALUES ('7', 'Rejeitado');
-INSERT INTO `status_anuncio` (`ID_Status_Anuncio`, `Descricao_status_anuncio`) VALUES ('8', 'Concluído');
 
 -- Dados da tabela `status_aprovacao`
 TRUNCATE TABLE `status_aprovacao`;
 INSERT INTO `status_aprovacao` (`ID_Status_Aprovacao`, `Descricao_Status_aprovacao`) VALUES ('1', 'Pendente');
 INSERT INTO `status_aprovacao` (`ID_Status_Aprovacao`, `Descricao_Status_aprovacao`) VALUES ('2', 'Aprovado');
 INSERT INTO `status_aprovacao` (`ID_Status_Aprovacao`, `Descricao_Status_aprovacao`) VALUES ('3', 'Rejeitado');
-INSERT INTO `status_aprovacao` (`ID_Status_Aprovacao`, `Descricao_Status_aprovacao`) VALUES ('4', 'Aprovado');
-INSERT INTO `status_aprovacao` (`ID_Status_Aprovacao`, `Descricao_Status_aprovacao`) VALUES ('5', 'Rejeitado');
-INSERT INTO `status_aprovacao` (`ID_Status_Aprovacao`, `Descricao_Status_aprovacao`) VALUES ('6', 'Em Análise');
 
 -- Dados da tabela `status_mensagem`
 TRUNCATE TABLE `status_mensagem`;
 INSERT INTO `status_mensagem` (`ID_Status_Mensagem`, `Descricao_status_mensagem`) VALUES ('1', 'Não Lida');
 INSERT INTO `status_mensagem` (`ID_Status_Mensagem`, `Descricao_status_mensagem`) VALUES ('2', 'Lida');
 INSERT INTO `status_mensagem` (`ID_Status_Mensagem`, `Descricao_status_mensagem`) VALUES ('3', 'Enviada');
-INSERT INTO `status_mensagem` (`ID_Status_Mensagem`, `Descricao_status_mensagem`) VALUES ('4', 'Lida');
 INSERT INTO `status_mensagem` (`ID_Status_Mensagem`, `Descricao_status_mensagem`) VALUES ('5', 'Arquivada');
 
 -- Dados da tabela `status_reclamacao`
 TRUNCATE TABLE `status_reclamacao`;
 INSERT INTO `status_reclamacao` (`ID_Status_Reclamacao`, `Descricao_status_reclamacao`) VALUES ('1', 'Pendente');
-INSERT INTO `status_reclamacao` (`ID_Status_Reclamacao`, `Descricao_status_reclamacao`) VALUES ('2', 'Em Análise');
 INSERT INTO `status_reclamacao` (`ID_Status_Reclamacao`, `Descricao_status_reclamacao`) VALUES ('3', 'Resolvida');
 INSERT INTO `status_reclamacao` (`ID_Status_Reclamacao`, `Descricao_status_reclamacao`) VALUES ('4', 'Rejeitada');
 INSERT INTO `status_reclamacao` (`ID_Status_Reclamacao`, `Descricao_status_reclamacao`) VALUES ('5', 'Recebida');
-INSERT INTO `status_reclamacao` (`ID_Status_Reclamacao`, `Descricao_status_reclamacao`) VALUES ('6', 'Em Investigação');
-INSERT INTO `status_reclamacao` (`ID_Status_Reclamacao`, `Descricao_status_reclamacao`) VALUES ('7', 'Resolvida');
-INSERT INTO `status_reclamacao` (`ID_Status_Reclamacao`, `Descricao_status_reclamacao`) VALUES ('8', 'Encerrada');
 
 -- Dados da tabela `status_troca`
 TRUNCATE TABLE `status_troca`;
@@ -207,18 +213,14 @@ INSERT INTO `status_utilizador` (`ID_status_utilizador`, `Descricao_status_utili
 INSERT INTO `status_utilizador` (`ID_status_utilizador`, `Descricao_status_utilizador`) VALUES ('2', 'Ativo');
 INSERT INTO `status_utilizador` (`ID_status_utilizador`, `Descricao_status_utilizador`) VALUES ('3', 'Inativo');
 INSERT INTO `status_utilizador` (`ID_status_utilizador`, `Descricao_status_utilizador`) VALUES ('4', 'Bloqueado');
-INSERT INTO `status_utilizador` (`ID_status_utilizador`, `Descricao_status_utilizador`) VALUES ('5', 'Ativo');
-INSERT INTO `status_utilizador` (`ID_status_utilizador`, `Descricao_status_utilizador`) VALUES ('6', 'Inativo');
-INSERT INTO `status_utilizador` (`ID_status_utilizador`, `Descricao_status_utilizador`) VALUES ('7', 'Banido');
-INSERT INTO `status_utilizador` (`ID_status_utilizador`, `Descricao_status_utilizador`) VALUES ('8', 'Aguardando Aprovação');
+INSERT INTO `status_utilizador` (`ID_status_utilizador`, `Descricao_status_utilizador`) VALUES ('5', 'Banido');
+INSERT INTO `status_utilizador` (`ID_status_utilizador`, `Descricao_status_utilizador`) VALUES ('8', 'Rejeitado');
 
 -- Dados da tabela `tipo_item`
 TRUNCATE TABLE `tipo_item`;
 INSERT INTO `tipo_item` (`ID_Tipo`, `Descricao_TipoItem`) VALUES ('1', 'Produto');
 INSERT INTO `tipo_item` (`ID_Tipo`, `Descricao_TipoItem`) VALUES ('2', 'Serviço');
-INSERT INTO `tipo_item` (`ID_Tipo`, `Descricao_TipoItem`) VALUES ('3', 'Produto');
-INSERT INTO `tipo_item` (`ID_Tipo`, `Descricao_TipoItem`) VALUES ('4', 'Serviço');
-INSERT INTO `tipo_item` (`ID_Tipo`, `Descricao_TipoItem`) VALUES ('5', 'Doação');
+INSERT INTO `tipo_item` (`ID_Tipo`, `Descricao_TipoItem`) VALUES ('3', 'Doação');
 
 -- Dados da tabela `tipo_notificacao`
 TRUNCATE TABLE `tipo_notificacao`;
@@ -229,13 +231,12 @@ TRUNCATE TABLE `tipouser`;
 INSERT INTO `tipouser` (`ID_TipoUser`, `Descrição_TipoUtilizador`) VALUES ('1', 'Administrador');
 INSERT INTO `tipouser` (`ID_TipoUser`, `Descrição_TipoUtilizador`) VALUES ('2', 'Utilizador Normal');
 
--- Dados da tabela `users`
-TRUNCATE TABLE `users`;
-INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`) VALUES ('1', 'Test User', 'test@example.com', '2025-04-10 16:33:40', '$2y$12$PG/pLm16ggCxYAA05cH3n.anVSVbyDq1BTugBq0gL7Dw7C4k.Lqwq', 'evGpZ0UTKy', '2025-04-10 16:33:41', '2025-04-10 16:33:41');
-
 -- Dados da tabela `utilizador`
 TRUNCATE TABLE `utilizador`;
-INSERT INTO `utilizador` (`ID_User`, `User_Name`, `Name`, `Data_Nascimento`, `Password`, `CC`, `Email`, `MoradaID_Morada`, `AprovacaoID_aprovacao`, `cartaoID_Cartao`, `TipoUserID_TipoUser`, `ImagemID_Imagem`, `Status_UtilizadorID_status_utilizador`) VALUES ('1', 'admin', 'Administrador', '1990-01-01', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '12345678', 'admin@example.com', '1', '1', NULL, '1', '1', '1');
-INSERT INTO `utilizador` (`ID_User`, `User_Name`, `Name`, `Data_Nascimento`, `Password`, `CC`, `Email`, `MoradaID_Morada`, `AprovacaoID_aprovacao`, `cartaoID_Cartao`, `TipoUserID_TipoUser`, `ImagemID_Imagem`, `Status_UtilizadorID_status_utilizador`) VALUES ('2', 'user', 'Usuário Normal', '1995-05-05', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '87654321', 'user@example.com', '2', '2', NULL, '2', '1', '1');
+INSERT INTO `utilizador` (`ID_User`, `User_Name`, `Name`, `Data_Nascimento`, `Password`, `CC`, `Email`, `MoradaID_Morada`, `AprovacaoID_aprovacao`, `cartaoID_Cartao`, `TipoUserID_TipoUser`, `ImagemID_Imagem`, `Status_UtilizadorID_status_utilizador`) VALUES ('1', 'admin', 'Administrador', '1990-01-01', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '12345678', 'admin@example.com', '1', '1', NULL, '1', '1', '2');
+INSERT INTO `utilizador` (`ID_User`, `User_Name`, `Name`, `Data_Nascimento`, `Password`, `CC`, `Email`, `MoradaID_Morada`, `AprovacaoID_aprovacao`, `cartaoID_Cartao`, `TipoUserID_TipoUser`, `ImagemID_Imagem`, `Status_UtilizadorID_status_utilizador`) VALUES ('2', 'user', 'Usuário Normal', '1995-05-05', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '87654321', 'user@example.com', '2', '2', NULL, '2', '1', '2');
+INSERT INTO `utilizador` (`ID_User`, `User_Name`, `Name`, `Data_Nascimento`, `Password`, `CC`, `Email`, `MoradaID_Morada`, `AprovacaoID_aprovacao`, `cartaoID_Cartao`, `TipoUserID_TipoUser`, `ImagemID_Imagem`, `Status_UtilizadorID_status_utilizador`) VALUES ('3', 'VitorLeite', 'Vitor', '1999-10-01', '$2y$12$F4RUEOD4RAh4lRjvvhe2GeTHn9Jbfrit29D9nNb4jhDopLOE22heG', '212233333', 'vitor@example.com', '15', '22', NULL, '2', '4', '2');
+INSERT INTO `utilizador` (`ID_User`, `User_Name`, `Name`, `Data_Nascimento`, `Password`, `CC`, `Email`, `MoradaID_Morada`, `AprovacaoID_aprovacao`, `cartaoID_Cartao`, `TipoUserID_TipoUser`, `ImagemID_Imagem`, `Status_UtilizadorID_status_utilizador`) VALUES ('4', 'JoanaBabe', 'Joana', '2001-05-29', '$2y$12$qkiovJb2MBGnrlWBPTMti.eiRRZShJwzfuQYUW6roQMbqoSAmZogq', '45345346', 'joana@example.com', '1', '24', NULL, '2', '5', '8');
+INSERT INTO `utilizador` (`ID_User`, `User_Name`, `Name`, `Data_Nascimento`, `Password`, `CC`, `Email`, `MoradaID_Morada`, `AprovacaoID_aprovacao`, `cartaoID_Cartao`, `TipoUserID_TipoUser`, `ImagemID_Imagem`, `Status_UtilizadorID_status_utilizador`) VALUES ('5', 'vilastheboy', 'Vilas', '2003-01-07', '$2y$12$O6s6K9ioXISMkN127QNJUeJra1MDyYT4ZW8kBnO9AEb36WnyNKloe', '34354363', 'vilas@example.com', '3', '25', NULL, '2', '6', '1');
 
 SET FOREIGN_KEY_CHECKS=1;

@@ -71,10 +71,7 @@ export const authService = {
                 }
             };
             const response = await api.post('/auth/register', userData, config);
-            if (response.data.token) {
-                localStorage.setItem('token', response.data.token);
-                localStorage.setItem('user', JSON.stringify(response.data.user));
-            }
+            // Não armazenar token ou dados do usuário, pois o registro está pendente
             return response.data;
         } catch (error) {
             throw error;

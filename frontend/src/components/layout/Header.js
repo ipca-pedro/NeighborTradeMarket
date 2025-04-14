@@ -18,7 +18,66 @@ const Header = () => {
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
 
-    // Simular a atualização do contador de notificações não lidas
+    const { currentUser, logout } = useAuth();
+    const navigate = useNavigate();
+    const searchRef = useRef(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    
+    // Buscar notificações do servidor
+    useEffect(() => {
+        const fetchNotifications = async () => {
+            if (currentUser && currentUser.ID_User) {
+                try {
+                    // Aqui você deve fazer uma chamada API para buscar notificações
+                    // Por exemplo: const response = await api.get('/notificacoes');
+                    // Simulando notificações para teste
+                    const mockNotifications = [];
+                    
+                    // Se o usuário for admin, adicionar notificações de registro de usuário
+                    if (currentUser.TipoUserID_TipoUser === 1) {
+                        // Buscar notificações de pendentes
+                        try {
+                            const response = await fetch('http://127.0.0.1:8000/api/admin/pending-users-count', {
+                                headers: {
+                                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                                    'Content-Type': 'application/json'
+                                }
+                            });
+                            
+                            if (response.ok) {
+                                const data = await response.json();
+                                if (data.count > 0) {
+                                    mockNotifications.push({
+                                        id: 'user-reg-1',
+                                        type: 'USER_REGISTRATION',
+                                        userName: 'Novos utilizadores',
+                                        message: `${data.count} novos pedidos de registo pendentes`,
+                                        read: false,
+                                        createdAt: new Date().toISOString()
+                                    });
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Erro ao buscar contagem de usuários pendentes:', error);
+                        }
+                    }
+                    
+                    setNotifications(mockNotifications);
+                } catch (error) {
+                    console.error('Erro ao buscar notificações:', error);
+                }
+            }
+        };
+        
+        fetchNotifications();
+        
+        // Configurar um intervalo para buscar notificações periodicamente
+        const interval = setInterval(fetchNotifications, 60000); // A cada minuto
+        
+        return () => clearInterval(interval);
+    }, [currentUser]);
+
+    // Atualizar o contador de notificações não lidas
     useEffect(() => {
         setUnreadCount(notifications.filter(n => !n.read).length);
     }, [notifications]);
@@ -32,10 +91,7 @@ const Header = () => {
             )
         );
     };
-    const { currentUser, logout } = useAuth();
-    const navigate = useNavigate();
-    const searchRef = useRef(null);
-    const [searchTerm, setSearchTerm] = useState('');
+    // Moved to above the useEffect hook
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -117,14 +173,25 @@ const Header = () => {
 
                     <div className="d-flex align-items-center">
                         {currentUser && (
-                            <Button 
-                                as={Link} 
-                                to="/anuncios/novo" 
-                                variant="outline-light" 
-                                className="me-3"
-                            >
-                                <i className="fas fa-plus me-1"></i> Criar Anúncio
-                            </Button>
+                            currentUser.TipoUserID_TipoUser === 1 ? (
+                                <Button 
+                                    as={Link} 
+                                    to="/admin" 
+                                    variant="outline-light" 
+                                    className="me-3"
+                                >
+                                    <i className="fas fa-tachometer-alt me-1"></i> Painel de Administrador
+                                </Button>
+                            ) : (
+                                <Button 
+                                    as={Link} 
+                                    to="/anuncios/novo" 
+                                    variant="outline-light" 
+                                    className="me-3"
+                                >
+                                    <i className="fas fa-plus me-1"></i> Criar Anúncio
+                                </Button>
+                            )
                         )}
                         
                         <div className="position-relative me-3 notifications-dropdown">

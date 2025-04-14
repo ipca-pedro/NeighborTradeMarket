@@ -11,6 +11,7 @@ import { ChatProvider } from './contexts/ChatContext';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import ForgotPassword from './components/auth/ForgotPassword';
+import RegistrationSuccess from './components/auth/RegistrationSuccess';
 
 // Componentes de Perfil
 import PerfilUtilizador from './components/perfil/PerfilUsuario';
@@ -86,6 +87,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/registar" element={<Register />} />
+          <Route path="/registration-success" element={<RegistrationSuccess />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           
           {/* Rotas de Informação */}

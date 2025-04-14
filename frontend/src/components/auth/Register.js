@@ -94,8 +94,8 @@ function Register() {
             const response = await authService.register(data);
             console.log('Resposta do servidor:', response);
             
-            setRegistrationSuccess(true);
-            navigate('/');
+            // Redirect to the success page
+            navigate('/registration-success');
         } catch (err) {
             console.error('Erro ao registar:', err);
             if (err.response && err.response.data && err.response.data.message) {
@@ -115,7 +115,7 @@ function Register() {
                     {error && <Alert variant="danger">{error}</Alert>}
                     {registrationSuccess && (
                         <Alert variant="success">
-                            Registo efetuado com sucesso! Por favor, verifique o seu email para ativar a sua conta.
+                            Pedido de registo enviado com sucesso! Um administrador irá analisar os seus dados e entraremos em contacto através do email fornecido.
                         </Alert>
                     )}
                     <Form onSubmit={handleSubmit}>

@@ -10,6 +10,8 @@ const NotificationDropdown = ({ notifications, onRead }) => {
                 return 'fas fa-check-circle text-success';
             case 'ANUNCIO_REJEITADO':
                 return 'fas fa-times-circle text-danger';
+            case 'USER_REGISTRATION':
+                return 'fas fa-user-plus text-info';
             default:
                 return 'fas fa-bell text-primary';
         }
@@ -23,6 +25,8 @@ const NotificationDropdown = ({ notifications, onRead }) => {
                 return `Seu anúncio "${notification.titulo}" foi aprovado`;
             case 'ANUNCIO_REJEITADO':
                 return `Seu anúncio "${notification.titulo}" foi rejeitado`;
+            case 'USER_REGISTRATION':
+                return `Novo pedido de registo de utilizador: ${notification.userName}`;
             default:
                 return notification.message;
         }

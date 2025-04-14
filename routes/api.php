@@ -11,6 +11,7 @@ use App\Http\Controllers\AvaliacaoController;
 use App\Http\Controllers\NotificacaoController;
 use App\Http\Controllers\CompraController;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\FileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,6 +33,9 @@ Route::get('/moradas', [AuthController::class, 'getMoradas']);
 // Rotas públicas para categorias e tipos de item
 Route::get('/categorias', [AnuncioController::class, 'getCategories']);
 Route::get('/tipos-item', [AnuncioController::class, 'getTiposItem']);
+
+// Rota para servir arquivos
+Route::get('/files/id/{id}', [FileController::class, 'serveById']);
 
 // Rota para obter anúncios aleatórios
 Route::get('/anuncios/aleatorios', [AnuncioController::class, 'getAnunciosAleatorios']);
@@ -76,6 +80,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Rotas de administrador
     Route::get('/admin/users/pending', [AdminController::class, 'getPendingUsers']);
     Route::get('/admin/users', [AdminController::class, 'getAllUsers']);
+    Route::get('/admin/pending-users-count', [AdminController::class, 'getPendingUsersCount']);
     Route::post('/admin/users/{userId}/approve', [AdminController::class, 'approveUser']);
     Route::post('/admin/users/{userId}/reject', [AdminController::class, 'rejectUser']);
     Route::put('/admin/users/{userId}/status', [AdminController::class, 'updateUserStatus']);
