@@ -1,2 +1,8 @@
 *
 !.gitignore
+!comprovativo/
+!anuncios/
+comprovativo/*
+!comprovativo/.gitkeep
+anuncios/*
+!anuncios/.gitkeep

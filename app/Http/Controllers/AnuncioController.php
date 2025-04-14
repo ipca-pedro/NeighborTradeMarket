@@ -256,7 +256,17 @@ class AnuncioController extends Controller
             $anuncio->Preco = $request->Preco;
             $anuncio->CategoriaID_Categoria = $request->CategoriaID_Categoria;
             $anuncio->Tipo_ItemID_Tipo = $request->Tipo_ItemID_Tipo;
-            $anuncio->UtilizadorID_User = Auth::id();
+            
+            // Garantir que UtilizadorID_User seja um inteiro
+            $userId = Auth::id();
+            if (!is_numeric($userId)) {
+                // Se não for numérico, buscar o ID do usuário pelo email
+                $user = Auth::user();
+                $userId = $user->ID_Utilizador;
+                \Log::info('Convertendo email para ID: ' . Auth::id() . ' -> ' . $userId);
+            }
+            
+            $anuncio->UtilizadorID_User = $userId;
             $anuncio->AprovacaoID_aprovacao = $aprovacao->ID_aprovacao;
             $anuncio->Status_AnuncioID_Status_Anuncio = StatusAnuncio::STATUS_PENDENTE; // 1 para pendente
             $anuncio->save();
