@@ -1,0 +1,41 @@
+.category-grid-container {
+  margin: 0 auto;
+  max-width: 950px;
+}
+
+.category-card {
+  border-radius: 14px;
+  transition: box-shadow 0.2s, transform 0.2s;
+  background: #fff;
+  cursor: pointer;
+  min-height: 120px;
+  border: 1px solid #f0f0f0;
+}
+.category-card:hover, .category-card:focus {
+  box-shadow: 0 4px 16px rgba(33, 150, 243, 0.08), 0 1.5px 6px rgba(0,0,0,0.10);
+  transform: translateY(-2px) scale(1.03);
+  border-color: #007bff;
+}
+.category-icon {
+  font-size: 2rem;
+  color: #007bff;
+  text-shadow: none;
+  box-shadow: none;
+  border-bottom: none;
+  background: none;
+  line-height: 1;
+  display: inline-block;
+}
+
+@media (max-width: 991.98px) {
+  .category-grid-container {
+    padding: 0 8px;
+  }
+  .category-card {
+    min-height: 90px;
+    font-size: 0.97rem;
+  }
+  .category-icon {
+    font-size: 1.35rem;
+  }
+}

@@ -47,9 +47,10 @@ const Header = () => {
     const handleLogout = async () => {
         try {
             await logout();
-            navigate('/');
         } catch (error) {
             console.error('Falha ao terminar sessão', error);
+        } finally {
+            window.location.href = '/login';
         }
     };
 
@@ -125,6 +126,7 @@ const Header = () => {
                                 <i className="fas fa-plus me-1"></i> Criar Anúncio
                             </Button>
                         )}
+                        
                         <div className="position-relative me-3 notifications-dropdown">
                             <Nav.Link 
                                 href="#" 
@@ -154,7 +156,7 @@ const Header = () => {
                                 className="text-white" 
                                 onClick={() => setShowMessagesDropdown(!showMessagesDropdown)}
                             >
-                                <i className="far fa-comment-alt"></i>
+                                <i className="far fa-comment-alt text-white"></i>
                             </Nav.Link>
                             {showMessagesDropdown && (
                                 <div 
@@ -194,8 +196,14 @@ const Header = () => {
                                         <i className="far fa-user"></i>
                                     </Dropdown.Toggle>
                                     <Dropdown.Menu align="end">
+                                        <div className="dropdown-header text-primary fw-bold text-center" style={{fontSize: '1rem'}}>
+                                            {currentUser && currentUser.Name ? currentUser.Name : 'Utilizador'}
+                                        </div>
+                                        <Dropdown.Divider />
                                         <Dropdown.Item as={Link} to="/perfil">Meu Perfil</Dropdown.Item>
-                                        <Dropdown.Item as={Link} to="/meus-anuncios">Meus Anúncios</Dropdown.Item>
+                                        {(!currentUser || currentUser.TipoUserID_TipoUser !== 1) && (
+                                            <Dropdown.Item as={Link} to="/meus-anuncios">Meus Anúncios</Dropdown.Item>
+                                        )}
                                         <Dropdown.Divider />
                                         <Dropdown.Item onClick={handleLogout}>Terminar Sessão</Dropdown.Item>
                                     </Dropdown.Menu>
@@ -211,7 +219,7 @@ const Header = () => {
                                     </Nav.Link>
                                     {showLoginPopup && (
                                         <div className="position-absolute end-0 mt-2" style={{ zIndex: 1000, width: '300px' }}>
-                                            <LoginPopup onClose={() => setShowLoginPopup(false)} />
+                                            <LoginPopup onClose={() => { setShowLoginPopup(false); window.location.href = '/'; }} />
                                         </div>
                                     )}
                                 </>

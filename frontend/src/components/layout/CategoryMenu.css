@@ -1,0 +1,19 @@
+.category-menu-narrow {
+  width: 220px;
+  min-width: 180px;
+  max-width: 260px;
+}
+
+.category-menu-narrow .list-group-item {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  font-size: 0.97rem;
+}
+
+@media (max-width: 991.98px) {
+  .category-menu-narrow {
+    width: 100%;
+    min-width: unset;
+    max-width: unset;
+  }
+}

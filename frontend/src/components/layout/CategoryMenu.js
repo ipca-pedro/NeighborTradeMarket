@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ListGroup } from 'react-bootstrap';
+import './CategoryMenu.css';
 
 const CategoryMenu = ({ onSelectCategory }) => {
     // Estas categorias devem ser carregadas da API em produção
@@ -19,7 +20,7 @@ const CategoryMenu = ({ onSelectCategory }) => {
     ];
 
     return (
-        <ListGroup className="shadow-sm border">
+        <ListGroup className="shadow-sm border category-menu-narrow">
             {categories.map(category => (
                 <ListGroup.Item 
                     key={category.id} 

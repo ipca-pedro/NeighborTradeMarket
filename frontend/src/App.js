@@ -28,6 +28,7 @@ import CriarProduto from './components/produtos/CriarProduto';
 import MeusAnuncios from './components/perfil/MeusAnuncios';
 import HomePage from './components/home/HomePage';
 
+
 // Componentes de Informação
 import About from './components/about/About';
 import FAQ from './components/faq/FAQ';
@@ -98,6 +99,7 @@ function App() {
           <Route path="/anuncios" element={<ListaProdutos />} />
           <Route path="/anuncios/categoria/:categoriaId" element={<ListaProdutos />} />
           <Route path="/anuncios/:id" element={<DetalhesProduto />} />
+          
           
           {/* Rotas Protegidas (requerem login) */}
           <Route path="/perfil" element={<ProtectedRoute><PerfilUtilizador /></ProtectedRoute>} />

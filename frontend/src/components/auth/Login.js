@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Form, Button, Alert, Row, Col } from 'react-bootstrap';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { authService } from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext';
+// import { authService } from '../../services/api';
 import Header from '../layout/Header';
 import Footer from '../layout/Footer';
 
@@ -13,6 +14,7 @@ function Login() {
     const [redirectMessage, setRedirectMessage] = useState('');
     const navigate = useNavigate();
     const location = useLocation();
+    const { login } = useAuth();
 
     // Verificar se há uma mensagem de redirecionamento na localização atual
     useEffect(() => {
@@ -26,30 +28,18 @@ function Login() {
         setLoading(true);
         setError('');
         try {
-            // Fazer login e obter resposta
-            const response = await authService.login(email, password);
-            
-            // Obter o utilizador do localStorage (onde o authService o armazena)
-            const userStr = localStorage.getItem('user');
-            const user = userStr ? JSON.parse(userStr) : null;
-            
-            console.log('Utilizador logado:', user);
-            
-            // Verificar se o utilizador é administrador (TipoUserID_TipoUser === 1)
+            // Usar o contexto global de autenticação
+            const response = await login(email, password);
+            // O Header será atualizado automaticamente via AuthContext
+            const user = response.user || null;
             if (user && user.TipoUserID_TipoUser === 1) {
-                console.log('Utilizador é administrador, redirecionando para /admin');
-                // Forçar um pequeno atraso para garantir que o localStorage seja atualizado
                 setTimeout(() => {
-                    // Redirecionar para a página de administração
                     navigate('/admin', { replace: true });
                 }, 100);
             } else {
-                console.log('Utilizador não é administrador, redirecionando para a página anterior ou home');
-                // Redirecionar para a página anterior se existir
                 if (location.state && location.state.from) {
                     navigate(location.state.from);
                 } else {
-                    // Redirecionar para a landpage principal
                     navigate('/');
                 }
             }
