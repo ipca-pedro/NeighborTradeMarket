@@ -228,8 +228,9 @@ class AnuncioController extends Controller
             'Preco' => 'required|numeric|min:0.01|max:9999.99',
             'CategoriaID_Categoria' => 'required|exists:categoria,ID_Categoria',
             'Tipo_ItemID_Tipo' => 'required|exists:tipo_item,ID_Tipo',
+            'UtilizadorID_User' => 'required|integer|exists:utilizador,ID_User',
             'imagens' => 'nullable|array',
-            'imagens.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120' // Aumentado para 5MB e adicionado webp
+            'imagens.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120'
         ]);
 
         if ($validator->fails()) {
@@ -244,9 +245,9 @@ class AnuncioController extends Controller
 
             // Criar aprovação (pendente)
             $aprovacao = new Aprovacao();
-            $aprovacao->Data_Submissao = now(); // Corrigido: Data_Submissao em vez de Data_Criacao
+            $aprovacao->Data_Submissao = now();
             $aprovacao->Status_AprovacaoID_Status_Aprovacao = 1;
-            $aprovacao->UtilizadorID_Admin = 1; // Usando ID 1 como admin padrão conforme memória
+            $aprovacao->UtilizadorID_Admin = 1;
             $aprovacao->save();
 
             // Criar anúncio
@@ -257,18 +258,17 @@ class AnuncioController extends Controller
             $anuncio->CategoriaID_Categoria = $request->CategoriaID_Categoria;
             $anuncio->Tipo_ItemID_Tipo = $request->Tipo_ItemID_Tipo;
             
-            // Garantir que UtilizadorID_User seja um inteiro
-            $userId = Auth::id();
-            if (!is_numeric($userId)) {
-                // Se não for numérico, buscar o ID do usuário pelo email
-                $user = Auth::user();
-                $userId = $user->ID_User;
-                \Log::info('Convertendo email para ID: ' . Auth::id() . ' -> ' . $userId);
+            // Usar o ID do usuário enviado pelo frontend
+            $userId = $request->input('UtilizadorID_User');
+            
+            // Validar se o ID do usuário é válido
+            if (!$userId || !is_numeric($userId)) {
+                throw new \Exception('ID do usuário inválido');
             }
             
             $anuncio->UtilizadorID_User = $userId;
             $anuncio->AprovacaoID_aprovacao = $aprovacao->ID_aprovacao;
-            $anuncio->Status_AnuncioID_Status_Anuncio = StatusAnuncio::STATUS_PENDENTE; // 1 para pendente
+            $anuncio->Status_AnuncioID_Status_Anuncio = 1; // Pendente
             $anuncio->save();
 
             // Processar imagens
@@ -292,25 +292,31 @@ class AnuncioController extends Controller
                         $imagem->Caminho = $imagemPath;
                         $imagem->save();
                         
-                        // Associar imagem ao anúncio
-                        $itemImagem = new ItemImagem();
-                        $itemImagem->AnuncioID_Anuncio = $anuncio->ID_Anuncio;
-                        $itemImagem->ImagemID_Imagem = $imagem->ID_Imagem;
-                        $itemImagem->Principal = ($key == 0) ? 1 : 0; // Primeira imagem como principal
-                        $itemImagem->save();
+                        // Criar relação na tabela Item_Imagem
+                        DB::table('item_imagem')->insert([
+                            'ItemID_Item' => $anuncio->ID_Anuncio,
+                            'ImagemID_Imagem' => $imagem->ID_Imagem
+                        ]);
                         
-                        \Log::info('Imagem salva com sucesso: ' . $imagemPath);
+                        \Log::info('Imagem salva com sucesso:', [
+                            'anuncio_id' => $anuncio->ID_Anuncio,
+                            'imagem_id' => $imagem->ID_Imagem,
+                            'path' => $imagemPath
+                        ]);
                     } catch (\Exception $e) {
-                        \Log::error('Erro ao salvar imagem: ' . $e->getMessage());
-                        // Continuar com as próximas imagens mesmo se uma falhar
+                        \Log::error('Erro ao salvar imagem:', [
+                            'error' => $e->getMessage(),
+                            'anuncio_id' => $anuncio->ID_Anuncio,
+                            'file' => $imagemFile->getClientOriginalName()
+                        ]);
+                        throw $e;
                     }
                 }
-            } else {
-                \Log::info('Nenhuma imagem enviada para o anúncio ID: ' . $anuncio->ID_Anuncio);
             }
 
             DB::commit();
 
+            // Carregar o anúncio com todas as relações
             $anuncio->load([
                 'categorium', 
                 'tipo_item', 
@@ -326,6 +332,10 @@ class AnuncioController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
+            \Log::error('Erro ao criar anúncio:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return response()->json([
                 'message' => 'Erro ao criar anúncio: ' . $e->getMessage()
             ], 500);
@@ -656,6 +666,50 @@ class AnuncioController extends Controller
                 'message' => 'Erro ao obter anúncios aleatórios: ' . $e->getMessage(),
                 'anuncios' => []
             ], 500);
+        }
+    }
+    
+    /**
+     * Atualizar a imagem principal de um anúncio
+     */
+    public function updatePrincipalImage(Request $request, $anuncioId, $imagemId)
+    {
+        try {
+            DB::beginTransaction();
+
+            // Verificar se o anúncio pertence ao usuário
+            $anuncio = Anuncio::findOrFail($anuncioId);
+            if ($anuncio->UtilizadorID_User != Auth::id()) {
+                return response()->json(['message' => 'Não autorizado'], 403);
+            }
+
+            // Verificar se a imagem pertence ao anúncio
+            $imagemExists = DB::table('item_imagem')
+                ->where('ItemID_Item', $anuncioId)
+                ->where('ImagemID_Imagem', $imagemId)
+                ->exists();
+
+            if (!$imagemExists) {
+                return response()->json(['message' => 'Imagem não encontrada neste anúncio'], 404);
+            }
+
+            // Atualizar a imagem principal
+            DB::table('item_imagem')
+                ->where('ItemID_Item', $anuncioId)
+                ->where('ImagemID_Imagem', $imagemId)
+                ->update(['Principal' => 1]);
+
+            DB::commit();
+
+            return response()->json(['message' => 'Imagem principal atualizada com sucesso']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Erro ao atualizar imagem principal:', [
+                'error' => $e->getMessage(),
+                'anuncio_id' => $anuncioId,
+                'imagem_id' => $imagemId
+            ]);
+            return response()->json(['message' => 'Erro ao atualizar imagem principal'], 500);
         }
     }
 }

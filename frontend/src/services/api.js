@@ -38,10 +38,22 @@ export const authService = {
                 const response = await api.post('/auth/login', { Email: email, Password: password });
                 console.log('Resposta de /auth/login:', response.data);
                 if (response.data.token) {
+                    // Debug: Verificar dados do usuário antes de armazenar
+                    console.log('Dados do usuário antes de armazenar:', response.data.user);
+                    console.log('ID do usuário:', response.data.user.ID_User);
+                    
+                    // Garantir que o ID do usuário seja um número
+                    const userData = {
+                        ...response.data.user,
+                        ID_User: parseInt(response.data.user.ID_User)
+                    };
+                    
+                    console.log('Dados do usuário após conversão:', userData);
+                    
                     localStorage.setItem('token', response.data.token);
-                    localStorage.setItem('user', JSON.stringify(response.data.user));
-                    console.log('Utilizador armazenado no localStorage:', response.data.user);
-                    console.log('TipoUserID_TipoUser:', response.data.user.TipoUserID_TipoUser);
+                    localStorage.setItem('user', JSON.stringify(userData));
+                    console.log('Utilizador armazenado no localStorage:', userData);
+                    console.log('TipoUserID_TipoUser:', userData.TipoUserID_TipoUser);
                 }
                 return response.data;
             } catch (authError) {

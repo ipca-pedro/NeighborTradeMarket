@@ -98,7 +98,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/anuncios/{id}', [AnuncioController::class, 'destroy']);
     Route::get('/meus-anuncios', [AnuncioController::class, 'myAds']);
     Route::post('/anuncios/{id}/sold', [AnuncioController::class, 'markAsSold']);
-    // Rotas movidas para fora do grupo de autenticação
+    Route::post('/anuncios/{anuncioId}/imagens/{imagemId}/principal', [AnuncioController::class, 'updatePrincipalImage']);
     
     // Rotas de mensagens
     Route::get('/conversas', [MensagemController::class, 'getConversations']);

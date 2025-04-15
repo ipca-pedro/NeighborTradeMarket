@@ -181,13 +181,27 @@ const CriarProduto = () => {
         try {
             const formDataObj = new FormData();
             
+            // Debug: Verificar o ID do usuário
+            console.log('currentUser:', currentUser);
+            console.log('currentUser.ID_User:', currentUser.ID_User);
+            console.log('typeof currentUser.ID_User:', typeof currentUser.ID_User);
+            
             // Adicionar dados do produto
             formDataObj.append('Titulo', titulo);
             formDataObj.append('Descricao', descricao);
             formDataObj.append('Preco', preco.toFixed(2)); // Enviar como string com 2 casas decimais
             formDataObj.append('CategoriaID_Categoria', categoriaId);
             formDataObj.append('Tipo_ItemID_Tipo', tipoId);
-            formDataObj.append('UtilizadorID_User', parseInt(currentUser.ID_User));
+            
+            // Garantir que o ID do usuário seja um número
+            const userId = parseInt(currentUser.ID_User);
+            console.log('userId após parseInt:', userId);
+            
+            if (isNaN(userId)) {
+                throw new Error('ID do usuário inválido');
+            }
+            
+            formDataObj.append('UtilizadorID_User', userId);
             formDataObj.append('Status_AnuncioID_Status_Anuncio', 1); // 1 para status pendente
 
             // Adicionar imagens
