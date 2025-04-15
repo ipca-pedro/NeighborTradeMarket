@@ -51,25 +51,60 @@ class AnuncioController extends Controller
      */
     public function anunciosPendentes()
     {
-        // Verificar se o usuário é administrador
-        if (!Auth::check() || !Auth::user()->hasRole('admin')) {
+        try {
+            // Verificar se o utilizador está autenticado
+            if (!Auth::check()) {
+                return response()->json([
+                    'message' => 'Usuário não autenticado'
+                ], 401);
+            }
+
+            // Verificar se o utilizador é administrador
+            if (Auth::user()->TipoUserID_TipoUser != 1) {
+                return response()->json([
+                    'message' => 'Acesso não autorizado'
+                ], 403);
+            }
+
+            // Log para debug
+            \Log::info('Buscando anúncios pendentes', [
+                'status_pendente' => StatusAnuncio::STATUS_PENDENTE,
+                'user_id' => Auth::id(),
+                'user_type' => Auth::user()->TipoUserID_TipoUser
+            ]);
+            
+            $anunciosPendentes = Anuncio::with([
+                'utilizador:ID_User,User_Name,Name,Email',
+                'categorium:ID_Categoria,Descricao_Categoria',
+                'tipo_item:ID_Tipo,Nome',
+                'item_imagems.imagem',
+                'aprovacao',
+                'status_anuncio:ID_Status_Anuncio,Descricao_status_anuncio'
+            ])
+            ->where('Status_AnuncioID_Status_Anuncio', '=', StatusAnuncio::STATUS_PENDENTE)
+            ->orderBy('ID_Anuncio', 'desc')
+            ->get(); // Mudado de paginate para get para debug
+
+            // Log do resultado
+            \Log::info('Anúncios pendentes encontrados', [
+                'count' => $anunciosPendentes->count(),
+                'anuncios' => $anunciosPendentes->toArray()
+            ]);
+            
             return response()->json([
-                'message' => 'Acesso não autorizado'
-            ], 403);
+                'data' => $anunciosPendentes,
+                'message' => 'Anúncios pendentes recuperados com sucesso'
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Erro ao buscar anúncios pendentes:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'message' => 'Erro ao buscar anúncios pendentes: ' . $e->getMessage()
+            ], 500);
         }
-        
-        $anunciosPendentes = Anuncio::with([
-            'utilizador', 
-            'categorium', 
-            'tipo_item', 
-            'item_imagems.imagem', 
-            'aprovacao'
-        ])
-        ->where('Status_AnuncioID_Status_Anuncio', StatusAnuncio::STATUS_PENDENTE)
-        ->orderBy('ID_Anuncio', 'desc')
-        ->paginate(10);
-        
-        return response()->json($anunciosPendentes);
     }
     
     /**
@@ -77,37 +112,78 @@ class AnuncioController extends Controller
      */
     public function aprovarAnuncio($id)
     {
-        // Verificar se o usuário é administrador
-        if (!Auth::check() || !Auth::user()->hasRole('admin')) {
-            return response()->json([
-                'message' => 'Acesso não autorizado'
-            ], 403);
-        }
-        
         try {
+            // Log do usuário atual
+            \Log::info('Tentativa de aprovação de anúncio', [
+                'anuncio_id' => $id,
+                'user' => Auth::user(),
+                'user_id' => Auth::id(),
+                'is_authenticated' => Auth::check(),
+                'user_type' => Auth::user() ? Auth::user()->TipoUserID_TipoUser : null
+            ]);
+
+            // Verificar se o Utilizador está autenticado
+            if (!Auth::check()) {
+                return response()->json([
+                    'message' => 'Usuário não autenticado'
+                ], 401);
+            }
+
+            // Verificar se o utilizador é administrador
+            if (Auth::user()->TipoUserID_TipoUser != 1) {
+                return response()->json([
+                    'message' => 'Acesso não autorizado - Tipo de usuário inválido'
+                ], 403);
+            }
+            
             DB::beginTransaction();
             
             $anuncio = Anuncio::findOrFail($id);
             
+            // Log do anúncio encontrado
+            \Log::info('Anúncio encontrado', [
+                'anuncio' => $anuncio,
+                'status_atual' => $anuncio->Status_AnuncioID_Status_Anuncio
+            ]);
+            
             // Verificar se o anúncio já foi processado
             if ($anuncio->Status_AnuncioID_Status_Anuncio != StatusAnuncio::STATUS_PENDENTE) {
+                DB::rollBack();
                 return response()->json([
                     'message' => 'Este anúncio já foi processado'
                 ], 400);
             }
             
             // Atualizar status do anúncio
-            $anuncio->Status_AnuncioID_Status_Anuncio = StatusAnuncio::STATUS_APROVADO;
+            $anuncio->Status_AnuncioID_Status_Anuncio = StatusAnuncio::STATUS_ATIVO;
             $anuncio->save();
             
             // Atualizar status da aprovação
             $aprovacao = Aprovacao::find($anuncio->AprovacaoID_aprovacao);
             
             if ($aprovacao) {
-                $aprovacao->Status_AprovacaoID_Status_Aprovacao = 2;
+                // Usar ID_User em vez de email
+                $adminId = Auth::user()->ID_User;
+                
+                \Log::info('Atualizando aprovação', [
+                    'admin_id' => $adminId,
+                    'aprovacao_id' => $aprovacao->ID_aprovacao
+                ]);
+                
+                $aprovacao->Status_AprovacaoID_Status_Aprovacao = 2; // Status aprovado
                 $aprovacao->Data_Aprovacao = now();
-                $aprovacao->UtilizadorID_Admin = Auth::id();
+                $aprovacao->UtilizadorID_Admin = $adminId; // Usar o ID do administrador
                 $aprovacao->save();
+
+                // Log da aprovação
+                \Log::info('Aprovação atualizada', [
+                    'aprovacao' => $aprovacao
+                ]);
+            } else {
+                \Log::warning('Aprovação não encontrada para o anúncio', [
+                    'anuncio_id' => $id,
+                    'aprovacao_id' => $anuncio->AprovacaoID_aprovacao
+                ]);
             }
             
             DB::commit();
@@ -117,6 +193,11 @@ class AnuncioController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
+            \Log::error('Erro ao aprovar anúncio:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'anuncio_id' => $id
+            ]);
             return response()->json([
                 'message' => 'Erro ao aprovar anúncio: ' . $e->getMessage()
             ], 500);
@@ -128,7 +209,7 @@ class AnuncioController extends Controller
      */
     public function rejeitarAnuncio(Request $request, $id)
     {
-        if (!Auth::check() || !Auth::user()->hasRole('admin')) {
+        if (!Auth::check() || Auth::user()->TipoUserID_TipoUser !== 1) { // Assumindo que ID 1 é para administradores
             return response()->json([
                 'message' => 'Acesso não autorizado'
             ], 403);

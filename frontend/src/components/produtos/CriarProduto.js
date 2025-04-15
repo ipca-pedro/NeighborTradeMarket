@@ -181,7 +181,7 @@ const CriarProduto = () => {
         try {
             const formDataObj = new FormData();
             
-            // Debug: Verificar o ID do usuário
+            // Debug: Verificar o ID do Utilizador
             console.log('currentUser:', currentUser);
             console.log('currentUser.ID_User:', currentUser.ID_User);
             console.log('typeof currentUser.ID_User:', typeof currentUser.ID_User);

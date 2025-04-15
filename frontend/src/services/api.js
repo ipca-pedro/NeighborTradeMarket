@@ -230,10 +230,16 @@ export const adminService = {
     // Aprovar um anúncio
     aprovarAnuncio: async (anuncioId) => {
         try {
+            console.log('Tentando aprovar anúncio:', anuncioId);
             const response = await api.post(`/admin/anuncios/${anuncioId}/aprovar`);
+            console.log('Resposta da aprovação:', response.data);
             return response.data;
         } catch (error) {
-            console.error(`Erro ao aprovar anúncio ${anuncioId}:`, error);
+            console.error(`Erro detalhado ao aprovar anúncio ${anuncioId}:`, {
+                message: error.message,
+                response: error.response?.data,
+                status: error.response?.status
+            });
             throw error.response?.data || error.message;
         }
     },

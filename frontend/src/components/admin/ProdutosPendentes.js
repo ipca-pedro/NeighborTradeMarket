@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Button, Modal, Form, Alert, Card, Badge, Spinner, Row, Col, Image } from 'react-bootstrap';
+import { Container, Button, Modal, Form, Alert, Card, Badge, Spinner, Row, Col, Image, Carousel } from 'react-bootstrap';
 import { adminService } from '../../services/api';
 import Header from '../layout/Header';
 import Footer from '../layout/Footer';
@@ -21,13 +21,21 @@ const ProdutosPendentes = () => {
     const loadProdutosPendentes = async () => {
         try {
             setLoading(true);
+            setError('');
             const response = await adminService.getAnunciosPendentes();
-            console.log('Anúncios pendentes:', response);
-            setProdutos(response);
+            console.log('Resposta completa:', response);
+            
+            // Verificar se temos dados na resposta
+            if (response.data) {
+                setProdutos(Array.isArray(response.data) ? response.data : []);
+            } else {
+                setProdutos([]);
+            }
+            
             setError('');
         } catch (err) {
             console.error('Erro ao carregar produtos pendentes:', err);
-            setError('Erro ao carregar produtos pendentes. Por favor, tente novamente.');
+            setError(err.message || 'Erro ao carregar produtos pendentes. Por favor, tente novamente.');
         } finally {
             setLoading(false);
         }
@@ -35,13 +43,28 @@ const ProdutosPendentes = () => {
 
     const handleAprovar = async (produtoId) => {
         try {
-            await adminService.aprovarAnuncio(produtoId);
+            setError(''); // Limpar erro anterior
+            setMessage(''); // Limpar mensagem anterior
+            setLoading(true); // Indicar que está carregando
+            
+            console.log('Iniciando aprovação do anúncio:', produtoId);
+            const response = await adminService.aprovarAnuncio(produtoId);
+            console.log('Resposta da aprovação:', response);
+            
             setMessage('Anúncio aprovado com sucesso!');
             // Remover o produto da lista
             setProdutos(produtos.filter(p => p.ID_Anuncio !== produtoId));
         } catch (err) {
             console.error('Erro ao aprovar anúncio:', err);
-            setError('Erro ao aprovar anúncio. Por favor, tente novamente.');
+            setError(err.message || 'Erro ao aprovar anúncio. Por favor, tente novamente.');
+            
+            // Se for erro de autenticação, redirecionar para login
+            if (err.response?.status === 401) {
+                // Aqui você pode adicionar lógica para redirecionar para a página de login
+                setError('Sessão expirada. Por favor, faça login novamente.');
+            }
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -76,6 +99,43 @@ const ProdutosPendentes = () => {
         }).format(value);
     };
 
+    const renderImages = (images) => {
+        if (!images || images.length === 0) {
+            return (
+                <div className="text-center p-4 bg-light" style={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <i className="bi bi-image text-muted" style={{ fontSize: '3rem' }}></i>
+                </div>
+            );
+        }
+
+        if (images.length === 1) {
+            return (
+                <div style={{ height: '300px', backgroundColor: '#f8f9fa' }}>
+                    <img
+                        src={`/storage/${images[0].imagem}`}
+                        alt="Imagem do produto"
+                        className="card-img-top"
+                        style={{ height: '100%', width: '100%', objectFit: 'contain' }}
+                    />
+                </div>
+            );
+        }
+
+        return (
+            <Carousel style={{ height: '300px', backgroundColor: '#f8f9fa' }}>
+                {images.map((img, index) => (
+                    <Carousel.Item key={index}>
+                        <img
+                            src={`/storage/${img.imagem}`}
+                            alt={`Imagem ${index + 1} do produto`}
+                            style={{ height: '300px', width: '100%', objectFit: 'contain' }}
+                        />
+                    </Carousel.Item>
+                ))}
+            </Carousel>
+        );
+    };
+
     return (
         <>
             <Header />
@@ -100,46 +160,37 @@ const ProdutosPendentes = () => {
                                 {produtos.map(produto => (
                                     <Col key={produto.ID_Anuncio}>
                                         <Card className="h-100 shadow-sm">
-                                            <div className="position-relative">
-                                                {produto.item_imagems && produto.item_imagems.length > 0 && produto.item_imagems[0].imagem ? (
-                                                    <Card.Img 
-                                                        variant="top" 
-                                                        src={`http://localhost:8000/storage/${produto.item_imagems[0].imagem.Caminho}`} 
-                                                        style={{ height: '200px', objectFit: 'cover' }} 
-                                                    />
-                                                ) : (
-                                                    <div className="bg-light d-flex align-items-center justify-content-center" style={{ height: '200px' }}>
-                                                        <i className="fas fa-image fa-3x text-muted"></i>
-                                                    </div>
-                                                )}
-                                                <Badge 
-                                                    bg="warning" 
-                                                    text="dark" 
-                                                    className="position-absolute top-0 end-0 m-2"
-                                                >
-                                                    Pendente
-                                                </Badge>
-                                            </div>
+                                            {renderImages(produto.item_imagems)}
                                             <Card.Body>
-                                                <Card.Title>{produto.Titulo}</Card.Title>
-                                                <Card.Subtitle className="mb-2 text-muted">
+                                                <Card.Title className="h5 mb-3">{produto.Titulo}</Card.Title>
+                                                <Card.Subtitle className="mb-3 text-primary fw-bold">
                                                     {formatCurrency(produto.Preco)}
                                                 </Card.Subtitle>
-                                                <Card.Text>
+                                                <Card.Text className="mb-3">
                                                     {produto.Descricao}
                                                 </Card.Text>
-                                                <div className="d-flex justify-content-between align-items-center mb-2">
+                                                <div className="d-flex justify-content-between align-items-center mb-3">
                                                     <Badge bg="info" pill>
                                                         {produto.categorium?.Nome || 'Sem categoria'}
                                                     </Badge>
-                                                    <small className="text-muted">
-                                                        Tipo: {produto.tipo_item?.Nome || 'Não especificado'}
-                                                    </small>
+                                                    <Badge bg="secondary" pill>
+                                                        {produto.tipo_item?.Nome || 'Não especificado'}
+                                                    </Badge>
                                                 </div>
-                                                <div className="border-top pt-2 mt-2">
-                                                    <p className="mb-1"><strong>Utilizador:</strong> {produto.utilizador?.Nome || 'Desconhecido'}</p>
-                                                    <p className="mb-1"><small className="text-muted">Email: {produto.utilizador?.Email || 'N/A'}</small></p>
-                                                    <p className="mb-0"><small className="text-muted">Data: {produto.aprovacao?.Data_Aprovacao || 'Pendente'}</small></p>
+                                                <div className="border-top pt-3">
+                                                    <p className="mb-2">
+                                                        <strong>Utilizador:</strong> {produto.utilizador?.Name || 'Desconhecido'}
+                                                    </p>
+                                                    <p className="mb-2">
+                                                        <small className="text-muted">
+                                                            Email: {produto.utilizador?.Email || 'N/A'}
+                                                        </small>
+                                                    </p>
+                                                    <p className="mb-0">
+                                                        <small className="text-muted">
+                                                            Data: {produto.aprovacao?.Data_Submissao ? new Date(produto.aprovacao.Data_Submissao).toLocaleDateString() : 'Pendente'}
+                                                        </small>
+                                                    </p>
                                                 </div>
                                             </Card.Body>
                                             <Card.Footer className="bg-white">
@@ -147,17 +198,18 @@ const ProdutosPendentes = () => {
                                                     <Button
                                                         variant="success"
                                                         size="sm"
-                                                        className="me-2"
+                                                        className="me-2 px-4"
                                                         onClick={() => handleAprovar(produto.ID_Anuncio)}
                                                     >
-                                                        <i className="fas fa-check me-1"></i> Aprovar
+                                                        <i className="fas fa-check me-2"></i> Aprovar
                                                     </Button>
                                                     <Button
                                                         variant="danger"
                                                         size="sm"
+                                                        className="px-4"
                                                         onClick={() => handleRejeitar(produto)}
                                                     >
-                                                        <i className="fas fa-times me-1"></i> Rejeitar
+                                                        <i className="fas fa-times me-2"></i> Rejeitar
                                                     </Button>
                                                 </div>
                                             </Card.Footer>
@@ -179,28 +231,18 @@ const ProdutosPendentes = () => {
                     {selectedProduto && (
                         <Row className="mb-4">
                             <Col md={4}>
-                                {selectedProduto.item_imagems && selectedProduto.item_imagems.length > 0 && selectedProduto.item_imagems[0].imagem ? (
-                                    <Image 
-                                        src={`http://localhost:8000/storage/${selectedProduto.item_imagems[0].imagem.Caminho}`} 
-                                        alt={selectedProduto.Titulo}
-                                        fluid
-                                        rounded
-                                        className="mb-2"
-                                    />
-                                ) : (
-                                    <div className="bg-light d-flex align-items-center justify-content-center rounded" style={{ height: '150px' }}>
-                                        <i className="fas fa-image fa-3x text-muted"></i>
-                                    </div>
-                                )}
+                                {renderImages(selectedProduto.item_imagems, { height: '200px' })}
                             </Col>
                             <Col md={8}>
                                 <h5>{selectedProduto.Titulo}</h5>
                                 <p className="text-muted">{selectedProduto.Descricao}</p>
-                                <div className="d-flex justify-content-between">
+                                <div className="d-flex justify-content-between align-items-center mb-3">
                                     <Badge bg="info">{selectedProduto.categorium?.Nome || 'Sem categoria'}</Badge>
                                     <span className="fw-bold">{formatCurrency(selectedProduto.Preco)}</span>
                                 </div>
-                                <small className="text-muted d-block mt-2">Anunciante: {selectedProduto.utilizador?.Nome}</small>
+                                <small className="text-muted d-block">
+                                    Anunciante: {selectedProduto.utilizador?.Name}
+                                </small>
                             </Col>
                         </Row>
                     )}

@@ -22,9 +22,11 @@ use Illuminate\Database\Eloquent\Model;
 class StatusAnuncio extends Model
 {
     // Constantes para status
-    const STATUS_PENDENTE = 1;
-    const STATUS_APROVADO = 2;
-    const STATUS_REJEITADO = 3;
+    const STATUS_ATIVO = 1;      // Anúncio ativo/aprovado
+    const STATUS_INATIVO = 2;    // Anúncio inativo
+    const STATUS_VENDIDO = 3;    // Anúncio vendido
+    const STATUS_PENDENTE = 4;   // Anúncio pendente de aprovação
+    const STATUS_REJEITADO = 7;  // Anúncio rejeitado
 
     protected $table = 'status_anuncio';
     protected $primaryKey = 'ID_Status_Anuncio';
@@ -43,8 +45,10 @@ class StatusAnuncio extends Model
     public static function isValidStatus($statusId)
     {
         return in_array($statusId, [
+            self::STATUS_ATIVO,
+            self::STATUS_INATIVO,
+            self::STATUS_VENDIDO,
             self::STATUS_PENDENTE,
-            self::STATUS_APROVADO,
             self::STATUS_REJEITADO
         ]);
     }
@@ -68,8 +72,10 @@ class StatusAnuncio extends Model
     public static function getAllValidStatus()
     {
         return self::whereIn('ID_Status_Anuncio', [
+            self::STATUS_ATIVO,
+            self::STATUS_INATIVO,
+            self::STATUS_VENDIDO,
             self::STATUS_PENDENTE,
-            self::STATUS_APROVADO,
             self::STATUS_REJEITADO
         ])->get();
     }
