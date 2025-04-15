@@ -34,6 +34,12 @@ Route::get('/moradas', [AuthController::class, 'getMoradas']);
 Route::get('/categorias', [AnuncioController::class, 'getCategories']);
 Route::get('/tipos-item', [AnuncioController::class, 'getTiposItem']);
 
+// Rota pública para buscar anúncios sem autenticação
+Route::get('/anuncios/publicos', [AnuncioController::class, 'getAnunciosPublicos']);
+
+// Rota para listar anúncios por categoria
+Route::get('/anuncios/categoria/{categoriaId}', [AnuncioController::class, 'byCategoria']);
+
 // Rota para servir arquivos
 Route::get('/files/id/{id}', [FileController::class, 'serveById']);
 

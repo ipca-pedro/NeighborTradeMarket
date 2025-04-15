@@ -1,53 +1,58 @@
 import React, { useState, useEffect } from 'react';
 import { getAnunciosDestaque, getAnunciosAleatorios } from '../../services/anuncioService';
-import { Container, Row, Col, Card, Button, Form, Carousel } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Form, Carousel, Spinner, Alert } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import Header from '../layout/Header';
 import Footer from '../layout/Footer';
 import './HomePage.css';
+import { anuncioService } from '../../services/api';
+
+// Categorias estáticas correspondentes ao banco de dados
+const staticCategories = [
+    { ID_Categoria: 1, Descricao_Categoria: "Informática", icon: "fas fa-laptop", color: "#0d6efd" },
+    { ID_Categoria: 2, Descricao_Categoria: "Móveis", icon: "fas fa-couch", color: "#0d6efd" },
+    { ID_Categoria: 3, Descricao_Categoria: "Roupas", icon: "fas fa-tshirt", color: "#0d6efd" },
+    { ID_Categoria: 4, Descricao_Categoria: "Livros", icon: "fas fa-book", color: "#0d6efd" },
+    { ID_Categoria: 5, Descricao_Categoria: "Brinquedos", icon: "fas fa-gamepad", color: "#0d6efd" },
+    { ID_Categoria: 6, Descricao_Categoria: "Ferramentas", icon: "fas fa-tools", color: "#0d6efd" },
+    { ID_Categoria: 7, Descricao_Categoria: "Veículos", icon: "fas fa-car", color: "#0d6efd" },
+    { ID_Categoria: 8, Descricao_Categoria: "Imóveis", icon: "fas fa-home", color: "#0d6efd" }
+];
 
 const HomePage = () => {
     const [produtos, setProdutos] = useState([]);
     const [servicos, setServicos] = useState([]);
     const [produtosDestaque, setProdutosDestaque] = useState([]);
     const [loading, setLoading] = useState(true);
-
+    const [error, setError] = useState(null);
+    
     useEffect(() => {
-        const fetchAnuncios = async () => {
+        const fetchData = async () => {
             try {
                 setLoading(true);
+                setError(null);
                 
-                // Buscar anúncios aleatórios para produtos (6)
-                const produtosAleatorios = await getAnunciosAleatorios(6, 1); // Tipo 1: Produtos
-                setProdutos(produtosAleatorios);
+                // Fetch anuncios
+                const [produtosRes, servicosRes, destaqueRes] = await Promise.all([
+                    anuncioService.getAnunciosAleatorios(6, 1), // 6 Produtos
+                    anuncioService.getAnunciosAleatorios(3, 2), // 3 Serviços 
+                    anuncioService.getAnunciosAleatorios(3, 1)  // 3 Produtos para Destaque
+                ]);
+
+                setProdutos(produtosRes || []);
+                setServicos(servicosRes || []);
+                setProdutosDestaque(destaqueRes || []);
                 
-                // Buscar anúncios aleatórios para serviços (3)
-                const servicosAleatorios = await getAnunciosAleatorios(3, 2); // Tipo 2: Serviços
-                setServicos(servicosAleatorios);
-                
-                // Buscar 3 produtos em destaque para o carrossel
-                const destaqueAleatorios = await getAnunciosAleatorios(3, 1); // Tipo 1: Produtos para destaque
-                setProdutosDestaque(destaqueAleatorios);
             } catch (error) {
-                console.error('Erro ao procurar anúncios:', error);
+                console.error('Erro ao buscar dados da homepage:', error);
+                setError('Não foi possível carregar todos os dados da página.');
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchAnuncios();
+        fetchData();
     }, []);
-
-    const featuredCategories = [
-        { id: 1, name: 'Computador & Portátil', icon: 'fas fa-laptop' },
-        { id: 2, name: 'Acessórios de Computador', icon: 'fas fa-keyboard' },
-        { id: 3, name: 'Smartphone', icon: 'fas fa-mobile-alt' },
-        { id: 4, name: 'Auscultadores', icon: 'fas fa-headphones' },
-        { id: 5, name: 'Acessórios Móveis', icon: 'fas fa-tablet-alt' },
-        { id: 6, name: 'Consola de Jogos', icon: 'fas fa-gamepad' },
-        { id: 7, name: 'Câmara & Foto', icon: 'fas fa-camera' },
-        { id: 8, name: 'TV & Eletrodomésticos', icon: 'fas fa-tv' }
-    ];
 
     // Função para renderizar um anúncio
     const renderAnuncio = (anuncio) => (
@@ -89,12 +94,10 @@ const HomePage = () => {
         </Col>
     );
 
-
-
     return (
         <>
             <Header />
-
+            
             {/* Banner Principal - Produtos em Destaque */}
             <section className="hero-section mb-5">
                 {loading ? (
@@ -147,18 +150,33 @@ const HomePage = () => {
                 )}
             </section>
 
-            {/* Categorias */}
+            {/* Categorias Simplificadas - Estilo Clean */}
             <section className="categories-section py-5">
                 <Container>
-                    <h2 className="section-title mb-4">Compre por Categoria</h2>
+                    <div className="d-flex justify-content-between align-items-center mb-4">
+                        <h2 className="section-title mb-0">Compre por Categoria</h2>
+                        <Link to="/categorias" className="btn btn-outline-primary">
+                            Ver Todas <i className="fas fa-arrow-right ms-1"></i>
+                        </Link>
+                    </div>
+                    
                     <Row>
-                        {featuredCategories.map(category => (
-                            <Col key={category.id} xs={6} md={3} lg={3} className="mb-4">
-                                <Link to={`/anuncios/categoria/${category.id}`} className="category-item d-flex flex-column align-items-center text-center p-3 border rounded shadow-sm text-decoration-none">
-                                    <div className="category-icon mb-3">
-                                        <i className={`${category.icon} fa-3x text-primary`}></i>
-                                    </div>
-                                    <span className="category-name">{category.name}</span>
+                        {staticCategories.map(category => (
+                            <Col key={category.ID_Categoria} xs={6} md={3} className="mb-4">
+                                <Link 
+                                    to={`/anuncios?categoria=${category.ID_Categoria}`}
+                                    className="text-decoration-none"
+                                >
+                                    <Card className="category-card h-100 text-center border-0 shadow-sm">
+                                        <Card.Body className="d-flex flex-column align-items-center justify-content-center p-4">
+                                            <div className="category-icon mb-3">
+                                                <i className={`${category.icon} fa-3x`} style={{color: category.color}}></i>
+                                            </div>
+                                            <Card.Title className="category-name mb-0">
+                                                {category.Descricao_Categoria}
+                                            </Card.Title>
+                                        </Card.Body>
+                                    </Card>
                                 </Link>
                             </Col>
                         ))}
@@ -209,7 +227,6 @@ const HomePage = () => {
                     )}
                 </Container>
             </section>
-
             
             <Footer />
         </>

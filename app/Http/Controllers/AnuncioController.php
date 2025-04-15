@@ -36,14 +36,35 @@ class AnuncioController extends Controller
      */
     public function byCategoria($categoriaId)
     {
-        $anuncios = Anuncio::with(['utilizador', 'categorium', 'tipo_item', 'item_imagems.imagem'])
-            ->where('CategoriaID_Categoria', $categoriaId)
-            ->where('Status_AnuncioID_Status_Anuncio', StatusAnuncio::STATUS_APROVADO)
-            ->where('Status_AnuncioID_Status_Anuncio', '!=', StatusAnuncio::STATUS_REJEITADO)
-            ->orderBy('ID_Anuncio', 'desc')
-            ->paginate(10);
-        
-        return response()->json($anuncios);
+        try {
+            \Log::info('Buscando anúncios por categoria', [
+                'categoria_id' => $categoriaId
+            ]);
+            
+            $anuncios = Anuncio::with(['utilizador', 'categorium', 'tipo_item', 'item_imagems.imagem'])
+                ->where('CategoriaID_Categoria', $categoriaId)
+                ->where('Status_AnuncioID_Status_Anuncio', 1)
+                ->orderBy('ID_Anuncio', 'desc')
+                ->get();
+            
+            \Log::info('Anúncios encontrados por categoria', [
+                'categoria_id' => $categoriaId,
+                'quantidade' => $anuncios->count()
+            ]);
+            
+            return response()->json($anuncios);
+        } catch (\Exception $e) {
+            \Log::error('Erro ao buscar anúncios por categoria:', [
+                'categoria_id' => $categoriaId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'message' => 'Erro ao buscar anúncios por categoria: ' . $e->getMessage(),
+                'anuncios' => []
+            ], 500);
+        }
     }
     
     /**
@@ -816,6 +837,62 @@ class AnuncioController extends Controller
                 'imagem_id' => $imagemId
             ]);
             return response()->json(['message' => 'Erro ao atualizar imagem principal'], 500);
+        }
+    }
+
+    /**
+     * Obter anúncios públicos sem autenticação
+     * Aceita parâmetros de filtro via query string
+     */
+    public function getAnunciosPublicos(Request $request)
+    {
+        try {
+            \Log::info('Buscando anúncios públicos', [
+                'filtros' => $request->all()
+            ]);
+            
+            // Verificar as constantes de status para debug
+            \Log::info('Status disponíveis:', [
+                'STATUS_PENDENTE' => StatusAnuncio::STATUS_PENDENTE,
+                'STATUS_APROVADO' => StatusAnuncio::STATUS_APROVADO,
+                'STATUS_REJEITADO' => StatusAnuncio::STATUS_REJEITADO,
+                'STATUS_ATIVO' => StatusAnuncio::STATUS_ATIVO
+            ]);
+            
+            $query = Anuncio::with(['utilizador', 'categorium', 'tipo_item', 'item_imagems.imagem'])
+                ->where('Status_AnuncioID_Status_Anuncio', StatusAnuncio::STATUS_APROVADO) // Corrigido para aprovado, mesma lógica do index()
+                ->orderBy('ID_Anuncio', 'desc');
+            
+            // Filtrar por categoria se especificado
+            if ($request->has('categoria')) {
+                $categoriaId = $request->categoria;
+                \Log::info('Filtrando por categoria', ['categoria_id' => $categoriaId]);
+                
+                $query->where('CategoriaID_Categoria', $categoriaId);
+            }
+            
+            // Mostrar todos os anúncios disponíveis para debug
+            $allAnuncios = Anuncio::select('ID_Anuncio', 'Titulo', 'Status_AnuncioID_Status_Anuncio', 'CategoriaID_Categoria')->limit(10)->get();
+            \Log::info('Amostra de anúncios na BD:', ['anuncios' => $allAnuncios]);
+            
+            $anuncios = $query->get();
+            
+            \Log::info('Anúncios encontrados:', [
+                'count' => $anuncios->count(),
+                'query' => $query->toSql(),
+                'bindings' => $query->getBindings()
+            ]);
+            
+            return response()->json($anuncios);
+        } catch (\Exception $e) {
+            \Log::error('Erro ao buscar anúncios públicos:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'message' => 'Erro ao buscar anúncios: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

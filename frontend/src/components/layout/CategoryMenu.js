@@ -4,19 +4,18 @@ import { ListGroup } from 'react-bootstrap';
 import './CategoryMenu.css';
 
 const CategoryMenu = ({ onSelectCategory }) => {
-    // Estas categorias devem ser carregadas da API em produção
+    // Categorias atualizadas para corresponder ao banco de dados
     const categories = [
-        { id: 1, name: 'Computador & Portátil', icon: 'fas fa-laptop', hasSubcategories: true },
-        { id: 2, name: 'Acessórios de Computador', icon: 'fas fa-keyboard' },
-        { id: 3, name: 'Smartphone', icon: 'fas fa-mobile-alt', hasSubcategories: true },
-        { id: 4, name: 'Auscultadores', icon: 'fas fa-headphones' },
-        { id: 5, name: 'Acessórios Móveis', icon: 'fas fa-tablet-alt' },
-        { id: 6, name: 'Consola de Jogos', icon: 'fas fa-gamepad' },
-        { id: 7, name: 'Câmara & Foto', icon: 'fas fa-camera' },
-        { id: 8, name: 'TV & Eletrodomésticos', icon: 'fas fa-tv' },
-        { id: 9, name: 'Relógios & Acessórios', icon: 'fas fa-clock' },
-        { id: 10, name: 'GPS & Navegação', icon: 'fas fa-map-marker-alt' },
-        { id: 11, name: 'Tecnologia Vestível', icon: 'fas fa-tshirt' }
+        { id: 1, name: 'Informática', icon: 'fas fa-laptop', hasSubcategories: true },
+        { id: 2, name: 'Móveis', icon: 'fas fa-couch' },
+        { id: 3, name: 'Roupas', icon: 'fas fa-tshirt' },
+        { id: 4, name: 'Livros', icon: 'fas fa-book' },
+        { id: 5, name: 'Brinquedos', icon: 'fas fa-gamepad' },
+        { id: 6, name: 'Ferramentas', icon: 'fas fa-tools' },
+        { id: 7, name: 'Veículos', icon: 'fas fa-car' },
+        { id: 8, name: 'Imóveis', icon: 'fas fa-home' },
+        { id: 9, name: 'Desporto', icon: 'fas fa-running' },
+        { id: 10, name: 'Outros', icon: 'fas fa-tag' }
     ];
 
     return (
@@ -42,7 +41,7 @@ const CategoryMenu = ({ onSelectCategory }) => {
             <ListGroup.Item 
                 action 
                 as={Link} 
-                to="/anuncios/categorias"
+                to="/categorias"
                 className="text-center fw-bold"
                 onClick={onSelectCategory}
             >

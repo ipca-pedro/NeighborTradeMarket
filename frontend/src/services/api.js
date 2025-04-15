@@ -282,11 +282,25 @@ export const anuncioService = {
     // Obter todos os anúncios
     getAnuncios: async (filtros = {}) => {
         try {
+            console.log('Buscando anúncios com filtros:', filtros);
+            // Este endpoint deve ser uma rota pública que não requer autenticação
             const response = await api.get('/anuncios', { params: filtros });
+            console.log('Anúncios recebidos:', response.data?.length || 0);
             return response.data;
         } catch (error) {
             console.error('Erro ao obter anúncios:', error);
-            throw error.response?.data || error.message;
+            if (error.response?.status === 401) {
+                console.log('Erro de autenticação, tentando via endpoint público');
+                // Tentar buscar via endpoint público alternativo
+                try {
+                    const publicResponse = await api.get('/anuncios/publicos', { params: filtros });
+                    return publicResponse.data;
+                } catch (fallbackError) {
+                    console.error('Erro no fallback público:', fallbackError);
+                    return []; // Retornar array vazio em vez de lançar erro
+                }
+            }
+            return []; // Retornar array vazio para não quebrar a UI
         }
     },
     
@@ -421,6 +435,18 @@ export const anuncioService = {
     // Alias para compatibilidade com o backend
     getCategories: async () => {
         return anuncioService.getCategorias();
+    },
+    
+    // Obter anúncios por categoria
+    getAnunciosPorCategoria: async (categoriaId) => {
+        try {
+            console.log('Buscando anúncios da categoria:', categoriaId);
+            const response = await api.get(`/anuncios/categoria/${categoriaId}`);
+            return response.data;
+        } catch (error) {
+            console.error(`Erro ao buscar anúncios da categoria ${categoriaId}:`, error);
+            return []; // Retornar array vazio para não quebrar a UI
+        }
     },
     
     // Obter tipos de item disponíveis
