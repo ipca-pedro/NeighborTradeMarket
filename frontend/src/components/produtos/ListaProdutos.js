@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Header from '../layout/Header';
 import { Container, Row, Col, Card, Badge } from 'react-bootstrap';
 import { Link, useParams, useLocation } from 'react-router-dom';
 import NoProductsFound from './NoProductsFound';
@@ -81,81 +82,77 @@ const ListaProdutos = () => {
         }
     };
 
-    if (loading) {
-        return (
-            <Container className="text-center py-5">
-                <div className="spinner-border text-primary" role="status">
-                    <span className="visually-hidden">Carregando...</span>
-                </div>
-            </Container>
-        );
-    }
-
-    if (error) {
-        return (
-            <Container className="py-5">
-                <div className="alert alert-danger">
-                    {error}
-                </div>
-                <NoProductsFound />
-            </Container>
-        );
-    }
-
-    if (produtos.length === 0) {
-        return <NoProductsFound />;
-    }
-
     return (
-        <Container className="mt-4">
-            <h2 className="mb-4">
-                {categoriaId ? (
-                    categoriaInfo ? 
-                        `Produtos em ${categoriaInfo.Descricao_Categoria}` : 
-                        `Produtos na Categoria ${categoriaId}`
-                ) : 'Todos os Produtos'}
-            </h2>
-            <Row>
-                {produtos.map(produto => (
-                    <Col key={produto.ID_Item || produto.id} xs={12} sm={6} md={4} lg={3} className="mb-4">
-                        <Card>
-                            {produto.imagens && produto.imagens.length > 0 ? (
-                                <Card.Img 
-                                    variant="top" 
-                                    src={produto.imagens[0]?.URL || produto.item_imagems?.[0]?.imagem?.Caminho ? `${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/storage/${produto.item_imagems[0].imagem.Caminho}` : '/images/no-image.jpg'}
-                                    style={{ height: '200px', objectFit: 'cover' }}
-                                    onError={(e) => { e.target.onerror = null; e.target.src = '/images/no-image.jpg'; }}
-                                />
-                            ) : (
-                                <div className="bg-light text-center py-5">
-                                    <i className="fas fa-image fa-3x text-secondary"></i>
-                                </div>
-                            )}
-                            <Card.Body>
-                                <Card.Title>{produto.Titulo || produto.Nome}</Card.Title>
-                                <Card.Text>
-                                    {produto.Preco ? produto.Preco.toFixed(2) : "N/A"}€
-                                </Card.Text>
-                                <div className="mb-2">
-                                    <Badge bg="secondary" className="me-2">
-                                        {produto.categorium?.Descricao_Categoria || produto.Categoria || "Categoria N/A"}
-                                    </Badge>
-                                    <Badge bg="info">
-                                        {produto.Condicao || produto.Estado || "Estado N/A"}
-                                    </Badge>
-                                </div>
-                                <Link 
-                                    to={`/anuncios/${produto.ID_Item || produto.id}`}
-                                    className="btn btn-primary btn-sm"
-                                >
-                                    Ver Detalhes
-                                </Link>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                ))}
-            </Row>
-        </Container>
+        <>
+            <Header />
+            {loading ? (
+                <Container className="text-center py-5" style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{fontSize: '1.3rem', color: '#444', fontWeight: 500}}>
+        A carregar produtos/anúncios...
+    </div>
+</Container>
+            ) : error ? (
+                <Container className="py-5">
+                    <div className="alert alert-danger">
+                        {error}
+                    </div>
+                    <NoProductsFound />
+                </Container>
+            ) : produtos.length === 0 ? (
+                <NoProductsFound />
+            ) : (
+                <Container className="mt-4" style={{ minHeight: '50vh', marginBottom: 'calc(2rem + 7mm)' }}>
+                    <h2 className="mb-4">
+                        {categoriaId ? (
+                            categoriaInfo ? 
+                                `Produtos de ${categoriaInfo.Descricao_Categoria}` : 
+                                `Produtos na Categoria ${categoriaId}`
+                        ) : 'Todos os Produtos'}
+                    </h2>
+                    <Row>
+                        {produtos.map(produto => (
+                            <Col key={produto.ID_Item || produto.id} xs={12} sm={6} md={4} lg={3} className="mb-4">
+                                <Card>
+                                    {produto.imagens && produto.imagens.length > 0 ? (
+                                        <Card.Img 
+                                            variant="top" 
+                                            src={produto.imagens[0]?.URL || produto.item_imagems?.[0]?.imagem?.Caminho ? `${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/storage/${produto.item_imagems[0].imagem.Caminho}` : '/images/no-image.jpg'}
+                                            style={{ height: '200px', objectFit: 'cover' }}
+                                            onError={(e) => { e.target.onerror = null; e.target.src = '/images/no-image.jpg'; }}
+                                        />
+                                    ) : (
+                                        <div className="bg-light text-center py-5">
+                                            <i className="fas fa-image fa-3x text-secondary"></i>
+                                        </div>
+                                    )}
+                                    <Card.Body>
+                                        <Card.Title>{produto.Titulo || produto.Nome}</Card.Title>
+                                        <Card.Text>
+                                            {produto.Preco ? produto.Preco.toFixed(2) : "N/A"}€
+                                        </Card.Text>
+                                        <div className="mb-2">
+                                            <Badge bg="secondary" className="me-2">
+                                                {produto.categorium?.Descricao_Categoria || produto.Categoria || "Categoria N/A"}
+                                            </Badge>
+                                            <Badge bg="info">
+                                                {produto.Condicao || produto.Estado || "Estado N/A"}
+                                            </Badge>
+                                        </div>
+                                        <Link 
+                                            to={`/anuncios/${produto.ID_Item || produto.id}`}
+                                            className="btn btn-primary btn-sm"
+                                        >
+                                            Ver Detalhes
+                                        </Link>
+                                    </Card.Body>
+                                </Card>
+                            </Col>
+                        ))}
+                    </Row>
+                </Container>
+            )}
+
+        </>
     );
 };
 

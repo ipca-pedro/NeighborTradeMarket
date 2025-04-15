@@ -3,7 +3,6 @@ import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import Header from '../layout/Header';
-import Footer from '../layout/Footer';
 
 const AdminDashboard = () => {
     const { currentUser } = useAuth();
@@ -11,7 +10,7 @@ const AdminDashboard = () => {
     return (
         <>
             <Header />
-            <Container className="my-5">
+            <Container className="my-5" style={{ marginBottom: '15mm' }}>
                 <Row className="mb-4 text-center">
                     <Col>
                         <h1 className="display-5">Painel de Administração</h1>
@@ -125,7 +124,10 @@ const AdminDashboard = () => {
                     </Col>
                 </Row>
             </Container>
-            <Footer />
+            <div style={{height: '95px'}}></div>
+            {/* Espaço ajustado para descer o footer cerca de 29mm */}
+            <br /><br />
+            
         </>
     );
 };

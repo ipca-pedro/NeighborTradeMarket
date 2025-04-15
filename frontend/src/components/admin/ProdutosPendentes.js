@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Container, Button, Modal, Form, Alert, Card, Badge, Spinner, Row, Col, Image, Carousel, ListGroup } from 'react-bootstrap';
 import api, { adminService } from '../../services/api';
 import Header from '../layout/Header';
-import Footer from '../layout/Footer';
 
 // Helper function to get the base URL for storage
 const getStorageBaseUrl = () => {
@@ -199,15 +198,51 @@ const ProdutosPendentes = () => {
                                                      </span>
                                                 </div>
                                             </Card.Body>
-                                            <Card.Footer className="bg-light text-center">
-                                                <Button 
-                                                    variant="outline-primary" 
-                                                    size="sm" 
-                                                    onClick={() => openDetailsModal(produto)}
-                                                >
-                                                    <i className="fas fa-eye me-1"></i> Ver Detalhes
-                                                </Button>
-                                            </Card.Footer>
+                                            <Card.Footer className="bg-light text-center d-flex flex-column flex-md-row justify-content-center gap-2">
+    <Button 
+        className="zoom-btn"
+        variant="success" 
+        size="sm" 
+        onClick={async () => {
+            setSelectedAnuncio(produto);
+            setIsSubmitting(true);
+            setMessage('');
+            setError('');
+            try {
+                await adminService.aprovarAnuncio(produto.ID_Anuncio);
+                setMessage('Anúncio aprovado com sucesso!');
+                setProdutos(produtos => produtos.filter(p => p.ID_Anuncio !== produto.ID_Anuncio));
+            } catch (err) {
+                setError(err.response?.data?.message || 'Erro ao aprovar anúncio. Por favor, tente novamente.');
+            } finally {
+                setIsSubmitting(false);
+            }
+        }}
+        disabled={isSubmitting}
+    >
+        <i className="fas fa-check me-1"></i> Aceitar
+    </Button>
+    <Button 
+        className="zoom-btn"
+        variant="danger" 
+        size="sm" 
+        onClick={() => {
+            setSelectedAnuncio(produto);
+            setShowDetailsModal(true);
+        }}
+        disabled={isSubmitting}
+    >
+        <i className="fas fa-times me-1"></i> Recusar
+    </Button>
+    <Button 
+        className="zoom-btn"
+        variant="outline-primary" 
+        size="sm" 
+        onClick={() => openDetailsModal(produto)}
+    >
+        <i className="fas fa-eye me-1"></i> Ver Detalhes
+    </Button>
+</Card.Footer>
                                         </Card>
                                     </Col>
                                 ))}
@@ -279,7 +314,7 @@ const ProdutosPendentes = () => {
                 </Modal.Footer>
             </Modal>
 
-            <Footer />
+            <div style={{height: '18mm'}}></div>
         </>
     );
 };

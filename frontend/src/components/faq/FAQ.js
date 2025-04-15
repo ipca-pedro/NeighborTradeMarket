@@ -1,7 +1,7 @@
 import React from 'react';
 import { Container, Accordion, Row, Col } from 'react-bootstrap';
 import Header from '../layout/Header';
-import Footer from '../layout/Footer';
+
 import './FAQ.css';
 
 const FAQ = () => {
@@ -71,7 +71,7 @@ const FAQ = () => {
                 </Accordion>
             </Container>
 
-            <Footer />
+      
         </>
     );
 };

@@ -4,7 +4,6 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 // import { authService } from '../../services/api';
 import Header from '../layout/Header';
-import Footer from '../layout/Footer';
 
 function Login() {
     const [email, setEmail] = useState('');
@@ -44,8 +43,16 @@ function Login() {
                 }
             }
         } catch (err) {
-            console.error('Erro de login:', err);
-            setError('Email ou palavra-passe inválidos');
+            // Mostra o erro detalhado do backend se existir
+            let msg = 'Email ou palavra-passe inválidos';
+            if (err.response && err.response.data) {
+                msg = err.response.data.message || JSON.stringify(err.response.data);
+            } else if (err.message) {
+                msg = err.message;
+            }
+            setError('Erro ao fazer login: ' + msg);
+            console.error('Erro detalhado de login:', err);
+            alert('Erro ao fazer login: ' + msg); // Para debug rápido
         } finally {
             setLoading(false);
         }
@@ -97,7 +104,8 @@ function Login() {
                     </Col>
                 </Row>
             </Container>
-            <Footer />
+            <div style={{height: '55mm'}}></div>
+            
         </>
     );
 }

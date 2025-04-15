@@ -1,16 +1,12 @@
 import React from 'react';
 import { Container, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import Header from '../layout/Header';
-import Footer from '../layout/Footer';
+
 
 const NoProductsFound = () => {
 
     return (
-        <div className="d-flex flex-column min-vh-100">
-            <Header />
-            
-            <Container className="flex-grow-1 d-flex align-items-center justify-content-center py-5">
+        <Container className="flex-grow-1 d-flex align-items-center justify-content-center py-5">
                 <div className="empty-state text-center">
                     <div className="empty-state-icon mb-4">
                         <i className="fas fa-times-circle fa-5x text-danger"></i>
@@ -31,9 +27,6 @@ const NoProductsFound = () => {
                     </Button>
                 </div>
             </Container>
-
-            <Footer />
-        </div>
     );
 };
 

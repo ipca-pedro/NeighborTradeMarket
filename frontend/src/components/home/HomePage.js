@@ -3,7 +3,6 @@ import { getAnunciosDestaque, getAnunciosAleatorios } from '../../services/anunc
 import { Container, Row, Col, Card, Button, Form, Carousel, Spinner, Alert } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import Header from '../layout/Header';
-import Footer from '../layout/Footer';
 import './HomePage.css';
 import { anuncioService } from '../../services/api';
 
@@ -228,7 +227,7 @@ const HomePage = () => {
                 </Container>
             </section>
             
-            <Footer />
+      
         </>
     );
 };
