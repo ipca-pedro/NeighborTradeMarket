@@ -23,17 +23,6 @@ yarn-error.log
 # !/storage/app/public/comprovativo
 # !/storage/app/public/comprovativo/**
 
-# Ignorar arquivos de sistema
-.DS_Store
-Thumbs.db
-
-# Ignorar diretórios de dependências e cache
-/vendor
-/.phpunit.cache
-
-# Ignorar arquivos de ambiente e configuração local
-.phpactor.json
-
 # Ignorar logs
 /storage/logs/*.log
 

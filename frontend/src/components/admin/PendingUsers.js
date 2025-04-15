@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Table, Button, Modal, Form, Alert, Card, Badge, Spinner } from 'react-bootstrap';
-import { adminService } from '../../services/api';
+import api, { adminService } from '../../services/api';
 import Header from '../layout/Header';
 import Footer from '../layout/Footer';
+
+// Helper function to get the base URL for storage
+const getStorageBaseUrl = () => {
+    const apiUrl = api.defaults.baseURL || '';
+    return apiUrl.endsWith('/api') ? apiUrl.slice(0, -4) : apiUrl;
+};
 
 const PendingUsers = () => {
     const [users, setUsers] = useState([]);
@@ -118,7 +124,7 @@ const PendingUsers = () => {
                                             <td>
                                                 {user.imagem?.Caminho ? (
                                                     <a 
-                                                        href={`http://localhost:3000/view-document.php?id=${user.imagem.ID_Imagem}`} 
+                                                        href={`${getStorageBaseUrl()}/storage/${user.imagem.Caminho}`}
                                                         target="_blank" 
                                                         rel="noopener noreferrer"
                                                         className="btn btn-sm btn-outline-primary"
