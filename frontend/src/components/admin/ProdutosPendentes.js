@@ -1,8 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Button, Modal, Form, Alert, Card, Badge, Spinner, Row, Col, Image, Carousel } from 'react-bootstrap';
-import { adminService } from '../../services/api';
+import api, { adminService } from '../../services/api';
 import Header from '../layout/Header';
 import Footer from '../layout/Footer';
+
+// Helper function to get the base URL for storage
+const getStorageBaseUrl = () => {
+    const apiUrl = api.defaults.baseURL || '';
+    // Remove '/api' from the end if it exists
+    return apiUrl.endsWith('/api') ? apiUrl.slice(0, -4) : apiUrl;
+};
 
 const ProdutosPendentes = () => {
     const [produtos, setProdutos] = useState([]);
@@ -23,7 +30,6 @@ const ProdutosPendentes = () => {
             setLoading(true);
             setError('');
             const response = await adminService.getAnunciosPendentes();
-            console.log('Resposta completa:', response);
             
             // Verificar se temos dados na resposta
             if (response.data) {
@@ -100,6 +106,8 @@ const ProdutosPendentes = () => {
     };
 
     const renderImages = (images) => {
+        const storageBaseUrl = getStorageBaseUrl(); // Get base URL
+
         if (!images || images.length === 0) {
             return (
                 <div className="text-center p-4 bg-light" style={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -112,7 +120,7 @@ const ProdutosPendentes = () => {
             return (
                 <div style={{ height: '300px', backgroundColor: '#f8f9fa' }}>
                     <img
-                        src={`/storage/${images[0].imagem}`}
+                        src={`${storageBaseUrl}/storage/${images[0].imagem.Caminho}`} // Prepend base URL
                         alt="Imagem do produto"
                         className="card-img-top"
                         style={{ height: '100%', width: '100%', objectFit: 'contain' }}
@@ -126,7 +134,7 @@ const ProdutosPendentes = () => {
                 {images.map((img, index) => (
                     <Carousel.Item key={index}>
                         <img
-                            src={`/storage/${img.imagem}`}
+                            src={`${storageBaseUrl}/storage/${img.imagem.Caminho}`} // Prepend base URL
                             alt={`Imagem ${index + 1} do produto`}
                             style={{ height: '300px', width: '100%', objectFit: 'contain' }}
                         />
@@ -157,65 +165,68 @@ const ProdutosPendentes = () => {
                             <Alert variant="info">Não há anúncios pendentes de aprovação.</Alert>
                         ) : (
                             <Row xs={1} md={2} className="g-4">
-                                {produtos.map(produto => (
-                                    <Col key={produto.ID_Anuncio}>
-                                        <Card className="h-100 shadow-sm">
-                                            {renderImages(produto.item_imagems)}
-                                            <Card.Body>
-                                                <Card.Title className="h5 mb-3">{produto.Titulo}</Card.Title>
-                                                <Card.Subtitle className="mb-3 text-primary fw-bold">
-                                                    {formatCurrency(produto.Preco)}
-                                                </Card.Subtitle>
-                                                <Card.Text className="mb-3">
-                                                    {produto.Descricao}
-                                                </Card.Text>
-                                                <div className="d-flex justify-content-between align-items-center mb-3">
-                                                    <Badge bg="info" pill>
-                                                        {produto.categorium?.Nome || 'Sem categoria'}
-                                                    </Badge>
-                                                    <Badge bg="secondary" pill>
-                                                        {produto.tipo_item?.Nome || 'Não especificado'}
-                                                    </Badge>
-                                                </div>
-                                                <div className="border-top pt-3">
-                                                    <p className="mb-2">
-                                                        <strong>Utilizador:</strong> {produto.utilizador?.Name || 'Desconhecido'}
-                                                    </p>
-                                                    <p className="mb-2">
-                                                        <small className="text-muted">
-                                                            Email: {produto.utilizador?.Email || 'N/A'}
-                                                        </small>
-                                                    </p>
-                                                    <p className="mb-0">
-                                                        <small className="text-muted">
-                                                            Data: {produto.aprovacao?.Data_Submissao ? new Date(produto.aprovacao.Data_Submissao).toLocaleDateString() : 'Pendente'}
-                                                        </small>
-                                                    </p>
-                                                </div>
-                                            </Card.Body>
-                                            <Card.Footer className="bg-white">
-                                                <div className="d-flex justify-content-between">
-                                                    <Button
-                                                        variant="success"
-                                                        size="sm"
-                                                        className="me-2 px-4"
-                                                        onClick={() => handleAprovar(produto.ID_Anuncio)}
-                                                    >
-                                                        <i className="fas fa-check me-2"></i> Aprovar
-                                                    </Button>
-                                                    <Button
-                                                        variant="danger"
-                                                        size="sm"
-                                                        className="px-4"
-                                                        onClick={() => handleRejeitar(produto)}
-                                                    >
-                                                        <i className="fas fa-times me-2"></i> Rejeitar
-                                                    </Button>
-                                                </div>
-                                            </Card.Footer>
-                                        </Card>
-                                    </Col>
-                                ))}
+                                {produtos.map(produto => {
+                                    console.log(`Dados de imagens para Anuncio ID ${produto.ID_Anuncio}:`, produto.item_imagems);
+                                    return (
+                                        <Col key={produto.ID_Anuncio}>
+                                            <Card className="h-100 shadow-sm">
+                                                {renderImages(produto.item_imagems)}
+                                                <Card.Body>
+                                                    <Card.Title className="h5 mb-3">{produto.Titulo}</Card.Title>
+                                                    <Card.Subtitle className="mb-3 text-primary fw-bold">
+                                                        {formatCurrency(produto.Preco)}
+                                                    </Card.Subtitle>
+                                                    <Card.Text className="mb-3">
+                                                        {produto.Descricao}
+                                                    </Card.Text>
+                                                    <div className="d-flex justify-content-between align-items-center mb-3">
+                                                        <Badge bg="info" pill>
+                                                            {produto.categorium?.Descricao_Categoria || 'Sem categoria'}
+                                                        </Badge>
+                                                        <Badge bg="secondary" pill>
+                                                            {produto.tipo_item?.Descricao_TipoItem || 'Não especificado'}
+                                                        </Badge>
+                                                    </div>
+                                                    <div className="border-top pt-3">
+                                                        <p className="mb-2">
+                                                            <strong>Utilizador:</strong> {produto.utilizador?.Name || 'Desconhecido'}
+                                                        </p>
+                                                        <p className="mb-2">
+                                                            <small className="text-muted">
+                                                                Email: {produto.utilizador?.Email || 'N/A'}
+                                                            </small>
+                                                        </p>
+                                                        <p className="mb-0">
+                                                            <small className="text-muted">
+                                                                Data: {produto.aprovacao?.Data_Submissao ? new Date(produto.aprovacao.Data_Submissao).toLocaleDateString() : 'Pendente'}
+                                                            </small>
+                                                        </p>
+                                                    </div>
+                                                </Card.Body>
+                                                <Card.Footer className="bg-white">
+                                                    <div className="d-flex justify-content-between">
+                                                        <Button
+                                                            variant="success"
+                                                            size="sm"
+                                                            className="me-2 px-4"
+                                                            onClick={() => handleAprovar(produto.ID_Anuncio)}
+                                                        >
+                                                            <i className="fas fa-check me-2"></i> Aprovar
+                                                        </Button>
+                                                        <Button
+                                                            variant="danger"
+                                                            size="sm"
+                                                            className="px-4"
+                                                            onClick={() => handleRejeitar(produto)}
+                                                        >
+                                                            <i className="fas fa-times me-2"></i> Rejeitar
+                                                        </Button>
+                                                    </div>
+                                                </Card.Footer>
+                                            </Card>
+                                        </Col>
+                                    );
+                                })}
                             </Row>
                         )}
                     </Card.Body>
@@ -237,7 +248,7 @@ const ProdutosPendentes = () => {
                                 <h5>{selectedProduto.Titulo}</h5>
                                 <p className="text-muted">{selectedProduto.Descricao}</p>
                                 <div className="d-flex justify-content-between align-items-center mb-3">
-                                    <Badge bg="info">{selectedProduto.categorium?.Nome || 'Sem categoria'}</Badge>
+                                    <Badge bg="info">{selectedProduto.categorium?.Descricao_Categoria || 'Sem categoria'}</Badge>
                                     <span className="fw-bold">{formatCurrency(selectedProduto.Preco)}</span>
                                 </div>
                                 <small className="text-muted d-block">

@@ -85,13 +85,20 @@ const MeusAnuncios = () => {
 
     const getStatusBadge = (statusId) => {
         switch (statusId) {
-            case 2:
-                return <Badge bg="success">Aprovado</Badge>;
-            case 1:
+            case 1: // ID 1 is Ativo according to DB
+                return <Badge bg="success">Aprovado</Badge>; 
+            case 4: // ID 4 is Pendente according to DB
                 return <Badge bg="warning">Pendente</Badge>;
-            case 3:
+            case 7: // ID 7 is Rejeitado according to DB
                 return <Badge bg="danger">Rejeitado</Badge>;
+            // Add cases for 2 (Inativo) and 3 (Vendido) if needed
+            case 2:
+                 return <Badge bg="secondary">Inativo</Badge>;
+            case 3:
+                 return <Badge bg="info">Vendido</Badge>; 
             default:
+                // Handle null or unexpected status IDs
+                console.warn(`Status de anúncio desconhecido ou nulo: ${statusId}`);
                 return <Badge bg="secondary">Desconhecido</Badge>;
         }
     };
@@ -161,7 +168,7 @@ const MeusAnuncios = () => {
                                         </div>
                                     )}
                                     <div className="position-absolute top-0 end-0 m-2">
-                                        {getStatusBadge(anuncio.Status_AnuncioID_Status_Anuncio || 1)}
+                                        {getStatusBadge(anuncio.Status_AnuncioID_Status_Anuncio)}
                                     </div>
                                 </div>
                                 <Card.Body>
@@ -177,7 +184,8 @@ const MeusAnuncios = () => {
                                         )}
                                     </Card.Text>
                                     <div className="d-flex justify-content-between align-items-center">
-                                        <Badge bg="info">{anuncio.categorium?.Nome || 'Sem categoria'}</Badge>
+                                        <Badge bg="info">{anuncio.categorium?.Descricao_Categoria || 'Sem categoria'}</Badge>
+                                        <Badge bg="secondary">{anuncio.tipo_item?.Descricao_TipoItem || 'Não especificado'}</Badge>
                                         <span className="fw-bold">{anuncio.Preco ? formatCurrency(anuncio.Preco) : 'Preço não definido'}</span>
                                     </div>
                                 </Card.Body>
@@ -187,7 +195,7 @@ const MeusAnuncios = () => {
                                             <i className="far fa-calendar-alt me-1"></i> 
                                             {anuncio.aprovacao && anuncio.aprovacao.Data_Aprovacao ? 
                                                 new Date(anuncio.aprovacao.Data_Aprovacao).toLocaleDateString() : 
-                                                anuncio.Status_AnuncioID_Status_Anuncio === 2 ? 'Aprovado' : 'Pendente'}
+                                                anuncio.Status_AnuncioID_Status_Anuncio === 1 ? 'Aprovado' : 'Pendente'}
                                         </small>
                                         <div>
                                             <Link to={`/anuncios/${anuncio.ID_Anuncio}`}>

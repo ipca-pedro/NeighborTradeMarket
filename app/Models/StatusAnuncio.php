@@ -21,10 +21,10 @@ use Illuminate\Database\Eloquent\Model;
  */
 class StatusAnuncio extends Model
 {
-    // Constantes para status
+    // Constantes para status - Corrigidos para corresponder à Base de Dados
     const STATUS_ATIVO = 1;      // Anúncio ativo/aprovado
-    const STATUS_INATIVO = 2;    // Anúncio inativo
-    const STATUS_VENDIDO = 3;    // Anúncio vendido
+    const STATUS_INATIVO = 2;    // Anúncio inativo (se usado)
+    const STATUS_VENDIDO = 3;    // Anúncio vendido (se usado)
     const STATUS_PENDENTE = 4;   // Anúncio pendente de aprovação
     const STATUS_REJEITADO = 7;  // Anúncio rejeitado
 

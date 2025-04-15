@@ -76,7 +76,7 @@ class AnuncioController extends Controller
             $anunciosPendentes = Anuncio::with([
                 'utilizador:ID_User,User_Name,Name,Email',
                 'categorium:ID_Categoria,Descricao_Categoria',
-                'tipo_item:ID_Tipo,Nome',
+                'tipo_item:ID_Tipo,Descricao_TipoItem',
                 'item_imagems.imagem',
                 'aprovacao',
                 'status_anuncio:ID_Status_Anuncio,Descricao_status_anuncio'
@@ -278,24 +278,46 @@ class AnuncioController extends Controller
      */
     public function myAds()
     {
-        if (!Auth::check()) {
+        try {
+            if (!Auth::check()) {
+                return response()->json([
+                    'message' => 'Você precisa estar logado para ver seus anúncios'
+                ], 401);
+            }
+
+            $user = Auth::user();
+            if (!$user) {
+                return response()->json(['message' => 'Usuário autenticado não encontrado.'], 401);
+            }
+            $userId = $user->getKey();
+            \Log::info('Fetching ads for user:', ['user_id' => $userId, 'auth_check' => Auth::check()]);
+
+            $anuncios = Anuncio::with([
+                'utilizador', 
+                'categorium', 
+                'tipo_item', 
+                'item_imagems.imagem', 
+                'aprovacao',
+                'status_anuncio'
+            ])
+            ->where('UtilizadorID_User', $userId)
+            ->orderBy('ID_Anuncio', 'desc')
+            ->get();
+
+            \Log::info('Found ads for user:', ['user_id' => $userId, 'count' => $anuncios->count()]);
+
+            return response()->json($anuncios);
+
+        } catch (\Exception $e) {
+            \Log::error('Erro ao buscar meus anúncios:', [
+                'user_id' => Auth::check() ? Auth::user()->getKey() : 'N/A',
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return response()->json([
-                'message' => 'Você precisa estar logado para ver seus anúncios'
-            ], 401);
+                'message' => 'Erro ao buscar seus anúncios: ' . $e->getMessage()
+            ], 500);
         }
-
-        $anuncios = Anuncio::with([
-            'utilizador', 
-            'categorium', 
-            'tipo_item', 
-            'item_imagems.imagem', 
-            'aprovacao'
-        ])
-        ->where('UtilizadorID_User', Auth::id())
-        ->orderBy('ID_Anuncio', 'desc')
-        ->get();
-
-        return response()->json($anuncios);
     }
     
     /**
@@ -742,7 +764,10 @@ class AnuncioController extends Controller
             
             return response()->json($anuncios);
         } catch (\Exception $e) {
-            \Log::error('Erro ao obter anúncios aleatórios: ' . $e->getMessage());
+            \Log::error('Erro ao obter anúncios aleatórios:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return response()->json([
                 'message' => 'Erro ao obter anúncios aleatórios: ' . $e->getMessage(),
                 'anuncios' => []

@@ -16,12 +16,12 @@ yarn-error.log
 /.vscode
 
 # Permitir arquivos de imagens e comprovativos
-!/storage/app/public/anuncios
-!/storage/app/public/anuncios/**
-!/storage/app/public/comprovativos
-!/storage/app/public/comprovativos/**
-!/storage/app/public/comprovativo
-!/storage/app/public/comprovativo/**
+# !/storage/app/public/anuncios
+# !/storage/app/public/anuncios/**
+# !/storage/app/public/comprovativos
+# !/storage/app/public/comprovativos/**
+# !/storage/app/public/comprovativo
+# !/storage/app/public/comprovativo/**
 
 # Ignorar arquivos de sistema
 .DS_Store
@@ -48,8 +48,8 @@ Thumbs.db
 /.zed
 
 # NÃO ignorar arquivos importantes de middleware
-!app/Http/Middleware/ApiMiddleware.php
-!app/Http/Middleware/VerifyCsrfToken.php
-!config/cors.php
-!config/sanctum.php
-!database/migrations/*_create_personal_access_tokens_table.php
+# !app/Http/Middleware/ApiMiddleware.php
+# !app/Http/Middleware/VerifyCsrfToken.php
+# !config/cors.php
+# !config/sanctum.php
+# !database/migrations/*_create_personal_access_tokens_table.php
