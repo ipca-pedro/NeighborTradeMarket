@@ -1,7 +1,7 @@
 # Laravel specific
 /node_modules
 /public/hot
-/public/storage
+# /public/storage  # Permitindo a pasta public/storage
 /storage/*.key
 /vendor
 .env
@@ -16,12 +16,29 @@ yarn-error.log
 /.vscode
 
 # Permitir arquivos de imagens e comprovativos
-# !/storage/app/public/anuncios
-# !/storage/app/public/anuncios/**
-# !/storage/app/public/comprovativos
-# !/storage/app/public/comprovativos/**
-# !/storage/app/public/comprovativo
-# !/storage/app/public/comprovativo/**
+# Primeiro, não ignorar storage/app/public
+!/storage
+!/storage/app
+!/storage/app/public
+!/storage/app/public/**
+
+# Depois, permitir especificamente as pastas de anúncios e comprovativos
+!/storage/app/public/anuncios
+!/storage/app/public/anuncios/**
+!/storage/app/public/comprovativos
+!/storage/app/public/comprovativos/**
+!/storage/app/public/comprovativo
+!/storage/app/public/comprovativo/**
+
+# Permitir pastas em public/storage
+!/public/storage
+!/public/storage/**
+!/public/storage/anuncios
+!/public/storage/anuncios/**
+!/public/storage/comprovativos
+!/public/storage/comprovativos/**
+!/public/storage/comprovativo
+!/public/storage/comprovativo/**
 
 # Ignorar logs
 /storage/logs/*.log
