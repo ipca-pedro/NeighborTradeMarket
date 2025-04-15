@@ -1,15 +1,22 @@
+# Ignorar tudo por padrão
 *
+
+# Não ignorar o próprio .gitignore
 !.gitignore
 
-# Permitir diretórios de anúncios e seus conteúdos
+# Permitir diretórios e arquivos de anúncios
 !anuncios/
-!anuncios/**
+!anuncios/**/*
 !anuncios/.gitkeep
 
-# Permitir diretórios de comprovativos e seus conteúdos
+# Permitir diretórios e arquivos de comprovativos
 !comprovativo/
-!comprovativo/**
+!comprovativo/**/*
 !comprovativo/.gitkeep
 !comprovativos/
-!comprovativos/**
+!comprovativos/**/*
 !comprovativos/.gitkeep
+
+# Não ignorar subdiretórios e seus conteúdos
+!*/
+!*/**/*
