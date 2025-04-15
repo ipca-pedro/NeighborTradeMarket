@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Table, Button, Modal, Form, Alert, Card, Badge, Spinner } from 'react-bootstrap';
+import { Container, Table, Button, Modal, Form, Alert, Card, Badge, Spinner, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import api, { adminService } from '../../services/api';
 import Header from '../layout/Header';
 import Footer from '../layout/Footer';
@@ -16,7 +16,7 @@ const PendingUsers = () => {
     const [error, setError] = useState('');
     const [message, setMessage] = useState('');
     const [showRejectModal, setShowRejectModal] = useState(false);
-    const [selectedUserId, setSelectedUserId] = useState(null);
+    const [selectedUser, setSelectedUser] = useState(null);
     const [rejectReason, setRejectReason] = useState('');
 
     useEffect(() => {
@@ -27,49 +27,68 @@ const PendingUsers = () => {
         try {
             setLoading(true);
             const response = await adminService.getPendingUsers();
-            setUsers(response);
+            setUsers(response || []);
             setError('');
+            setMessage('');
         } catch (err) {
             console.error('Erro ao carregar utilizadores pendentes:', err);
             setError('Erro ao carregar utilizadores pendentes. Por favor, tente novamente.');
+            setUsers([]);
         } finally {
             setLoading(false);
         }
     };
 
     const handleApprove = async (userId) => {
+        setMessage('');
+        setError('');
         try {
             await adminService.approveUser(userId);
             setMessage('Utilizador aprovado com sucesso!');
-            // Remover o usuário da lista
             setUsers(users.filter(user => user.ID_User !== userId));
         } catch (err) {
             console.error('Erro ao aprovar utilizador:', err);
-            setError('Erro ao aprovar utilizador. Por favor, tente novamente.');
+            setError(err.response?.data?.message || 'Erro ao aprovar utilizador. Por favor, tente novamente.');
         }
     };
 
-    const handleReject = (userId) => {
-        setSelectedUserId(userId);
+    const openRejectModal = (user) => {
+        setSelectedUser(user);
         setRejectReason('');
         setShowRejectModal(true);
     };
 
     const confirmReject = async () => {
-        if (!rejectReason.trim()) {
+        if (!rejectReason.trim() || !selectedUser) {
             return;
         }
-
+        setMessage('');
+        setError('');
         try {
-            await adminService.rejectUser(selectedUserId, rejectReason);
+            await adminService.rejectUser(selectedUser.ID_User, rejectReason);
             setMessage('Utilizador rejeitado com sucesso!');
-            // Remover o usuário da lista
-            setUsers(users.filter(user => user.ID_User !== selectedUserId));
+            setUsers(users.filter(user => user.ID_User !== selectedUser.ID_User));
             setShowRejectModal(false);
+            setSelectedUser(null);
         } catch (err) {
             console.error('Erro ao rejeitar utilizador:', err);
-            setError('Erro ao rejeitar utilizador. Por favor, tente novamente.');
+            setError(err.response?.data?.message || 'Erro ao rejeitar utilizador. Por favor, tente novamente.');
         }
+    };
+
+    const renderAddressTooltip = (props, morada) => (
+        <Tooltip id="button-tooltip" {...props}>
+            {morada?.Rua ? morada.Rua : 'Morada não disponível'}
+        </Tooltip>
+    );
+
+    const getDocumentInfo = (imagem) => {
+        if (!imagem?.Caminho) {
+            return { text: 'Sem documento', isPdf: false, path: null };
+        }
+        const isPdf = imagem.Caminho.toLowerCase().endsWith('.pdf');
+        const filename = imagem.Caminho.split('/').pop();
+        return { text: filename, isPdf: isPdf, path: imagem.Caminho };
     };
 
     return (
@@ -81,13 +100,13 @@ const PendingUsers = () => {
                         <h2 className="mb-0">Utilizadores Pendentes</h2>
                     </Card.Header>
                     <Card.Body>
-                        {error && <Alert variant="danger">{error}</Alert>}
-                        {message && <Alert variant="success">{message}</Alert>}
+                        {message && <Alert variant="success" onClose={() => setMessage('')} dismissible>{message}</Alert>}
+                        {error && <Alert variant="danger" onClose={() => setError('')} dismissible>{error}</Alert>}
 
                         {loading ? (
                             <div className="text-center py-5">
                                 <Spinner animation="border" variant="primary" />
-                                <p className="mt-3">Carregando utilizadores pendentes...</p>
+                                <p className="mt-3">A carregar utilizadores pendentes...</p>
                             </div>
                         ) : users.length === 0 ? (
                             <Alert variant="info">Não há utilizadores pendentes de aprovação.</Alert>
@@ -97,66 +116,81 @@ const PendingUsers = () => {
                                     <tr>
                                         <th>Nome</th>
                                         <th>Email</th>
-                                        <th>CC</th>
-                                        <th>Data de Nascimento</th>
-                                        <th>Documentos</th>
-                                        <th>Status</th>
+                                        <th>Morada</th>
+                                        <th>Documento</th>
+                                        <th>Estado</th>
                                         <th>Ações</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {users.map(user => (
-                                        <tr key={user.ID_User}>
-                                            <td>
-                                                <div className="d-flex align-items-center">
-                                                    <div className="bg-light rounded-circle d-flex align-items-center justify-content-center me-2" style={{ width: '40px', height: '40px' }}>
-                                                        <span>{user.Name?.charAt(0) || '?'}</span>
+                                    {users.map(user => {
+                                        const docInfo = getDocumentInfo(user.imagem);
+                                        return (
+                                            <tr key={user.ID_User}>
+                                                <td>
+                                                    <div className="d-flex align-items-center">
+                                                        <div className="bg-light rounded-circle d-flex align-items-center justify-content-center me-2" style={{ width: '40px', height: '40px' }}>
+                                                            <span title={`${user.Name} (${user.User_Name})`}>{user.Name?.charAt(0)?.toUpperCase() || '?'}</span>
+                                                        </div>
+                                                        <div>
+                                                            <div className="fw-bold">{user.Name}</div>
+                                                            <small className="text-muted">@{user.User_Name}</small>
+                                                            <small className="d-block text-muted">CC: {user.CC}</small>
+                                                            <small className="d-block text-muted">Nasc: {new Date(user.Data_Nascimento).toLocaleDateString()}</small>
+                                                        </div>
                                                     </div>
-                                                    <div>
-                                                        <div className="fw-bold">{user.Name}</div>
-                                                        <small className="text-muted">@{user.User_Name}</small>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>{user.Email}</td>
-                                            <td>{user.CC}</td>
-                                            <td>{new Date(user.Data_Nascimento).toLocaleDateString()}</td>
-                                            <td>
-                                                {user.imagem?.Caminho ? (
-                                                    <a 
-                                                        href={`${getStorageBaseUrl()}/storage/${user.imagem.Caminho}`}
-                                                        target="_blank" 
-                                                        rel="noopener noreferrer"
-                                                        className="btn btn-sm btn-outline-primary"
+                                                </td>
+                                                <td>{user.Email}</td>
+                                                <td>
+                                                    <OverlayTrigger
+                                                        placement="top"
+                                                        delay={{ show: 250, hide: 400 }}
+                                                        overlay={(props) => renderAddressTooltip(props, user.morada)}
                                                     >
-                                                        <i className="fas fa-file-alt me-1"></i> Ver Documento
-                                                    </a>
-                                                ) : (
-                                                    <Badge bg="warning" text="dark">Sem documento</Badge>
-                                                )}
-                                            </td>
-                                            <td>
-                                                <Badge bg="warning">Pendente</Badge>
-                                            </td>
-                                            <td>
-                                                <Button 
-                                                    variant="success" 
-                                                    size="sm" 
-                                                    className="me-2"
-                                                    onClick={() => handleApprove(user.ID_User)}
-                                                >
-                                                    <i className="fas fa-check me-1"></i> Aprovar
-                                                </Button>
-                                                <Button 
-                                                    variant="danger" 
-                                                    size="sm"
-                                                    onClick={() => handleReject(user.ID_User)}
-                                                >
-                                                    <i className="fas fa-times me-1"></i> Rejeitar
-                                                </Button>
-                                            </td>
-                                        </tr>
-                                    ))}
+                                                        <span>{user.morada?.Rua?.substring(0, 25) + (user.morada?.Rua?.length > 25 ? '...' : '') || 'N/A'}</span>
+                                                    </OverlayTrigger>
+                                                </td>
+                                                <td>
+                                                    {docInfo.path ? (
+                                                        <a 
+                                                            href={`${getStorageBaseUrl()}/storage/${docInfo.path}`}
+                                                            target="_blank" 
+                                                            rel="noopener noreferrer"
+                                                            className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center"
+                                                            title={docInfo.text}
+                                                        >
+                                                            <i className={`fas ${docInfo.isPdf ? 'fa-file-pdf' : 'fa-file-image'} me-1`}></i>
+                                                            Ver
+                                                        </a>
+                                                    ) : (
+                                                        <Badge bg="secondary" text="dark">Nenhum</Badge>
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    <Badge bg="warning">Pendente</Badge>
+                                                </td>
+                                                <td>
+                                                    <Button 
+                                                        variant="success" 
+                                                        size="sm" 
+                                                        className="me-2" 
+                                                        title="Aprovar Utilizador"
+                                                        onClick={() => handleApprove(user.ID_User)}
+                                                    >
+                                                        <i className="fas fa-check"></i>
+                                                    </Button>
+                                                    <Button 
+                                                        variant="danger" 
+                                                        size="sm"
+                                                        title="Rejeitar Utilizador"
+                                                        onClick={() => openRejectModal(user)}
+                                                    >
+                                                        <i className="fas fa-times"></i>
+                                                    </Button>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
                             </Table>
                         )}
@@ -164,10 +198,9 @@ const PendingUsers = () => {
                 </Card>
             </Container>
 
-            {/* Modal de Rejeição */}
-            <Modal show={showRejectModal} onHide={() => setShowRejectModal(false)}>
+            <Modal show={showRejectModal} onHide={() => { setShowRejectModal(false); setSelectedUser(null); }}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Rejeitar Utilizador</Modal.Title>
+                    <Modal.Title>Rejeitar Utilizador: {selectedUser?.Name}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
@@ -180,12 +213,16 @@ const PendingUsers = () => {
                                 onChange={(e) => setRejectReason(e.target.value)}
                                 placeholder="Informe o motivo da rejeição do utilizador"
                                 required
+                                autoFocus
                             />
+                            <Form.Text className="text-muted">
+                                Este motivo pode ser comunicado ao utilizador.
+                            </Form.Text>
                         </Form.Group>
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowRejectModal(false)}>
+                    <Button variant="secondary" onClick={() => { setShowRejectModal(false); setSelectedUser(null); }}>
                         Cancelar
                     </Button>
                     <Button 

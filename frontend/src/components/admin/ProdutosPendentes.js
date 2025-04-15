@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Button, Modal, Form, Alert, Card, Badge, Spinner, Row, Col, Image, Carousel } from 'react-bootstrap';
+import { Container, Button, Modal, Form, Alert, Card, Badge, Spinner, Row, Col, Image, Carousel, ListGroup } from 'react-bootstrap';
 import api, { adminService } from '../../services/api';
 import Header from '../layout/Header';
 import Footer from '../layout/Footer';
@@ -16,87 +16,95 @@ const ProdutosPendentes = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [message, setMessage] = useState('');
-    const [showModal, setShowModal] = useState(false);
-    const [selectedProdutoId, setSelectedProdutoId] = useState(null);
-    const [comentario, setComentario] = useState('');
-    const [selectedProduto, setSelectedProduto] = useState(null);
+    
+    // --- State for Modals ---
+    const [showDetailsModal, setShowDetailsModal] = useState(false);
+    const [selectedAnuncio, setSelectedAnuncio] = useState(null);
+    const [rejectionReason, setRejectionReason] = useState(''); // Motivo da rejeição
+    const [isSubmitting, setIsSubmitting] = useState(false); // Para disable botões durante API call
+    // --- --- --- --- --- --- ---
 
     useEffect(() => {
         loadProdutosPendentes();
     }, []);
 
     const loadProdutosPendentes = async () => {
+        setMessage('');
+        setError('');
         try {
             setLoading(true);
-            setError('');
             const response = await adminService.getAnunciosPendentes();
-            
-            // Verificar se temos dados na resposta
-            if (response.data) {
-                setProdutos(Array.isArray(response.data) ? response.data : []);
-            } else {
-                setProdutos([]);
-            }
-            
-            setError('');
+            setProdutos(Array.isArray(response?.data) ? response.data : []);
         } catch (err) {
-            console.error('Erro ao carregar produtos pendentes:', err);
-            setError(err.message || 'Erro ao carregar produtos pendentes. Por favor, tente novamente.');
+            console.error('Erro ao carregar anúncios pendentes:', err); // Changed text
+            setError(err.message || 'Erro ao carregar anúncios pendentes. Por favor, tente novamente.');
+            setProdutos([]);
         } finally {
             setLoading(false);
         }
     };
 
-    const handleAprovar = async (produtoId) => {
+    // --- Modal Handling ---
+    const openDetailsModal = (produto) => {
+        setSelectedAnuncio(produto);
+        setRejectionReason(''); // Reset reason when opening
+        setShowDetailsModal(true);
+    };
+
+    const closeDetailsModal = () => {
+        setShowDetailsModal(false);
+        setSelectedAnuncio(null);
+        setRejectionReason('');
+    };
+    // --- --- --- --- --- --- ---
+
+    // --- Actions from Modal ---
+    const handleApprove = async () => {
+        if (!selectedAnuncio) return;
+        
+        setMessage('');
+        setError('');
+        setIsSubmitting(true);
         try {
-            setError(''); // Limpar erro anterior
-            setMessage(''); // Limpar mensagem anterior
-            setLoading(true); // Indicar que está carregando
-            
-            console.log('Iniciando aprovação do anúncio:', produtoId);
-            const response = await adminService.aprovarAnuncio(produtoId);
-            console.log('Resposta da aprovação:', response);
-            
+            console.log('Aprovar anúncio ID:', selectedAnuncio.ID_Anuncio);
+            await adminService.aprovarAnuncio(selectedAnuncio.ID_Anuncio);
             setMessage('Anúncio aprovado com sucesso!');
-            // Remover o produto da lista
-            setProdutos(produtos.filter(p => p.ID_Anuncio !== produtoId));
+            setProdutos(produtos.filter(p => p.ID_Anuncio !== selectedAnuncio.ID_Anuncio));
+            closeDetailsModal();
         } catch (err) {
             console.error('Erro ao aprovar anúncio:', err);
-            setError(err.message || 'Erro ao aprovar anúncio. Por favor, tente novamente.');
-            
-            // Se for erro de autenticação, redirecionar para login
-            if (err.response?.status === 401) {
-                // Aqui você pode adicionar lógica para redirecionar para a página de login
-                setError('Sessão expirada. Por favor, faça login novamente.');
-            }
+            setError(err.response?.data?.message || 'Erro ao aprovar anúncio. Por favor, tente novamente.');
+            // Keep modal open on error?
         } finally {
-            setLoading(false);
+             setIsSubmitting(false);
         }
     };
 
-    const handleRejeitar = (produto) => {
-        setSelectedProdutoId(produto.ID_Anuncio);
-        setSelectedProduto(produto);
-        setComentario('');
-        setShowModal(true);
-    };
-
-    const confirmRejeitar = async () => {
-        if (!comentario.trim()) {
+    const handleReject = async () => {
+        if (!selectedAnuncio || !rejectionReason.trim()) {
+             setError('Por favor, introduza um motivo para a rejeição.'); // Give specific feedback
+             setTimeout(() => setError(''), 3000); // Clear feedback after a while
             return;
         }
-
+        setMessage('');
+        setError('');
+        setIsSubmitting(true);
         try {
-            await adminService.rejeitarAnuncio(selectedProdutoId, comentario);
+             console.log('Rejeitar anúncio ID:', selectedAnuncio.ID_Anuncio, 'Motivo:', rejectionReason);
+            // Ensure adminService.rejeitarAnuncio exists and takes (id, reason)
+            await adminService.rejeitarAnuncio(selectedAnuncio.ID_Anuncio, rejectionReason);
             setMessage('Anúncio rejeitado com sucesso!');
-            // Remover o produto da lista
-            setProdutos(produtos.filter(p => p.ID_Anuncio !== selectedProdutoId));
-            setShowModal(false);
+            setProdutos(produtos.filter(p => p.ID_Anuncio !== selectedAnuncio.ID_Anuncio));
+            closeDetailsModal();
         } catch (err) {
             console.error('Erro ao rejeitar anúncio:', err);
-            setError('Erro ao rejeitar anúncio. Por favor, tente novamente.');
+            setError(err.response?.data?.message || 'Erro ao rejeitar anúncio. Por favor, tente novamente.');
+             // Keep modal open on error?
+        } finally {
+            setIsSubmitting(false);
         }
     };
+    // --- --- --- --- --- --- ---
 
     const formatCurrency = (value) => {
         return new Intl.NumberFormat('pt-PT', {
@@ -105,38 +113,40 @@ const ProdutosPendentes = () => {
         }).format(value);
     };
 
-    const renderImages = (images) => {
-        const storageBaseUrl = getStorageBaseUrl(); // Get base URL
+    const renderImages = (images, style = { height: '300px', backgroundColor: '#f8f9fa' }, className = 'card-img-top') => {
+        const storageBaseUrl = getStorageBaseUrl();
 
         if (!images || images.length === 0) {
             return (
-                <div className="text-center p-4 bg-light" style={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <i className="bi bi-image text-muted" style={{ fontSize: '3rem' }}></i>
+                <div className={`text-center p-4 bg-light d-flex align-items-center justify-content-center ${className}`} style={style}>
+                    <i className="fas fa-image text-muted fa-3x"></i>
                 </div>
             );
         }
 
         if (images.length === 1) {
             return (
-                <div style={{ height: '300px', backgroundColor: '#f8f9fa' }}>
+                <div style={style}>
                     <img
-                        src={`${storageBaseUrl}/storage/${images[0].imagem.Caminho}`} // Prepend base URL
+                        src={`${storageBaseUrl}/storage/${images[0].imagem.Caminho}`}
                         alt="Imagem do produto"
-                        className="card-img-top"
+                        className={className}
                         style={{ height: '100%', width: '100%', objectFit: 'contain' }}
+                        onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/300x180?text=Erro' }}
                     />
                 </div>
             );
         }
 
         return (
-            <Carousel style={{ height: '300px', backgroundColor: '#f8f9fa' }}>
+            <Carousel style={style} className={className} interval={null}>
                 {images.map((img, index) => (
-                    <Carousel.Item key={index}>
+                    <Carousel.Item key={img.ID_Imagem || index}>
                         <img
-                            src={`${storageBaseUrl}/storage/${img.imagem.Caminho}`} // Prepend base URL
-                            alt={`Imagem ${index + 1} do produto`}
-                            style={{ height: '300px', width: '100%', objectFit: 'contain' }}
+                            src={`${storageBaseUrl}/storage/${img.imagem.Caminho}`}
+                            alt={`Imagem ${index + 1}`}
+                            style={{ height: '100%', width: '100%', objectFit: 'contain' }}
+                            onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/300x180?text=Erro' }}
                         />
                     </Carousel.Item>
                 ))}
@@ -153,140 +163,122 @@ const ProdutosPendentes = () => {
                         <h2 className="mb-0">Anúncios Pendentes</h2>
                     </Card.Header>
                     <Card.Body>
-                        {error && <Alert variant="danger">{error}</Alert>}
-                        {message && <Alert variant="success">{message}</Alert>}
+                        {message && <Alert variant="success" onClose={() => setMessage('')} dismissible>{message}</Alert>}
+                        {error && <Alert variant="danger" onClose={() => setError('')} dismissible>{error}</Alert>}
 
                         {loading ? (
                             <div className="text-center py-5">
                                 <Spinner animation="border" variant="primary" />
-                                <p className="mt-3">Carregando anúncios pendentes...</p>
+                                <p className="mt-3">A carregar anúncios pendentes...</p>
                             </div>
                         ) : produtos.length === 0 ? (
                             <Alert variant="info">Não há anúncios pendentes de aprovação.</Alert>
                         ) : (
-                            <Row xs={1} md={2} className="g-4">
-                                {produtos.map(produto => {
-                                    console.log(`Dados de imagens para Anuncio ID ${produto.ID_Anuncio}:`, produto.item_imagems);
-                                    return (
-                                        <Col key={produto.ID_Anuncio}>
-                                            <Card className="h-100 shadow-sm">
-                                                {renderImages(produto.item_imagems)}
-                                                <Card.Body>
-                                                    <Card.Title className="h5 mb-3">{produto.Titulo}</Card.Title>
-                                                    <Card.Subtitle className="mb-3 text-primary fw-bold">
-                                                        {formatCurrency(produto.Preco)}
-                                                    </Card.Subtitle>
-                                                    <Card.Text className="mb-3">
-                                                        {produto.Descricao}
-                                                    </Card.Text>
-                                                    <div className="d-flex justify-content-between align-items-center mb-3">
-                                                        <Badge bg="info" pill>
-                                                            {produto.categorium?.Descricao_Categoria || 'Sem categoria'}
-                                                        </Badge>
-                                                        <Badge bg="secondary" pill>
-                                                            {produto.tipo_item?.Descricao_TipoItem || 'Não especificado'}
-                                                        </Badge>
-                                                    </div>
-                                                    <div className="border-top pt-3">
-                                                        <p className="mb-2">
-                                                            <strong>Utilizador:</strong> {produto.utilizador?.Name || 'Desconhecido'}
-                                                        </p>
-                                                        <p className="mb-2">
-                                                            <small className="text-muted">
-                                                                Email: {produto.utilizador?.Email || 'N/A'}
-                                                            </small>
-                                                        </p>
-                                                        <p className="mb-0">
-                                                            <small className="text-muted">
-                                                                Data: {produto.aprovacao?.Data_Submissao ? new Date(produto.aprovacao.Data_Submissao).toLocaleDateString() : 'Pendente'}
-                                                            </small>
-                                                        </p>
-                                                    </div>
-                                                </Card.Body>
-                                                <Card.Footer className="bg-white">
-                                                    <div className="d-flex justify-content-between">
-                                                        <Button
-                                                            variant="success"
-                                                            size="sm"
-                                                            className="me-2 px-4"
-                                                            onClick={() => handleAprovar(produto.ID_Anuncio)}
-                                                        >
-                                                            <i className="fas fa-check me-2"></i> Aprovar
-                                                        </Button>
-                                                        <Button
-                                                            variant="danger"
-                                                            size="sm"
-                                                            className="px-4"
-                                                            onClick={() => handleRejeitar(produto)}
-                                                        >
-                                                            <i className="fas fa-times me-2"></i> Rejeitar
-                                                        </Button>
-                                                    </div>
-                                                </Card.Footer>
-                                            </Card>
-                                        </Col>
-                                    );
-                                })}
+                            <Row xs={1} md={2} lg={3} className="g-4">
+                                {produtos.map(produto => (
+                                    <Col key={produto.ID_Anuncio}>
+                                        <Card className="h-100 shadow-sm">
+                                            {/* Wrapper for image/carousel with fixed height */}
+                                            <div className="card-img-wrapper" style={{ height: '250px', overflow: 'hidden', backgroundColor: '#f8f9fa' }}> 
+                                                {/* Pass style height 100% to fill wrapper, remove card-img-top class */}
+                                                {renderImages(produto.item_imagems, { height: '100%' }, '')} 
+                                            </div>
+                                            <Card.Body className="d-flex flex-column">
+                                                <Card.Title className="h5 mb-2">{produto.Titulo}</Card.Title>
+                                                <Card.Subtitle className="mb-2 text-primary fw-bold">
+                                                    {formatCurrency(produto.Preco)}
+                                                </Card.Subtitle>
+                                                <div className="d-flex justify-content-between align-items-center mb-2 small">
+                                                    <Badge bg="info" pill>{produto.categorium?.Descricao_Categoria || 'Sem categoria'}</Badge>
+                                                    <Badge bg="secondary" pill>{produto.tipo_item?.Descricao_TipoItem || 'Não especificado'}</Badge>
+                                                </div>
+                                                <div className="mt-auto border-top pt-2 small text-muted">
+                                                     <span>Utilizador: {produto.utilizador?.Name || 'N/A'}</span>
+                                                     <span className="float-end">
+                                                        Submetido: {produto.aprovacao?.Data_Submissao ? new Date(produto.aprovacao.Data_Submissao).toLocaleDateString() : 'N/A'}
+                                                     </span>
+                                                </div>
+                                            </Card.Body>
+                                            <Card.Footer className="bg-light text-center">
+                                                <Button 
+                                                    variant="outline-primary" 
+                                                    size="sm" 
+                                                    onClick={() => openDetailsModal(produto)}
+                                                >
+                                                    <i className="fas fa-eye me-1"></i> Ver Detalhes
+                                                </Button>
+                                            </Card.Footer>
+                                        </Card>
+                                    </Col>
+                                ))}
                             </Row>
                         )}
                     </Card.Body>
                 </Card>
             </Container>
 
-            {/* Modal de Rejeição */}
-            <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
-                <Modal.Header closeButton className="bg-danger text-white">
-                    <Modal.Title>Rejeitar Anúncio</Modal.Title>
+            <Modal show={showDetailsModal} onHide={closeDetailsModal} size="lg">
+                <Modal.Header closeButton>
+                    <Modal.Title>Detalhes do Anúncio Pendente</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    {selectedProduto && (
-                        <Row className="mb-4">
-                            <Col md={4}>
-                                {renderImages(selectedProduto.item_imagems, { height: '200px' })}
+                    {selectedAnuncio && (
+                        <Row>
+                            <Col md={6}>
+                                {renderImages(selectedAnuncio.item_imagems, { height: '400px' }, '')}
                             </Col>
-                            <Col md={8}>
-                                <h5>{selectedProduto.Titulo}</h5>
-                                <p className="text-muted">{selectedProduto.Descricao}</p>
-                                <div className="d-flex justify-content-between align-items-center mb-3">
-                                    <Badge bg="info">{selectedProduto.categorium?.Descricao_Categoria || 'Sem categoria'}</Badge>
-                                    <span className="fw-bold">{formatCurrency(selectedProduto.Preco)}</span>
-                                </div>
-                                <small className="text-muted d-block">
-                                    Anunciante: {selectedProduto.utilizador?.Name}
-                                </small>
+                            <Col md={6}>
+                                <h5>{selectedAnuncio.Titulo}</h5>
+                                <ListGroup variant="flush">
+                                    <ListGroup.Item><strong>Preço:</strong> {formatCurrency(selectedAnuncio.Preco)}</ListGroup.Item>
+                                    <ListGroup.Item><strong>Categoria:</strong> {selectedAnuncio.categorium?.Descricao_Categoria || 'N/A'}</ListGroup.Item>
+                                    <ListGroup.Item><strong>Tipo:</strong> {selectedAnuncio.tipo_item?.Descricao_TipoItem || 'N/A'}</ListGroup.Item>
+                                    <ListGroup.Item><strong>Descrição:</strong><br/><p style={{ maxHeight: '150px', overflowY: 'auto', whiteSpace: 'pre-wrap' }}>{selectedAnuncio.Descricao || 'N/A'}</p></ListGroup.Item>
+                                    <ListGroup.Item>
+                                        <strong>Utilizador:</strong> {selectedAnuncio.utilizador?.Name || 'N/A'} ({selectedAnuncio.utilizador?.Email || 'N/A'})
+                                    </ListGroup.Item>
+                                    <ListGroup.Item>
+                                        <strong>Submetido em:</strong> {selectedAnuncio.aprovacao?.Data_Submissao ? new Date(selectedAnuncio.aprovacao.Data_Submissao).toLocaleString() : 'N/A'}
+                                    </ListGroup.Item>
+                                </ListGroup>
+                                
+                                <Form.Group className="mt-3">
+                                    <Form.Label>Motivo da Rejeição (se aplicável)</Form.Label>
+                                    <Form.Control 
+                                        as="textarea" 
+                                        rows={2} 
+                                        value={rejectionReason}
+                                        onChange={(e) => setRejectionReason(e.target.value)}
+                                        placeholder="Se rejeitar, indique aqui o motivo..."
+                                    />
+                                </Form.Group>
+                                
+                                {error.includes('motivo') && <Alert variant="warning" className="mt-2 py-1 px-2 small">{error}</Alert>}
                             </Col>
                         </Row>
                     )}
-                    <Form>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Motivo da rejeição</Form.Label>
-                            <Form.Control 
-                                as="textarea" 
-                                rows={3} 
-                                value={comentario}
-                                onChange={(e) => setComentario(e.target.value)}
-                                placeholder="Informe o motivo da rejeição do anúncio"
-                                required
-                            />
-                            <Form.Text className="text-muted">
-                                Este comentário será enviado ao utilizador para que ele possa corrigir o anúncio.
-                            </Form.Text>
-                        </Form.Group>
-                    </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowModal(false)}>
-                        Cancelar
+                    <Button variant="secondary" onClick={closeDetailsModal} disabled={isSubmitting}>
+                        Fechar
                     </Button>
                     <Button 
                         variant="danger" 
-                        onClick={confirmRejeitar}
-                        disabled={!comentario.trim()}
+                        onClick={handleReject} 
+                        disabled={isSubmitting || !rejectionReason.trim()}
                     >
-                        Confirmar Rejeição
+                        {isSubmitting ? <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true"/> : 'Rejeitar'}
+                    </Button>
+                    <Button 
+                        variant="success" 
+                        onClick={handleApprove} 
+                        disabled={isSubmitting}
+                    >
+                         {isSubmitting ? <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true"/> : 'Aprovar'}
                     </Button>
                 </Modal.Footer>
             </Modal>
+
             <Footer />
         </>
     );

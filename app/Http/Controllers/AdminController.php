@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Utilizador;
 use App\Models\Aprovacao;
 use App\Models\StatusUtilizador;
+use App\Models\Anuncio;
+use App\Models\StatusAnuncio;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -292,5 +294,127 @@ class AdminController extends Controller
         return response()->json([
             'count' => $count
         ]);
+    }
+
+    /**
+     * Listar todos os anúncios para gestão (com filtros)
+     */
+    public function getAllAnuncios(Request $request)
+    {
+        // Authorization Check (Admin Only)
+        if (Auth::user()->TipoUserID_TipoUser != 1) {
+            return response()->json(['message' => 'Acesso não autorizado'], 403);
+        }
+
+        try {
+            $query = Anuncio::with([
+                'utilizador:ID_User,Name,User_Name', // Select specific user fields
+                'categorium:ID_Categoria,Descricao_Categoria',
+                'tipo_item:ID_Tipo,Descricao_TipoItem',
+                'status_anuncio:ID_Status_Anuncio,Descricao_status_anuncio',
+                'item_imagems.imagem' // Load all images for modal
+            ]);
+
+            // --- Filtering ---
+            if ($request->filled('search_term')) {
+                $searchTerm = $request->input('search_term');
+                $query->where(function ($q) use ($searchTerm) {
+                    $q->where('Titulo', 'LIKE', "%{$searchTerm}%")
+                      ->orWhere('Descricao', 'LIKE', "%{$searchTerm}%")
+                      ->orWhereHas('utilizador', function ($uq) use ($searchTerm) {
+                          $uq->where('Name', 'LIKE', "%{$searchTerm}%")
+                             ->orWhere('User_Name', 'LIKE', "%{$searchTerm}%");
+                      });
+                });
+            }
+
+            if ($request->filled('status') && is_numeric($request->input('status'))) {
+                 $query->where('Status_AnuncioID_Status_Anuncio', $request->input('status'));
+            }
+
+            if ($request->filled('category') && is_numeric($request->input('category'))) {
+                 $query->where('CategoriaID_Categoria', $request->input('category'));
+            }
+
+            if ($request->filled('type') && is_numeric($request->input('type'))) {
+                 $query->where('Tipo_ItemID_Tipo', $request->input('type'));
+            }
+            // --- End Filtering ---
+
+            // Get all results for now, implement pagination later if needed
+            $anuncios = $query->orderBy('ID_Anuncio', 'desc')->get();
+
+            return response()->json($anuncios);
+
+        } catch (\Exception $e) {
+            \Log::error('Erro ao buscar todos os anúncios para admin:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json(['message' => 'Erro ao buscar anúncios.'], 500);
+        }
+    }
+
+    /**
+     * Atualizar o status de um anúncio pelo admin
+     */
+    public function updateAnuncioStatus(Request $request, $anuncioId)
+    {
+        // Authorization Check (Admin Only)
+        if (Auth::user()->TipoUserID_TipoUser != 1) {
+            return response()->json(['message' => 'Acesso não autorizado'], 403);
+        }
+
+        $request->validate([
+            'status' => 'required|integer|exists:status_anuncio,ID_Status_Anuncio'
+        ]);
+
+        DB::beginTransaction();
+        
+        try {
+            $anuncio = Anuncio::find($anuncioId);
+            
+            if (!$anuncio) {
+                return response()->json(['message' => 'Anúncio não encontrado'], 404);
+            }
+            
+            // Correctly update the anuncio status
+            $anuncio->Status_AnuncioID_Status_Anuncio = $request->status; 
+            $anuncio->save();
+
+            // Se o status for Aprovado (ID 1), atualiza a aprovação também
+            if ($request->status == StatusAnuncio::STATUS_ATIVO && $anuncio->AprovacaoID_aprovacao) {
+                 $aprovacao = Aprovacao::find($anuncio->AprovacaoID_aprovacao);
+                 if ($aprovacao) {
+                     $aprovacao->Status_AprovacaoID_Status_Aprovacao = 2; // Aprovado na tabela de aprovação
+                     $aprovacao->Data_Aprovacao = now();
+                     // Use Auth::user()->getKey() to get the numeric admin ID
+                     $aprovacao->UtilizadorID_Admin = Auth::user()->getKey(); 
+                     $aprovacao->Comentario = null; // Limpa comentário de rejeição prévio
+                     $aprovacao->save();
+                 }
+            }
+            // Considerar atualizar Aprovacao se for rejeitado (ID 7) também?
+            // else if ($request->status == StatusAnuncio::STATUS_REJEITADO && ...) { ... }
+            
+            DB::commit();
+            
+             // Retornar o anúncio atualizado com o status
+            $anuncio->load('status_anuncio'); // Carregar a relação atualizada
+            return response()->json([
+                'message' => 'Estado do anúncio atualizado com sucesso!',
+                'anuncio' => $anuncio // Enviar de volta o anúncio atualizado
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Erro ao atualizar estado do anúncio (Admin):', [
+                 'anuncioId' => $anuncioId,
+                 'status' => $request->status,
+                 'error' => $e->getMessage(),
+                 'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json(['message' => 'Erro ao atualizar estado do anúncio.'], 500);
+        }
     }
 }

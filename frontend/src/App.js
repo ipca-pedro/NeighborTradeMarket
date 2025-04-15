@@ -21,6 +21,7 @@ import AdminDashboard from './components/admin/AdminDashboard';
 import PendingUsers from './components/admin/PendingUsers';
 import ProdutosPendentes from './components/admin/ProdutosPendentes';
 import AllUsers from './components/admin/AllUsers';
+import AllAnuncios from './components/admin/AllAnuncios';
 
 // Componentes de Produtos
 import ListaProdutos from './components/produtos/ListaProdutos';
@@ -28,7 +29,6 @@ import DetalhesProduto from './components/produtos/DetalhesProduto';
 import CriarProduto from './components/produtos/CriarProduto';
 import MeusAnuncios from './components/perfil/MeusAnuncios';
 import HomePage from './components/home/HomePage';
-
 
 // Componentes de Informação
 import About from './components/about/About';
@@ -81,42 +81,44 @@ function App() {
     <AuthProvider>
       <ChatProvider>
         <Router>
-        <Routes>
-          {/* Rotas Públicas */}
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/registar" element={<Register />} />
-          <Route path="/registration-success" element={<RegistrationSuccess />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          
-          {/* Rotas de Informação */}
-          <Route path="/sobre-nos" element={<About />} />
-          <Route path="/faq" element={<FAQ />} />
-          <Route path="/privacidade" element={<Privacy />} />
-          <Route path="/termos" element={<Terms />} />
-          <Route path="/seguranca" element={<Security />} />
-          
-          {/* Rotas de Produtos */}
-          <Route path="/anuncios" element={<ListaProdutos />} />
-          <Route path="/anuncios/categoria/:categoriaId" element={<ListaProdutos />} />
-          <Route path="/anuncios/:id" element={<DetalhesProduto />} />
-          
-          
-          {/* Rotas Protegidas (requerem login) */}
-          <Route path="/perfil" element={<ProtectedRoute><PerfilUtilizador /></ProtectedRoute>} />
-          <Route path="/anuncios/novo" element={<ProtectedRoute><CriarProduto /></ProtectedRoute>} />
-          <Route path="/meus-anuncios" element={<ProtectedRoute><MeusAnuncios /></ProtectedRoute>} />
-          
-          {/* Rotas de Admin */}
-          <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
-          <Route path="/admin/utilizadores-pendentes" element={<AdminRoute><PendingUsers /></AdminRoute>} />
-          <Route path="/admin/anuncios-pendentes" element={<AdminRoute><ProdutosPendentes /></AdminRoute>} />
-          <Route path="/admin/utilizadores" element={<AdminRoute><AllUsers /></AdminRoute>} />
-          
-          {/* Rota para URLs não encontrados */}
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
+          <div className="App d-flex flex-column min-vh-100">
+            <Routes>
+              {/* Rotas Públicas */}
+              <Route path="/" element={<HomePage />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/registar" element={<Register />} />
+              <Route path="/registration-success" element={<RegistrationSuccess />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              
+              {/* Rotas de Informação */}
+              <Route path="/sobre-nos" element={<About />} />
+              <Route path="/faq" element={<FAQ />} />
+              <Route path="/privacidade" element={<Privacy />} />
+              <Route path="/termos" element={<Terms />} />
+              <Route path="/seguranca" element={<Security />} />
+              
+              {/* Rotas de Produtos */}
+              <Route path="/anuncios" element={<ListaProdutos />} />
+              <Route path="/anuncios/categoria/:categoriaId" element={<ListaProdutos />} />
+              <Route path="/anuncios/:id" element={<DetalhesProduto />} />
+              
+              {/* Rotas Protegidas (requerem login) */}
+              <Route path="/perfil" element={<ProtectedRoute><PerfilUtilizador /></ProtectedRoute>} />
+              <Route path="/anuncios/novo" element={<ProtectedRoute><CriarProduto /></ProtectedRoute>} />
+              <Route path="/meus-anuncios" element={<ProtectedRoute><MeusAnuncios /></ProtectedRoute>} />
+              
+              {/* Rotas de Admin */}
+              <Route path="/admin" element={<ProtectedRoute requiredRole={1}><AdminDashboard /></ProtectedRoute>} />
+              <Route path="/admin/produtos-pendentes" element={<ProtectedRoute requiredRole={1}><ProdutosPendentes /></ProtectedRoute>} />
+              <Route path="/admin/users-pendentes" element={<ProtectedRoute requiredRole={1}><PendingUsers /></ProtectedRoute>} />
+              <Route path="/admin/users" element={<ProtectedRoute requiredRole={1}><AllUsers /></ProtectedRoute>} />
+              <Route path="/admin/anuncios" element={<ProtectedRoute requiredRole={1}><AllAnuncios /></ProtectedRoute>} />
+              
+              {/* Rota para URLs não encontrados */}
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+          </div>
         </Router>
       </ChatProvider>
     </AuthProvider>

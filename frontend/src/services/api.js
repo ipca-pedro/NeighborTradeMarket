@@ -253,6 +253,28 @@ export const adminService = {
             console.error(`Erro ao rejeitar anúncio ${anuncioId}:`, error);
             throw error.response?.data || error.message;
         }
+    },
+
+    // --- Anuncio Admin --- 
+    getAllAnunciosAdmin: async (filters = {}) => {
+        try {
+            // Pass filters as URL parameters
+            const response = await api.get('/admin/anuncios', { params: filters });
+            return response.data;
+        } catch (error) {
+            console.error('Erro ao obter todos os anúncios para admin:', error);
+            throw error.response?.data || error.message;
+        }
+    },
+
+    updateAnuncioStatusAdmin: async (anuncioId, statusId) => {
+        try {
+            const response = await api.put(`/admin/anuncios/${anuncioId}/status`, { status: statusId });
+            return response.data; // Contains message and updated anuncio
+        } catch (error) {
+             console.error(`Erro ao atualizar estado do anúncio ${anuncioId}:`, error);
+             throw error.response?.data || error.message;
+        }
     }
 };
 

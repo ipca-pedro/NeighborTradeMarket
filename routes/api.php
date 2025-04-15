@@ -78,25 +78,34 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/perfil', [AuthController::class, 'updateUserProfile']);
     
     // Rotas de administrador
-    Route::get('/admin/users/pending', [AdminController::class, 'getPendingUsers']);
-    Route::get('/admin/users', [AdminController::class, 'getAllUsers']);
-    Route::get('/admin/pending-users-count', [AdminController::class, 'getPendingUsersCount']);
-    Route::post('/admin/users/{userId}/approve', [AdminController::class, 'approveUser']);
-    Route::post('/admin/users/{userId}/reject', [AdminController::class, 'rejectUser']);
-    Route::put('/admin/users/{userId}/status', [AdminController::class, 'updateUserStatus']);
-    
+    Route::prefix('admin')->group(function () {
+        // Users
+        Route::get('/users/pending', [AdminController::class, 'getPendingUsers']);
+        Route::post('/users/{userId}/approve', [AdminController::class, 'approveUser']);
+        Route::post('/users/{userId}/reject', [AdminController::class, 'rejectUser']);
+        Route::get('/users', [AdminController::class, 'getAllUsers']);
+        Route::put('/users/{userId}/status', [AdminController::class, 'updateUserStatus']);
+        Route::get('/stats/pending-users', [AdminController::class, 'getPendingUsersCount']);
+
+        // Anuncios (Admin Management)
+        Route::get('/anuncios/pendentes', [AnuncioController::class, 'anunciosPendentes']);
+        Route::post('/anuncios/{id}/aprovar', [AnuncioController::class, 'aprovarAnuncio']);
+        Route::post('/anuncios/{id}/rejeitar', [AnuncioController::class, 'rejeitarAnuncio']);
+        Route::get('/anuncios', [AdminController::class, 'getAllAnuncios']);
+        Route::put('/anuncios/{anuncioId}/status', [AdminController::class, 'updateAnuncioStatus']);
+
+        // Add other admin routes here...
+    });
+
+    // Rota para buscar anúncios do utilizador logado (mantida fora do prefixo admin)
+    Route::get('/meus-anuncios', [AnuncioController::class, 'myAds']);
+
     // Rotas de administração de anúncios
-    Route::get('/admin/anuncios/pendentes', [AnuncioController::class, 'anunciosPendentes']);
-    Route::post('/admin/anuncios/{id}/aprovar', [AnuncioController::class, 'aprovarAnuncio']);
-    Route::post('/admin/anuncios/{id}/rejeitar', [AnuncioController::class, 'rejeitarAnuncio']);
-    
-    // Rotas de anúncios
     Route::get('/anuncios', [AnuncioController::class, 'index']);
     Route::get('/anuncios/{id}', [AnuncioController::class, 'show']);
     Route::post('/anuncios', [AnuncioController::class, 'store']);
     Route::put('/anuncios/{id}', [AnuncioController::class, 'update']);
     Route::delete('/anuncios/{id}', [AnuncioController::class, 'destroy']);
-    Route::get('/meus-anuncios', [AnuncioController::class, 'myAds']);
     Route::post('/anuncios/{id}/sold', [AnuncioController::class, 'markAsSold']);
     Route::post('/anuncios/{anuncioId}/imagens/{imagemId}/principal', [AnuncioController::class, 'updatePrincipalImage']);
     
@@ -148,6 +157,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/compras/{id}/confirmar-recebimento', [CompraController::class, 'confirmReceipt']);
     Route::get('/compras/status/opcoes', [CompraController::class, 'getStatusOptions']);
     Route::get('/vendas/pendentes', [CompraController::class, 'pendingSales']);
-
-    
 });
