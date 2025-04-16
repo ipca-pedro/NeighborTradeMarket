@@ -10,7 +10,7 @@ const DetalhesProduto = () => {
     const [showUserChat, setShowUserChat] = useState(false);
     const { id } = useParams();
     const navigate = useNavigate();
-    const { currentUser } = useAuth();
+    const { currentUser, isAuthenticated } = useAuth();
     const [anuncio, setAnuncio] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -21,13 +21,20 @@ const DetalhesProduto = () => {
         carregarAnuncio();
     }, [id]);
 
+    useEffect(() => {
+        console.log('Status de autenticação:', isAuthenticated);
+        console.log('Usuário atual:', currentUser);
+    }, [currentUser, isAuthenticated]);
+
     const carregarAnuncio = async () => {
         try {
             setLoading(true);
             const data = await anuncioService.getAnuncio(id);
             setAnuncio(data);
+            console.log('Anúncio carregado:', data);
             setError('');
         } catch (err) {
+            console.error('Erro ao carregar anúncio:', err);
             setError('Não foi possível carregar as informações do anúncio. Por favor, tente novamente mais tarde.');
         } finally {
             setLoading(false);
@@ -164,8 +171,12 @@ const DetalhesProduto = () => {
                                                 </span>
                                             </div>
                                         </div>
-                                        {/* Botões de compra e mensagem - só aparecem se o usuário NÃO for o dono do anúncio */}
-                                        {currentUser && anuncio.UtilizadorID_User !== currentUser.ID_User && (
+                                        {/* Botões de compra e mensagem */}
+                                        {!currentUser ? (
+                                            <Alert variant="info" className="text-center mb-3">
+                                                <Link to="/login" className="alert-link">Faça login</Link> para interagir com este anúncio
+                                            </Alert>
+                                        ) : anuncio.UtilizadorID_User !== currentUser.ID_User ? (
                                             <div className="d-flex gap-2 mb-3 justify-content-center">
                                                 <Button variant="success" size="lg" onClick={() => alert('Funcionalidade de compra em breve!')}>
                                                     <i className="fas fa-shopping-cart me-2"></i> Comprar
@@ -178,8 +189,7 @@ const DetalhesProduto = () => {
                                                     <i className="fas fa-comments me-2"></i> Conversar com Vendedor
                                                 </Button>
                                             </div>
-                                        )}
-                                        {currentUser && anuncio.UtilizadorID_User === currentUser.ID_User && (
+                                        ) : (
                                             <div className="d-flex gap-2 mb-3 justify-content-center">
                                                 <Button 
                                                     as={Link} 

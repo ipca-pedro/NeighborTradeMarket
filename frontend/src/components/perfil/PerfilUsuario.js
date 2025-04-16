@@ -6,6 +6,7 @@ import Header from '../layout/Header';
 import Footer from '../layout/Footer';
 import MeusAnuncios from './MeusAnuncios';
 import Cartoes from './Cartoes';
+import Mensagens from '../Mensagens/Mensagens';
 
 const PerfilUtilizador = () => {
     const { currentUser } = useAuth();
@@ -394,9 +395,7 @@ const PerfilUtilizador = () => {
                                 <Card>
                                     <Card.Header as="h5">Mensagens</Card.Header>
                                     <Card.Body>
-                                        <p className="text-center py-5">
-                                            Funcionalidade em desenvolvimento. Em breve poderá ver todas as suas mensagens aqui.
-                                        </p>
+                                        <Mensagens />
                                     </Card.Body>
                                 </Card>
                             </Tab.Pane>

@@ -78,8 +78,8 @@ const ListaProdutos = () => {
             <Col key={produto.ID_Item || produto.id} xs={12} sm={6} md={4} lg={3} className="mb-4">
                 <Card className="h-100 shadow-sm product-card">
                     <div className="product-image-container" style={{height: '220px', background: '#f8f9fa', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                        <Card.Img 
-                            variant="top" 
+                                <Card.Img 
+                                    variant="top" 
                             src={imgUrl} 
                             alt={produto.Titulo}
                             style={{ maxHeight: '200px', objectFit: 'contain', width: 'auto' }}
@@ -88,14 +88,14 @@ const ListaProdutos = () => {
                     </div>
                     <Card.Body className="d-flex flex-column">
                         <Card.Title className="product-title" style={{fontSize: '1.1rem', fontWeight: 600}}>{produto.Titulo || produto.Nome}</Card.Title>
-                        <div className="mb-2">
-                            <Badge bg="secondary" className="me-2">
+                                <div className="mb-2">
+                                    <Badge bg="secondary" className="me-2">
                                 {produto.categorium?.Descricao_Categoria || produto.Categoria || "Categoria N/A"}
-                            </Badge>
-                            <Badge bg="info">
+                                    </Badge>
+                                    <Badge bg="info">
                                 {produto.Condicao || produto.Estado || "Estado N/A"}
-                            </Badge>
-                        </div>
+                                    </Badge>
+                                </div>
                         <div className="price-container mb-2" style={{fontWeight: 700, color: '#F97316', fontSize: '1.2rem'}}>
                             {produto.Preco ? parseFloat(produto.Preco).toFixed(2) : "N/A"}€
                         </div>
@@ -110,11 +110,11 @@ const ListaProdutos = () => {
                             style={{ backgroundColor: '#F97316', borderColor: '#F97316' }}
                         >
                             <i className="fas fa-search me-2"></i>
-                            Ver Detalhes
+                                    Ver Detalhes
                         </Button>
-                    </Card.Body>
-                </Card>
-            </Col>
+                            </Card.Body>
+                        </Card>
+                    </Col>
         );
     };
 
@@ -149,8 +149,8 @@ const ListaProdutos = () => {
                     </h2>
                     <Row>
                         {produtos.map(renderProdutoCard)}
-                    </Row>
-                </Container>
+            </Row>
+        </Container>
             )}
         </>
     );

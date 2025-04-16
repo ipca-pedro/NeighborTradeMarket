@@ -25,11 +25,12 @@ export function AuthProvider({ children }) {
 
     const fetchUserProfile = async (authToken) => {
         try {
-            // Configurar o token no cabeçalho de autorização
-            api.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
+            // Não precisa configurar o token aqui pois o interceptor do api.js já faz isso
+            console.log('Buscando perfil do usuário com token:', authToken);
             
             // Obter o perfil do utilizador
             const response = await api.get('/perfil');
+            console.log('Perfil obtido:', response.data);
             setCurrentUser(response.data);
         } catch (error) {
             console.error('Erro ao obter perfil do utilizador:', error);
@@ -49,9 +50,6 @@ export function AuthProvider({ children }) {
             // Guardar o token no localStorage
             localStorage.setItem('token', authToken);
             setToken(authToken);
-            
-            // Configurar o token no cabeçalho de autorização
-            api.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
             
             // Obter o perfil do utilizador
             await fetchUserProfile(authToken);
@@ -84,8 +82,6 @@ export function AuthProvider({ children }) {
             localStorage.removeItem('token');
             setToken(null);
             setCurrentUser(null);
-            // Remover o token do cabeçalho de autorização
-            delete api.defaults.headers.common['Authorization'];
         }
     };
 

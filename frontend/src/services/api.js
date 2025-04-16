@@ -1,21 +1,23 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://127.0.0.1:8000/api',
+    baseURL: 'http://localhost:8000/api',
+    withCredentials: true, // Importante para autenticação
     headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-    },
-    withCredentials: true // ESSENCIAL para sessões Laravel
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+    }
 });
 
 // Interceptor para adicionar o token em todas as requisições
-api.interceptors.request.use((config) => {
+api.interceptors.request.use(config => {
     const token = localStorage.getItem('token');
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
+}, error => {
+    return Promise.reject(error);
 });
 
 export const moradaService = {
