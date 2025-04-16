@@ -23,7 +23,7 @@ class AnuncioController extends Controller
     public function index()
     {
         $anuncios = Anuncio::with(['utilizador', 'categorium', 'tipo_item', 'item_imagems.imagem'])
-            ->where('Status_AnuncioID_Status_Anuncio', StatusAnuncio::STATUS_APROVADO)
+            ->where('Status_AnuncioID_Status_Anuncio', StatusAnuncio::STATUS_ATIVO)
             ->where('Status_AnuncioID_Status_Anuncio', '!=', StatusAnuncio::STATUS_REJEITADO)
             ->orderBy('ID_Anuncio', 'desc')
             ->paginate(10);
@@ -43,7 +43,7 @@ class AnuncioController extends Controller
             
             $anuncios = Anuncio::with(['utilizador', 'categorium', 'tipo_item', 'item_imagems.imagem'])
                 ->where('CategoriaID_Categoria', $categoriaId)
-                ->where('Status_AnuncioID_Status_Anuncio', 1)
+                ->where('Status_AnuncioID_Status_Anuncio', StatusAnuncio::STATUS_ATIVO)
                 ->orderBy('ID_Anuncio', 'desc')
                 ->get();
             
@@ -473,7 +473,7 @@ class AnuncioController extends Controller
     {
         $anuncios = Anuncio::with(['utilizador', 'categorium', 'tipo_item', 'item_imagems.imagem'])
             ->where('TipoItemID_TipoItem', $tipoItemId)
-            ->where('Status_AnuncioID_Status_Anuncio', StatusAnuncio::STATUS_APROVADO)
+            ->where('Status_AnuncioID_Status_Anuncio', StatusAnuncio::STATUS_ATIVO)
             ->where('Status_AnuncioID_Status_Anuncio', '!=', StatusAnuncio::STATUS_REJEITADO)
             ->orderBy('ID_Anuncio', 'desc')
             ->paginate(10);
@@ -488,7 +488,7 @@ class AnuncioController extends Controller
     {
         $anuncios = Anuncio::with(['utilizador', 'categorium', 'tipo_item', 'item_imagems.imagem'])
             ->where('UtilizadorID_User', $userId)
-            ->where('Status_AnuncioID_Status_Anuncio', StatusAnuncio::STATUS_APROVADO)
+            ->where('Status_AnuncioID_Status_Anuncio', StatusAnuncio::STATUS_ATIVO)
             ->where('Status_AnuncioID_Status_Anuncio', '!=', StatusAnuncio::STATUS_REJEITADO)
             ->orderBy('ID_Anuncio', 'desc')
             ->paginate(10);
@@ -501,8 +501,14 @@ class AnuncioController extends Controller
      */
     public function show($id)
     {
-        $anuncio = Anuncio::with(['utilizador', 'categorium', 'tipo_item', 'item_imagems.imagem', 'aprovacao'])
-            ->find($id);
+        $anuncio = Anuncio::with([
+            'utilizador.morada',
+            'categorium',
+            'tipo_item',
+            'item_imagems.imagem',
+            'aprovacao',
+            'status_anuncio'
+        ])->find($id);
         
         if (!$anuncio) {
             return response()->json(['message' => 'Anúncio não encontrado'], 404);
@@ -569,7 +575,7 @@ class AnuncioController extends Controller
             }
             
             // Se o anúncio já foi aprovado, voltar para pendente após atualização
-            if ($anuncio->Status_AnuncioID_Status_Anuncio == StatusAnuncio::STATUS_APROVADO) {
+            if ($anuncio->Status_AnuncioID_Status_Anuncio == StatusAnuncio::STATUS_ATIVO) {
                 $anuncio->Status_AnuncioID_Status_Anuncio = StatusAnuncio::STATUS_PENDENTE;
                 
                 // Atualizar aprovação
@@ -770,7 +776,7 @@ class AnuncioController extends Controller
             
             // Consulta base
             $query = Anuncio::with(['utilizador', 'categorium', 'tipo_item', 'item_imagems.imagem'])
-                ->where('Status_AnuncioID_Status_Anuncio', StatusAnuncio::STATUS_APROVADO)
+                ->where('Status_AnuncioID_Status_Anuncio', StatusAnuncio::STATUS_ATIVO)
                 ->where('Status_AnuncioID_Status_Anuncio', '!=', StatusAnuncio::STATUS_REJEITADO);
             
             // Filtrar por tipo de item se especificado
@@ -854,13 +860,12 @@ class AnuncioController extends Controller
             // Verificar as constantes de status para debug
             \Log::info('Status disponíveis:', [
                 'STATUS_PENDENTE' => StatusAnuncio::STATUS_PENDENTE,
-                'STATUS_APROVADO' => StatusAnuncio::STATUS_APROVADO,
-                'STATUS_REJEITADO' => StatusAnuncio::STATUS_REJEITADO,
-                'STATUS_ATIVO' => StatusAnuncio::STATUS_ATIVO
+                'STATUS_ATIVO' => StatusAnuncio::STATUS_ATIVO,
+                'STATUS_REJEITADO' => StatusAnuncio::STATUS_REJEITADO
             ]);
             
             $query = Anuncio::with(['utilizador', 'categorium', 'tipo_item', 'item_imagems.imagem'])
-                ->where('Status_AnuncioID_Status_Anuncio', StatusAnuncio::STATUS_APROVADO) // Corrigido para aprovado, mesma lógica do index()
+                ->where('Status_AnuncioID_Status_Anuncio', StatusAnuncio::STATUS_ATIVO)
                 ->orderBy('ID_Anuncio', 'desc');
             
             // Filtrar por categoria se especificado
@@ -869,6 +874,15 @@ class AnuncioController extends Controller
                 \Log::info('Filtrando por categoria', ['categoria_id' => $categoriaId]);
                 
                 $query->where('CategoriaID_Categoria', $categoriaId);
+            }
+
+            // Filtrar por termo de pesquisa se especificado
+            if ($request->has('search')) {
+                $search = $request->input('search');
+                $query->where(function ($q) use ($search) {
+                    $q->where('Titulo', 'LIKE', "%{$search}%")
+                      ->orWhere('Descricao', 'LIKE', "%{$search}%");
+                });
             }
             
             // Mostrar todos os anúncios disponíveis para debug

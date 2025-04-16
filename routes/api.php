@@ -75,6 +75,9 @@ Route::post('/test-login', function(\Illuminate\Http\Request $request) {
     ]);
 });
 
+// Rotas públicas de anúncios
+Route::get('/anuncios/{id}', [AnuncioController::class, 'show']);
+
 // Rotas protegidas que requerem autenticação
 Route::middleware('auth:sanctum')->group(function () {
     // Rotas de utilizador
@@ -92,6 +95,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/users', [AdminController::class, 'getAllUsers']);
         Route::put('/users/{userId}/status', [AdminController::class, 'updateUserStatus']);
         Route::get('/stats/pending-users', [AdminController::class, 'getPendingUsersCount']);
+        Route::get('/pending-users-count', [AdminController::class, 'pendingUsersCount']);
 
         // Anuncios (Admin Management)
         Route::get('/anuncios/pendentes', [AnuncioController::class, 'anunciosPendentes']);
@@ -108,7 +112,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Rotas de administração de anúncios
     Route::get('/anuncios', [AnuncioController::class, 'index']);
-    Route::get('/anuncios/{id}', [AnuncioController::class, 'show']);
     Route::post('/anuncios', [AnuncioController::class, 'store']);
     Route::put('/anuncios/{id}', [AnuncioController::class, 'update']);
     Route::delete('/anuncios/{id}', [AnuncioController::class, 'destroy']);

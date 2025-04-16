@@ -96,7 +96,7 @@ const Header = () => {
     const handleSearch = (e) => {
         e.preventDefault();
         if (searchTerm.trim()) {
-            navigate(`/anuncios/procurar?q=${encodeURIComponent(searchTerm)}`);
+            navigate(`/anuncios?q=${encodeURIComponent(searchTerm)}`);
         }
     };
 

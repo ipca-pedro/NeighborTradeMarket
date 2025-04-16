@@ -7,6 +7,7 @@ use App\Models\Morada;
 use App\Models\Imagem;
 use App\Models\Aprovacao;
 use App\Models\StatusUtilizador;
+use App\Models\Notificacao;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -241,6 +242,19 @@ class AuthController extends Controller
             ]);
             
             $user->save();
+
+            // Criar notificação para todos os admins
+            $admins = Utilizador::where('TipoUserID_TipoUser', 1)->get();
+            foreach ($admins as $admin) {
+                Notificacao::create([
+                    'Mensagem' => 'Novo pedido de registo pendente: ' . $user->Name,
+                    'DataNotificacao' => now(),
+                    'ReferenciaID' => $user->ID_User,
+                    'UtilizadorID_User' => $admin->ID_User,
+                    'ReferenciaTipoID_ReferenciaTipo' => 1, // Utilizador
+                    'TIpo_notificacaoID_TipoNotificacao' => 1 // Registo de Utilizador
+                ]);
+            }
             
             DB::commit();
             

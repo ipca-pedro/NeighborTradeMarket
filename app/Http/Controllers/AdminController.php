@@ -7,6 +7,7 @@ use App\Models\Aprovacao;
 use App\Models\StatusUtilizador;
 use App\Models\Anuncio;
 use App\Models\StatusAnuncio;
+use App\Models\Notificacao;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -416,5 +417,31 @@ class AdminController extends Controller
             ]);
             return response()->json(['message' => 'Erro ao atualizar estado do anúncio.'], 500);
         }
+    }
+
+    /**
+     * Contar utilizadores pendentes e notificações não lidas para o admin autenticado
+     */
+    public function pendingUsersCount()
+    {
+        $user = Auth::user();
+        if (!$user || $user->TipoUserID_TipoUser != 1) {
+            return response()->json([
+                'message' => 'Acesso não autorizado'
+            ], 403);
+        }
+
+        // Contar utilizadores pendentes (ajuste o status conforme o seu sistema, ex: 1 ou 4)
+        $pendingCount = Utilizador::where('Status_UtilizadorID_status_utilizador', 1)->count();
+
+        // Contar notificações não lidas para o admin autenticado
+        $unreadNotifications = Notificacao::where('UtilizadorID_User', $user->ID_User)
+            ->where('Lida', 0)
+            ->count();
+
+        return response()->json([
+            'pending_users' => $pendingCount,
+            'unread_notifications' => $unreadNotifications
+        ]);
     }
 }

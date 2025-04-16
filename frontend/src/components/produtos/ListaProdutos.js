@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../layout/Header';
-import { Container, Row, Col, Card, Badge } from 'react-bootstrap';
+import { Container, Row, Col, Card, Badge, Button } from 'react-bootstrap';
 import { Link, useParams, useLocation } from 'react-router-dom';
 import NoProductsFound from './NoProductsFound';
-import api from '../../services/api';
-import { anuncioService } from '../../services/api'; // Importar o serviço de anúncios
+import { getAnuncios, getAnunciosPorCategoria, getCategorias } from '../../services/anuncioService';
 
 const ListaProdutos = () => {
     // Suporta ambos os formatos: parâmetros de rota e query parameters
@@ -12,7 +11,7 @@ const ListaProdutos = () => {
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
     const queryCategoriaId = queryParams.get('categoria');
-    
+    const searchTerm = queryParams.get('q') || '';
     // Prioriza o parâmetro da query, mas aceita o da rota se não houver
     const categoriaId = queryCategoriaId || routeCategoriaId;
     
@@ -27,59 +26,96 @@ const ListaProdutos = () => {
             if (categoriaId) {
                 try {
                     // Buscar as informações da categoria
-                    console.log("Buscando informações da categoria:", categoriaId);
-                    const categorias = await anuncioService.getCategorias();
-                    console.log("Categorias disponíveis:", categorias);
-                    
+                    const categorias = await getCategorias();
                     const categoria = categorias.find(cat => 
                         cat.ID_Categoria === parseInt(categoriaId)
                     );
-                    
-                    if (categoria) {
-                        console.log("Categoria encontrada:", categoria);
-                        setCategoriaInfo(categoria);
-                    } else {
-                        console.warn("Categoria não encontrada com ID:", categoriaId);
-                    }
+                    if (categoria) setCategoriaInfo(categoria);
                 } catch (err) {
-                    console.error("Erro ao buscar informações da categoria:", err);
                     // Não define erro para não bloquear a carga dos produtos
                 }
             }
         };
-        
         fetchCategoriaInfo();
     }, [categoriaId]);
 
     useEffect(() => {
-        console.log("Carregando produtos com filtro de categoria:", categoriaId);
         carregarProdutos();
-    }, [categoriaId]); // Recarregar quando a categoria mudar
+        // eslint-disable-next-line
+    }, [categoriaId, searchTerm]); // Recarregar quando a categoria ou termo mudar
 
     const carregarProdutos = async () => {
         try {
+            setLoading(true);
             let produtosFiltrados = [];
-            
             if (categoriaId) {
-                // Usar método específico para buscar por categoria
-                console.log("Buscando produtos da categoria:", categoriaId);
-                produtosFiltrados = await anuncioService.getAnunciosPorCategoria(categoriaId);
+                produtosFiltrados = await getAnunciosPorCategoria(categoriaId);
+            } else if (searchTerm) {
+                produtosFiltrados = await getAnuncios({ search: searchTerm });
             } else {
-                // Usar o método genérico para todos os anúncios
-                console.log("Buscando todos os produtos");
-                produtosFiltrados = await anuncioService.getAnuncios();
+                produtosFiltrados = await getAnuncios();
             }
-            
-            console.log("Total de produtos recebidos:", produtosFiltrados?.length || 0);
-            console.log("Exemplo de produto:", produtosFiltrados?.length > 0 ? produtosFiltrados[0] : "Nenhum produto");
-            
             setProdutos(produtosFiltrados || []);
         } catch (err) {
-            console.error("Erro ao carregar produtos:", err);
-            setError('Erro ao carregar produtos da categoria: ' + (err.message || 'Erro desconhecido. Verifique o console para mais informações.'));
+            setError('Erro ao carregar produtos: ' + (err.message || 'Erro desconhecido.'));
         } finally {
             setLoading(false);
         }
+    };
+
+    // Função para renderizar um card de produto
+    const renderProdutoCard = (produto) => {
+        // Obter imagem principal
+        let imgUrl = '/images/no-image.jpg';
+        if (produto.imagens && produto.imagens.length > 0) {
+            imgUrl = produto.imagens[0]?.URL || imgUrl;
+        } else if (produto.item_imagems && produto.item_imagems.length > 0) {
+            imgUrl = produto.item_imagems[0]?.imagem?.Caminho
+                ? `${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/storage/${produto.item_imagems[0].imagem.Caminho}`
+                : imgUrl;
+        }
+        return (
+            <Col key={produto.ID_Item || produto.id} xs={12} sm={6} md={4} lg={3} className="mb-4">
+                <Card className="h-100 shadow-sm product-card">
+                    <div className="product-image-container" style={{height: '220px', background: '#f8f9fa', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                        <Card.Img 
+                            variant="top" 
+                            src={imgUrl} 
+                            alt={produto.Titulo}
+                            style={{ maxHeight: '200px', objectFit: 'contain', width: 'auto' }}
+                            onError={(e) => { e.target.onerror = null; e.target.src = '/images/no-image.jpg'; }}
+                        />
+                    </div>
+                    <Card.Body className="d-flex flex-column">
+                        <Card.Title className="product-title" style={{fontSize: '1.1rem', fontWeight: 600}}>{produto.Titulo || produto.Nome}</Card.Title>
+                        <div className="mb-2">
+                            <Badge bg="secondary" className="me-2">
+                                {produto.categorium?.Descricao_Categoria || produto.Categoria || "Categoria N/A"}
+                            </Badge>
+                            <Badge bg="info">
+                                {produto.Condicao || produto.Estado || "Estado N/A"}
+                            </Badge>
+                        </div>
+                        <div className="price-container mb-2" style={{fontWeight: 700, color: '#F97316', fontSize: '1.2rem'}}>
+                            {produto.Preco ? parseFloat(produto.Preco).toFixed(2) : "N/A"}€
+                        </div>
+                        <Card.Text className="product-description text-muted mb-3" style={{fontSize: '0.95rem'}}>
+                            {produto.Descricao ? produto.Descricao.substring(0, 80) + (produto.Descricao.length > 80 ? '...' : '') : ''}
+                        </Card.Text>
+                        <Button 
+                            as={Link} 
+                            to={`/anuncios/${produto.ID_Anuncio || produto.ID_Item || produto.id}`}
+                            variant="primary"
+                            className="mt-auto w-100"
+                            style={{ backgroundColor: '#F97316', borderColor: '#F97316' }}
+                        >
+                            <i className="fas fa-search me-2"></i>
+                            Ver Detalhes
+                        </Button>
+                    </Card.Body>
+                </Card>
+            </Col>
+        );
     };
 
     return (
@@ -87,10 +123,10 @@ const ListaProdutos = () => {
             <Header />
             {loading ? (
                 <Container className="text-center py-5" style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-    <div style={{fontSize: '1.3rem', color: '#444', fontWeight: 500}}>
-        A carregar produtos/anúncios...
-    </div>
-</Container>
+                    <div style={{fontSize: '1.3rem', color: '#444', fontWeight: 500}}>
+                        A carregar produtos/anúncios...
+                    </div>
+                </Container>
             ) : error ? (
                 <Container className="py-5">
                     <div className="alert alert-danger">
@@ -103,55 +139,19 @@ const ListaProdutos = () => {
             ) : (
                 <Container className="mt-4" style={{ minHeight: '50vh', marginBottom: 'calc(2rem + 7mm)' }}>
                     <h2 className="mb-4">
-                        {categoriaId ? (
+                        {searchTerm ? (
+                            <>Resultados para <span className="text-primary">"{searchTerm}"</span></>
+                        ) : categoriaId ? (
                             categoriaInfo ? 
                                 `Produtos de ${categoriaInfo.Descricao_Categoria}` : 
                                 `Produtos na Categoria ${categoriaId}`
                         ) : 'Todos os Produtos'}
                     </h2>
                     <Row>
-                        {produtos.map(produto => (
-                            <Col key={produto.ID_Item || produto.id} xs={12} sm={6} md={4} lg={3} className="mb-4">
-                                <Card>
-                                    {produto.imagens && produto.imagens.length > 0 ? (
-                                        <Card.Img 
-                                            variant="top" 
-                                            src={produto.imagens[0]?.URL || produto.item_imagems?.[0]?.imagem?.Caminho ? `${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/storage/${produto.item_imagems[0].imagem.Caminho}` : '/images/no-image.jpg'}
-                                            style={{ height: '200px', objectFit: 'cover' }}
-                                            onError={(e) => { e.target.onerror = null; e.target.src = '/images/no-image.jpg'; }}
-                                        />
-                                    ) : (
-                                        <div className="bg-light text-center py-5">
-                                            <i className="fas fa-image fa-3x text-secondary"></i>
-                                        </div>
-                                    )}
-                                    <Card.Body>
-                                        <Card.Title>{produto.Titulo || produto.Nome}</Card.Title>
-                                        <Card.Text>
-                                            {produto.Preco ? produto.Preco.toFixed(2) : "N/A"}€
-                                        </Card.Text>
-                                        <div className="mb-2">
-                                            <Badge bg="secondary" className="me-2">
-                                                {produto.categorium?.Descricao_Categoria || produto.Categoria || "Categoria N/A"}
-                                            </Badge>
-                                            <Badge bg="info">
-                                                {produto.Condicao || produto.Estado || "Estado N/A"}
-                                            </Badge>
-                                        </div>
-                                        <Link 
-                                            to={`/anuncios/${produto.ID_Item || produto.id}`}
-                                            className="btn btn-primary btn-sm"
-                                        >
-                                            Ver Detalhes
-                                        </Link>
-                                    </Card.Body>
-                                </Card>
-                            </Col>
-                        ))}
+                        {produtos.map(renderProdutoCard)}
                     </Row>
                 </Container>
             )}
-
         </>
     );
 };
