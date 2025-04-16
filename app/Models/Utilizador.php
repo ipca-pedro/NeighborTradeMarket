@@ -92,7 +92,7 @@ class Utilizador extends Authenticatable
 
 	public function cartao()
 	{
-		return $this->belongsTo(Cartao::class, 'cartaoID_Cartao');
+		return $this->belongsTo(Cartao::class, 'cartaoID_Cartao', 'ID_Cartao');
 	}
 
 	public function aprovacao()

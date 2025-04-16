@@ -9,6 +9,7 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * Class Cartao
@@ -24,6 +25,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Cartao extends Model
 {
+	use HasFactory;
+
 	protected $table = 'cartao';
 	protected $primaryKey = 'ID_Cartao';
 	public $timestamps = false;
@@ -31,7 +34,7 @@ class Cartao extends Model
 	protected $casts = [
 		'Numero' => 'int',
 		'CVC' => 'int',
-		'Data' => 'datetime'
+		'Data' => 'date'
 	];
 
 	protected $fillable = [
@@ -40,8 +43,11 @@ class Cartao extends Model
 		'Data'
 	];
 
-	public function utilizadors()
+	/**
+	 * Relação com o utilizador
+	 */
+	public function utilizadores()
 	{
-		return $this->hasMany(Utilizador::class, 'cartaoID_Cartao');
+		return $this->hasMany(Utilizador::class, 'cartaoID_Cartao', 'ID_Cartao');
 	}
 }
