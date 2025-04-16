@@ -5,6 +5,7 @@ import { authService } from '../../services/api';
 import Header from '../layout/Header';
 import Footer from '../layout/Footer';
 import MeusAnuncios from './MeusAnuncios';
+import Cartoes from './Cartoes';
 
 const PerfilUtilizador = () => {
     const { currentUser } = useAuth();
@@ -415,38 +416,7 @@ const PerfilUtilizador = () => {
                                 <Card>
                                     <Card.Header as="h5">Segurança</Card.Header>
                                     <Card.Body>
-                                        <h6 className="mb-3">Alterar Palavra-passe</h6>
-                                        <Form>
-                                            <Form.Group className="mb-3">
-                                                <Form.Label>Palavra-passe Atual</Form.Label>
-                                                <Form.Control
-                                                    type="password"
-                                                    required
-                                                />
-                                            </Form.Group>
-
-                                            <Form.Group className="mb-3">
-                                                <Form.Label>Nova Palavra-passe</Form.Label>
-                                                <Form.Control
-                                                    type="password"
-                                                    required
-                                                />
-                                            </Form.Group>
-
-                                            <Form.Group className="mb-3">
-                                                <Form.Label>Confirmar Nova Palavra-passe</Form.Label>
-                                                <Form.Control
-                                                    type="password"
-                                                    required
-                                                />
-                                            </Form.Group>
-
-                                            <div className="text-end">
-                                                <Button variant="primary">
-                                                    Alterar Palavra-passe
-                                                </Button>
-                                            </div>
-                                        </Form>
+                                        <Cartoes />
                                     </Card.Body>
                                 </Card>
                             </Tab.Pane>

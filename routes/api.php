@@ -12,6 +12,7 @@ use App\Http\Controllers\NotificacaoController;
 use App\Http\Controllers\CompraController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\CartaoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -166,4 +167,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/compras/{id}/confirmar-recebimento', [CompraController::class, 'confirmReceipt']);
     Route::get('/compras/status/opcoes', [CompraController::class, 'getStatusOptions']);
     Route::get('/vendas/pendentes', [CompraController::class, 'pendingSales']);
+
+    // Rotas para cartões
+    Route::get('/cartoes', [CartaoController::class, 'index']);
+    Route::post('/cartoes', [CartaoController::class, 'store']);
+    Route::delete('/cartoes/{id}', [CartaoController::class, 'destroy']);
 });

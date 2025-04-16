@@ -158,6 +158,34 @@ export const authService = {
         } catch (error) {
             throw error.response?.data || error.message;
         }
+    },
+
+    // Métodos para gerenciar cartões
+    getCartoes: async () => {
+        try {
+            const response = await api.get('/cartoes');
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error.message;
+        }
+    },
+
+    adicionarCartao: async (cartaoData) => {
+        try {
+            const response = await api.post('/cartoes', cartaoData);
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error.message;
+        }
+    },
+
+    removerCartao: async (cartaoId) => {
+        try {
+            const response = await api.delete(`/cartoes/${cartaoId}`);
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error.message;
+        }
     }
 };
 
