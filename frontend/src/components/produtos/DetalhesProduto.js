@@ -4,9 +4,10 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { anuncioService } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import Header from '../layout/Header';
-import Footer from '../layout/Footer';
+import UserToUserChat from '../chat/UserToUserChat';
 
 const DetalhesProduto = () => {
+    const [showUserChat, setShowUserChat] = useState(false);
     const { id } = useParams();
     const navigate = useNavigate();
     const { currentUser } = useAuth();
@@ -163,15 +164,21 @@ const DetalhesProduto = () => {
                                                 </span>
                                             </div>
                                         </div>
-                                        {/* Botões de compra e mensagem (agora sempre visíveis para teste) */}
-                                        <div className="d-flex gap-2 mb-3 justify-content-center">
-                                            <Button variant="success" size="lg" onClick={() => alert('Funcionalidade de compra em breve!')}>
-                                                <i className="fas fa-shopping-cart me-2"></i> Comprar
-                                            </Button>
-                                            <Button variant="outline-primary" size="lg" as={Link} to={`/mensagens?anuncio=${anuncio.ID_Anuncio}&vendedor=${anuncio.UtilizadorID_User}`}>
-                                                <i className="fas fa-comments me-2"></i> Conversar com Vendedor
-                                            </Button>
-                                        </div>
+                                        {/* Botões de compra e mensagem - só aparecem se o usuário NÃO for o dono do anúncio */}
+                                        {currentUser && anuncio.UtilizadorID_User !== currentUser.ID_User && (
+                                            <div className="d-flex gap-2 mb-3 justify-content-center">
+                                                <Button variant="success" size="lg" onClick={() => alert('Funcionalidade de compra em breve!')}>
+                                                    <i className="fas fa-shopping-cart me-2"></i> Comprar
+                                                </Button>
+                                                <Button 
+                                                    variant="outline-primary" 
+                                                    size="lg" 
+                                                    onClick={() => setShowUserChat(true)}
+                                                >
+                                                    <i className="fas fa-comments me-2"></i> Conversar com Vendedor
+                                                </Button>
+                                            </div>
+                                        )}
                                         {currentUser && anuncio.UtilizadorID_User === currentUser.ID_User && (
                                             <div className="d-flex gap-2 mb-3 justify-content-center">
                                                 <Button 
@@ -207,7 +214,7 @@ const DetalhesProduto = () => {
                     </>
                 )}
             </Container>
-            <Footer />
+            <div style={{ height: '20mm' }}></div>
             {/* Modal para ampliar imagem com carrossel */}
             {anuncio && (
                 <Modal show={showImgModal} onHide={() => setShowImgModal(false)} centered size="lg">
@@ -260,7 +267,17 @@ const DetalhesProduto = () => {
                     </Modal.Body>
                 </Modal>
             )}
+            {/* Chat comprador-vendedor */}
+            {anuncio && (
+                <UserToUserChat 
+                    show={showUserChat} 
+                    onClose={() => setShowUserChat(false)} 
+                    anuncioId={anuncio.ID_Anuncio} 
+                    vendedorId={anuncio.UtilizadorID_User} 
+                    vendedorNome={anuncio.utilizador?.Name}
+                />
+            )}
         </>
     );
-}
+};
 export default DetalhesProduto;

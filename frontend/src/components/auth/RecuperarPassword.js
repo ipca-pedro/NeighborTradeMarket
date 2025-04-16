@@ -89,7 +89,6 @@ const RecuperarPassword = () => {
                     </Card>
                 </div>
             </Container>
-            <Footer />
         </>
     );
 };

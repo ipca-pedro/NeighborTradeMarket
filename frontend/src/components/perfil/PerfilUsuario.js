@@ -454,7 +454,6 @@ const PerfilUtilizador = () => {
                     </Col>
                 </Row>
             </Container>
-            <Footer />
         </>
     );
 };

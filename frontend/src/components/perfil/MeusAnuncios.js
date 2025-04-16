@@ -228,7 +228,6 @@ const MeusAnuncios = () => {
                     <h2 className="mb-4">Meus Anúncios</h2>
                     {renderContent()}
                 </Container>
-                <Footer />
             </>
         );
     }

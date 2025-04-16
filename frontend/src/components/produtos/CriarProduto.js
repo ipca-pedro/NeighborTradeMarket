@@ -409,7 +409,6 @@ const CriarProduto = () => {
                     </Col>
                 </Row>
             </Container>
-            <Footer />
         </>
     );
 };

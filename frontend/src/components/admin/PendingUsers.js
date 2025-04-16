@@ -234,7 +234,6 @@ const PendingUsers = () => {
                     </Button>
                 </Modal.Footer>
             </Modal>
-            <Footer />
         </>
     );
 };

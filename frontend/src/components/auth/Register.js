@@ -276,7 +276,6 @@ function Register() {
                     </Modal>
                 </div>
             </Container>
-            <Footer />
         </>
     );
 }

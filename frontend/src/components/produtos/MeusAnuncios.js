@@ -206,7 +206,6 @@ const MeusAnuncios = () => {
                     </Row>
                 )}
             </Container>
-            <Footer />
         </>
     );
 };

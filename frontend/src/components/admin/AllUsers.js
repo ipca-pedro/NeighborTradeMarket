@@ -239,7 +239,6 @@ const AllUsers = () => {
                     </Card.Body>
                 </Card>
             </Container>
-            <Footer />
         </>
     );
 };

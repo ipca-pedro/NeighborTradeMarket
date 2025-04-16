@@ -22,6 +22,7 @@ const Header = () => {
     const navigate = useNavigate();
     const searchRef = useRef(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [searchFocused, setSearchFocused] = useState(false);
     
     // Buscar notificações do servidor
     useEffect(() => {
@@ -157,14 +158,16 @@ const Header = () => {
                     <div className="search-bar mx-auto flex-grow-1 px-4">
                         <Form onSubmit={handleSearch} className="d-flex">
                             <Form.Control
-                                ref={searchRef}
-                                type="search"
-                                placeholder="Pesquisar por qualquer produto"
-                                className="me-2 text-center"
-                                aria-label="Pesquisar"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
+    ref={searchRef}
+    type="search"
+    placeholder={searchFocused ? '' : 'Pesquisar por qualquer produto'}
+    className="me-2 text-center"
+    aria-label="Pesquisar"
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    onFocus={() => setSearchFocused(true)}
+    onBlur={() => setSearchFocused(false)}
+/>
                             <Button variant="light" type="submit">
                                 <i className="fas fa-search"></i>
                             </Button>

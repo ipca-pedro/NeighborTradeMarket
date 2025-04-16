@@ -377,7 +377,6 @@ const AllAnuncios = () => {
             </Modal>
             {/* --- End Details Modal --- */}
 
-            <Footer />
         </>
     );
 };

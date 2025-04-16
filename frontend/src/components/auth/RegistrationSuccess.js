@@ -35,7 +35,6 @@ const RegistrationSuccess = () => {
                     </Card.Body>
                 </Card>
             </Container>
-            <Footer />
         </>
     );
 };
