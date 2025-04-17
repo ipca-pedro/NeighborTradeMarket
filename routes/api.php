@@ -122,8 +122,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Rotas de mensagens
     Route::get('/conversas', [MensagemController::class, 'getConversations']);
     Route::get('/mensagens/{anuncioId}', [MensagemController::class, 'getMessages']);
-    Route::post('/mensagens', [MensagemController::class, 'sendMessage']);
-    Route::post('/mensagens/{anuncioId}/responder', [MensagemController::class, 'replyMessage']);
+    Route::post('/mensagens/{anuncioId}/iniciar', [MensagemController::class, 'iniciarConversa']);
+    Route::post('/mensagens/{anuncioId}/responder', [MensagemController::class, 'enviarMensagem']);
     Route::post('/mensagens/{anuncioId}/lidas', [MensagemController::class, 'markAsRead']);
     Route::get('/mensagens/nao-lidas/contar', [MensagemController::class, 'countUnread']);
     
@@ -172,4 +172,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/cartoes', [CartaoController::class, 'index']);
     Route::post('/cartoes', [CartaoController::class, 'store']);
     Route::delete('/cartoes/{id}', [CartaoController::class, 'destroy']);
+
+    // Rotas de Compras
+    Route::post('/compras/anuncio/{anuncioId}', [CompraController::class, 'iniciarCompra']);
+    Route::get('/compras/minhas', [CompraController::class, 'minhasCompras']);
+    Route::get('/vendas/minhas', [CompraController::class, 'minhasVendas']);
+    Route::put('/compras/{compraId}/status', [CompraController::class, 'atualizarStatus']);
+    Route::get('/compras/{compraId}', [CompraController::class, 'detalhes']);
 });

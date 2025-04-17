@@ -3,8 +3,10 @@ import { Container, Row, Col, Image, Badge, Button, Alert, Card, Spinner, Modal 
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { anuncioService } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
+import { toast } from 'react-toastify';
 import Header from '../layout/Header';
 import UserToUserChat from '../chat/UserToUserChat';
+import IniciarCompra from '../Compras/IniciarCompra';
 
 const DetalhesProduto = () => {
     const [showUserChat, setShowUserChat] = useState(false);
@@ -178,9 +180,23 @@ const DetalhesProduto = () => {
                                             </Alert>
                                         ) : anuncio.UtilizadorID_User !== currentUser.ID_User ? (
                                             <div className="d-flex gap-2 mb-3 justify-content-center">
-                                                <Button variant="success" size="lg" onClick={() => alert('Funcionalidade de compra em breve!')}>
-                                                    <i className="fas fa-shopping-cart me-2"></i> Comprar
-                                                </Button>
+                                                <IniciarCompra
+                                                    anuncioId={anuncio.ID_Anuncio}
+                                                    titulo={anuncio.Titulo}
+                                                    preco={anuncio.Preco}
+                                                    onSuccess={(compra) => {
+                                                        toast.success('Compra iniciada com sucesso!');
+                                                        // Atualizar o status do anúncio para vendido
+                                                        setAnuncio(prev => ({
+                                                            ...prev,
+                                                            Status_AnuncioID_Status_Anuncio: 3
+                                                        }));
+                                                    }}
+                                                    onCancel={() => {
+                                                        // Opcional: fazer algo quando a compra for cancelada
+                                                        console.log('Compra cancelada');
+                                                    }}
+                                                />
                                                 <Button 
                                                     variant="outline-primary" 
                                                     size="lg" 

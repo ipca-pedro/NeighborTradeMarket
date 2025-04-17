@@ -80,6 +80,9 @@ npm install react-bootstrap bootstrap
 
 # axios - Cliente HTTP para chamadas à API
 npm install axios
+
+# react-toastify - Notificações toast
+npm install react-toastify
 ```
 
 ### Executando o Projeto
@@ -190,6 +193,7 @@ O script utiliza as mesmas configurações do arquivo `.env`, garantindo compati
    - Se o `npm install` falhar, tente `npm install --legacy-peer-deps`
    - Se o frontend não conectar com o backend, verifique se as URLs da API em `frontend/src/services/api.js` estão corretas
    - Limpe o cache do navegador ou use o modo incógnito para testar
+   - Se houver problemas com o react-toastify, verifique se o componente ToastContainer está importado e configurado no App.js
 
 5. **Erros de CORS**:
    - Verifique se o arquivo `config/cors.php` está configurado corretamente

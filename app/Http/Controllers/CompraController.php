@@ -8,6 +8,7 @@ use App\Models\Utilizador;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class CompraController extends Controller
 {
@@ -16,13 +17,12 @@ class CompraController extends Controller
      */
     public function index()
     {
-        $userId = Auth::id();
-        
-        $compras = Compra::where('UtilizadorID_User', $userId)
-            ->with(['anuncio', 'anuncio.utilizador', 'status_compra'])
+        $user = Auth::user();
+        $compras = Compra::with(['anuncio', 'utilizador'])
+            ->where('UtilizadorID_User', $user->ID_User)
             ->orderBy('Data', 'desc')
             ->get();
-        
+
         return response()->json($compras);
     }
     
@@ -52,113 +52,39 @@ class CompraController extends Controller
      */
     public function show($id)
     {
-        $userId = Auth::id();
-        
-        $compra = Compra::with(['anuncio', 'anuncio.utilizador', 'utilizador', 'status_compra'])
-            ->findOrFail($id);
-        
-        // Verificar se o utilizador está envolvido na compra (como comprador ou vendedor)
-        if ($compra->UtilizadorID_User != $userId && $compra->anuncio->UtilizadorID_User != $userId) {
-            return response()->json([
-                'message' => 'Não autorizado a ver esta compra'
-            ], 403);
-        }
-        
+        $user = Auth::user();
+        $compra = Compra::with(['anuncio', 'utilizador'])
+            ->where('ID_Compra', $id)
+            ->where('UtilizadorID_User', $user->ID_User)
+            ->firstOrFail();
+
         return response()->json($compra);
     }
     
     /**
      * Criar uma nova compra
      */
-    public function store(Request $request)
+    public function store(Request $request, $anuncioId)
     {
         $request->validate([
-            'anuncio_id' => 'required|exists:Anuncio,ID_Anuncio',
-            'quantidade' => 'required|integer|min:1',
-            'endereco_entrega' => 'required|string|max:255',
-            'metodo_pagamento' => 'required|string|max:50'
+            'anuncioId' => 'required|exists:anuncio,ID_Anuncio'
         ]);
-        
-        $userId = Auth::id();
-        $anuncioId = $request->anuncio_id;
-        
-        // Buscar o anúncio
+
+        $user = Auth::user();
         $anuncio = Anuncio::findOrFail($anuncioId);
-        
-        // Verificar se o anúncio está disponível para compra
-        if ($anuncio->Status_AnuncioID_Status_Anuncio != 2) { // Assumindo que 2 é "Ativo"
-            return response()->json([
-                'message' => 'Este anúncio não está disponível para compra'
-            ], 400);
-        }
-        
-        // Verificar se o utilizador não está tentando comprar seu próprio anúncio
-        if ($anuncio->UtilizadorID_User == $userId) {
-            return response()->json([
-                'message' => 'Não é possível comprar seu próprio anúncio'
-            ], 400);
-        }
-        
-        // Verificar se a quantidade solicitada está disponível
-        if ($request->quantidade > $anuncio->Quantidade_disponivel) {
-            return response()->json([
-                'message' => 'Quantidade solicitada não disponível'
-            ], 400);
-        }
-        
-        DB::beginTransaction();
-        
-        try {
-            // Calcular valor total
-            $valorTotal = $anuncio->Preco * $request->quantidade;
-            
-            // Criar a compra
-            $compra = new Compra([
-                'Quantidade' => $request->quantidade,
-                'Valor_total' => $valorTotal,
-                'Data' => now(),
-                'Endereco_entrega' => $request->endereco_entrega,
-                'Metodo_pagamento' => $request->metodo_pagamento,
-                'AnuncioID_Anuncio' => $anuncioId,
-                'UtilizadorID_User' => $userId,
-                'Status_CompraID_Status_Compra' => 1 // Pendente
-            ]);
-            
-            $compra->save();
-            
-            // Atualizar a quantidade disponível no anúncio
-            $anuncio->Quantidade_disponivel -= $request->quantidade;
-            
-            // Se a quantidade disponível chegar a zero, marcar o anúncio como vendido
-            if ($anuncio->Quantidade_disponivel <= 0) {
-                $anuncio->Status_AnuncioID_Status_Anuncio = 3; // Vendido
-            }
-            
-            $anuncio->save();
-            
-            // Criar notificação para o vendedor
-            DB::table('Notificacao')->insert([
-                'Mensagem' => 'Novo pedido recebido para seu anúncio: ' . $anuncio->Titulo,
-                'DataNotificacao' => now(),
-                'ReferenciaID' => $compra->ID_Compra,
-                'UtilizadorID_User' => $anuncio->UtilizadorID_User,
-                'ReferenciaTipoID_ReferenciaTipo' => 1, // Compras
-                'TIpo_notificacaoID_TipoNotificacao' => 3 // Notificações de compra
-            ]);
-            
-            DB::commit();
-            
-            return response()->json([
-                'message' => 'Compra realizada com sucesso',
-                'compra' => $compra
-            ], 201);
-            
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'message' => 'Erro ao processar compra: ' . $e->getMessage()
-            ], 500);
-        }
+
+        $compra = new Compra([
+            'Data' => Carbon::now(),
+            'UtilizadorID_User' => $user->ID_User,
+            'AnuncioID_Anuncio' => $anuncioId
+        ]);
+
+        $compra->save();
+
+        return response()->json([
+            'message' => 'Compra realizada com sucesso',
+            'compra' => $compra
+        ], 201);
     }
     
     /**
@@ -347,5 +273,185 @@ class CompraController extends Controller
             ->get();
         
         return response()->json($vendasPendentes);
+    }
+
+    /**
+     * Iniciar uma nova compra
+     */
+    public function iniciarCompra(Request $request, $anuncioId)
+    {
+        try {
+            $request->validate([
+                'cartao_id' => 'required|exists:cartao,ID_Cartao'
+            ]);
+
+            $user = Auth::user();
+            
+            // Validar anúncio
+            $anuncio = Anuncio::find($anuncioId);
+            if (!$anuncio) {
+                return response()->json(['error' => 'Anúncio não encontrado'], 404);
+            }
+
+            // Verificar se o usuário não está tentando comprar seu próprio anúncio
+            if ($anuncio->UtilizadorID_User == $user->ID_User) {
+                return response()->json(['error' => 'Não é possível comprar seu próprio anúncio'], 403);
+            }
+
+            // Verificar se já existe uma compra para este anúncio
+            $compraExistente = Compra::where('AnuncioID_Anuncio', $anuncioId)->exists();
+
+            if ($compraExistente) {
+                return response()->json(['error' => 'Este anúncio já foi comprado'], 400);
+            }
+
+            DB::beginTransaction();
+
+            // Criar nova compra
+            $compra = new Compra();
+            $compra->AnuncioID_Anuncio = $anuncioId;
+            $compra->UtilizadorID_User = $user->ID_User;
+            $compra->Data = now();
+            $compra->save();
+
+            // Criar notificação para o vendedor
+            DB::table('notificacao')->insert([
+                'Mensagem' => 'Nova solicitação de compra para o anúncio: ' . $anuncio->Titulo,
+                'DataNotificacao' => now(),
+                'ReferenciaID' => $compra->ID_Compra,
+                'UtilizadorID_User' => $anuncio->UtilizadorID_User,
+                'ReferenciaTipoID_ReferenciaTipo' => 3, // Tipo Compra
+                'TIpo_notificacaoID_TipoNotificacao' => 1 // Nova compra
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Compra iniciada com sucesso',
+                'compra' => $compra->load(['anuncio', 'utilizador'])
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Erro ao iniciar compra: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Listar compras do usuário
+     */
+    public function minhasCompras()
+    {
+        $user = Auth::user();
+        $compras = Compra::with(['anuncio', 'utilizador'])
+            ->where('UtilizadorID_User', $user->ID_User)
+            ->orderBy('Data', 'desc')
+            ->get();
+
+        return response()->json($compras);
+    }
+
+    /**
+     * Listar vendas do usuário
+     */
+    public function minhasVendas(Request $request)
+    {
+        $user = Auth::user();
+        $perPage = $request->get('per_page', 15);
+        
+        $vendas = Compra::with(['anuncio', 'status', 'comprador'])
+            ->whereHas('anuncio', function($query) use ($user) {
+                $query->where('UtilizadorID_User', $user->ID_User);
+            })
+            ->orderBy('Data_compra', 'desc')
+            ->paginate($perPage);
+
+        return response()->json($vendas);
+    }
+
+    /**
+     * Atualizar status da compra
+     */
+    public function atualizarStatus(Request $request, $compraId)
+    {
+        try {
+            $user = Auth::user();
+            
+            $compra = Compra::with('anuncio')->findOrFail($compraId);
+
+            // Verificar se o usuário é o vendedor
+            if ($compra->anuncio->UtilizadorID_User != $user->ID_User) {
+                return response()->json(['error' => 'Não autorizado'], 403);
+            }
+
+            $request->validate([
+                'status' => 'required|integer|exists:status_compra,ID_Status',
+                'observacoes' => 'nullable|string|max:500'
+            ]);
+
+            DB::beginTransaction();
+
+            $compra->StatusID_Status = $request->status;
+            if ($request->has('observacoes')) {
+                $compra->Observacoes = $request->observacoes;
+            }
+            $compra->Data_atualizacao = now();
+            $compra->save();
+
+            // Criar notificação para o comprador
+            DB::table('notificacao')->insert([
+                'Mensagem' => 'Status da sua compra foi atualizado para: ' . $compra->status->Descricao,
+                'DataNotificacao' => now(),
+                'ReferenciaID' => $compra->ID_Compra,
+                'UtilizadorID_User' => $compra->CompradorID_User,
+                'ReferenciaTipoID_ReferenciaTipo' => 3, // Tipo Compra
+                'TIpo_notificacaoID_TipoNotificacao' => 2 // Atualização de status
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Status atualizado com sucesso',
+                'compra' => $compra->load(['anuncio', 'status'])
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Erro ao atualizar status: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Obter detalhes de uma compra
+     */
+    public function detalhes($compraId)
+    {
+        $user = Auth::user();
+        
+        $compra = Compra::with(['anuncio', 'status', 'comprador'])
+            ->findOrFail($compraId);
+
+        // Verificar se o usuário é o comprador ou vendedor
+        if ($compra->CompradorID_User != $user->ID_User && 
+            $compra->anuncio->UtilizadorID_User != $user->ID_User) {
+            return response()->json(['error' => 'Não autorizado'], 403);
+        }
+
+        return response()->json($compra);
+    }
+
+    public function vendasAnuncio($anuncioId)
+    {
+        $user = Auth::user();
+        $anuncio = Anuncio::where('ID_Anuncio', $anuncioId)
+            ->where('UtilizadorID_User', $user->ID_User)
+            ->firstOrFail();
+
+        $compras = Compra::with(['utilizador'])
+            ->where('AnuncioID_Anuncio', $anuncioId)
+            ->orderBy('Data', 'desc')
+            ->get();
+
+        return response()->json($compras);
     }
 }

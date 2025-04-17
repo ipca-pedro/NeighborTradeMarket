@@ -12,8 +12,8 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Class StatusCompra
  * 
- * @property int $ID_Status_Compra
- * @property string|null $Descricao_status_compra
+ * @property int $ID_Status
+ * @property string|null $Descricao
  * 
  * @property Collection|Compra[] $compras
  *
@@ -22,15 +22,15 @@ use Illuminate\Database\Eloquent\Model;
 class StatusCompra extends Model
 {
 	protected $table = 'status_compra';
-	protected $primaryKey = 'ID_Status_Compra';
+	protected $primaryKey = 'ID_Status';
 	public $timestamps = false;
 
 	protected $fillable = [
-		'Descricao_status_compra'
+		'Descricao'
 	];
 
 	public function compras()
 	{
-		return $this->hasMany(Compra::class, 'Status_CompraID_Status_Compra');
+		return $this->hasMany(Compra::class, 'StatusID_Status', 'ID_Status');
 	}
 }

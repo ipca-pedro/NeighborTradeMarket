@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $ID_Status_Mensagem
  * @property string|null $Descricao_status_mensagem
  * 
- * @property Collection|Mensagem[] $mensagems
+ * @property Collection|Mensagem[] $mensagens
  *
  * @package App\Models
  */
@@ -29,8 +29,8 @@ class StatusMensagem extends Model
 		'Descricao_status_mensagem'
 	];
 
-	public function mensagems()
+	public function mensagens()
 	{
-		return $this->hasMany(Mensagem::class, 'Status_MensagemID_Status_Mensagem');
+		return $this->hasMany(Mensagem::class, 'Status_MensagemID_Status_Mensagem', 'ID_Status_Mensagem');
 	}
 }

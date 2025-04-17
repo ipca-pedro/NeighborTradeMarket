@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $Status_MensagemID_Status_Mensagem
  * 
  * @property Anuncio $anuncio
- * @property StatusMensagem $status_mensagem
+ * @property StatusMensagem $status
  * @property Collection|Utilizador[] $utilizadors
  *
  * @package App\Models
@@ -44,18 +44,18 @@ class Mensagem extends Model
 		'Status_MensagemID_Status_Mensagem'
 	];
 
-	public function anuncio()
-	{
-		return $this->belongsTo(Anuncio::class, 'ItemID_Item');
-	}
-
-	public function status_mensagem()
-	{
-		return $this->belongsTo(StatusMensagem::class, 'Status_MensagemID_Status_Mensagem');
-	}
-
-	public function utilizadors()
+	public function utilizadores()
 	{
 		return $this->belongsToMany(Utilizador::class, 'mensagem_utilizador', 'MensagemID_Mensagem', 'UtilizadorID_User');
+	}
+
+	public function status()
+	{
+		return $this->belongsTo(StatusMensagem::class, 'Status_MensagemID_Status_Mensagem', 'ID_Status_Mensagem');
+	}
+
+	public function anuncio()
+	{
+		return $this->belongsTo(Anuncio::class, 'ItemID_Item', 'ID_Anuncio');
 	}
 }
