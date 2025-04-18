@@ -1,5 +1,5 @@
 -- NeighborTrade Database Dump
--- Gerado em: 2025-04-17 03:26:57
+-- Gerado em: 2025-04-18 13:23:14
 
 SET FOREIGN_KEY_CHECKS=0;
 
@@ -38,6 +38,8 @@ INSERT INTO `aprovacao` (`ID_aprovacao`, `Comentario`, `Data_Submissao`, `Data_A
 TRUNCATE TABLE `cartao`;
 INSERT INTO `cartao` (`ID_Cartao`, `Numero`, `CVC`, `Data`) VALUES ('2', '1000200030004000', '0', '2025-04-30');
 INSERT INTO `cartao` (`ID_Cartao`, `Numero`, `CVC`, `Data`) VALUES ('3', '1234123412341234', '111', '2025-05-01');
+INSERT INTO `cartao` (`ID_Cartao`, `Numero`, `CVC`, `Data`) VALUES ('4', '3000400050006000', '0', '2025-05-14');
+INSERT INTO `cartao` (`ID_Cartao`, `Numero`, `CVC`, `Data`) VALUES ('5', '0000111122223333', '111', '2025-05-01');
 
 -- Dados da tabela `categoria`
 TRUNCATE TABLE `categoria`;
@@ -183,6 +185,7 @@ INSERT INTO `notificacao` (`ID_Notificacao`, `Mensagem`, `DataNotificacao`, `Ref
 INSERT INTO `notificacao` (`ID_Notificacao`, `Mensagem`, `DataNotificacao`, `ReferenciaID`, `UtilizadorID_User`, `ReferenciaTipoID_ReferenciaTipo`, `TIpo_notificacaoID_TipoNotificacao`) VALUES ('11', 'Nova resposta recebida sobre o anúncio: rato logitech', '2025-04-16 22:17:16', '11', '3', '2', '5');
 INSERT INTO `notificacao` (`ID_Notificacao`, `Mensagem`, `DataNotificacao`, `ReferenciaID`, `UtilizadorID_User`, `ReferenciaTipoID_ReferenciaTipo`, `TIpo_notificacaoID_TipoNotificacao`) VALUES ('12', 'Nova resposta recebida sobre o anúncio: rato logitech', '2025-04-16 22:18:58', '12', '3', '2', '5');
 INSERT INTO `notificacao` (`ID_Notificacao`, `Mensagem`, `DataNotificacao`, `ReferenciaID`, `UtilizadorID_User`, `ReferenciaTipoID_ReferenciaTipo`, `TIpo_notificacaoID_TipoNotificacao`) VALUES ('15', 'Nova solicitação de compra para o anúncio: rato logitech', '2025-04-16 23:44:27', '3', '2', '6', '8');
+INSERT INTO `notificacao` (`ID_Notificacao`, `Mensagem`, `DataNotificacao`, `ReferenciaID`, `UtilizadorID_User`, `ReferenciaTipoID_ReferenciaTipo`, `TIpo_notificacaoID_TipoNotificacao`) VALUES ('19', 'Nova solicitação de compra para o anúncio: portatil', '2025-04-18 10:06:48', '7', '2', '6', '8');
 
 -- Dados da tabela `personal_access_tokens`
 TRUNCATE TABLE `personal_access_tokens`;
@@ -281,6 +284,7 @@ INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `n
 INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('93', 'App\\Models\\Utilizador', '3', 'auth-token', '1e1a6dfb91eeb42144367073cb81b580db3db98c587e9e333ac384acdf98f552', '[\"*\"]', '2025-04-16 22:20:42', NULL, '2025-04-16 22:19:31', '2025-04-16 22:20:42');
 INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('94', 'App\\Models\\Utilizador', '3', 'auth-token', '8c1b04c3c0c3fba850c0bccf64c1f7fab706dc73d5fc536817c3988d30a75e59', '[\"*\"]', '2025-04-17 01:23:18', NULL, '2025-04-16 22:21:06', '2025-04-17 01:23:18');
 INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('95', 'App\\Models\\Utilizador', '3', 'auth-token', '4ff2b94a06d1c88ce8baddbd2000bb680f51848872692cc7081022368b2a7f65', '[\"*\"]', '2025-04-17 01:26:04', NULL, '2025-04-17 00:31:27', '2025-04-17 01:26:04');
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES ('96', 'App\\Models\\Utilizador', '3', 'auth-token', '21cc80401a8b412f9dd88bf469ba36f03cb0aed25c9caca5c78c2bec573f49e3', '[\"*\"]', '2025-04-18 11:19:32', NULL, '2025-04-18 09:49:16', '2025-04-18 11:19:32');
 
 -- Dados da tabela `referenciatipo`
 TRUNCATE TABLE `referenciatipo`;
@@ -379,7 +383,7 @@ INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `re
 TRUNCATE TABLE `utilizador`;
 INSERT INTO `utilizador` (`ID_User`, `User_Name`, `Name`, `Data_Nascimento`, `Password`, `CC`, `Email`, `MoradaID_Morada`, `AprovacaoID_aprovacao`, `cartaoID_Cartao`, `TipoUserID_TipoUser`, `ImagemID_Imagem`, `Status_UtilizadorID_status_utilizador`) VALUES ('1', 'admin', 'Administrador', '1990-01-01', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '12345678', 'admin@example.com', '1', '1', NULL, '1', '1', '2');
 INSERT INTO `utilizador` (`ID_User`, `User_Name`, `Name`, `Data_Nascimento`, `Password`, `CC`, `Email`, `MoradaID_Morada`, `AprovacaoID_aprovacao`, `cartaoID_Cartao`, `TipoUserID_TipoUser`, `ImagemID_Imagem`, `Status_UtilizadorID_status_utilizador`) VALUES ('2', 'user', 'Usuário Normal', '1995-05-05', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '87654321', 'user@example.com', '2', '2', NULL, '2', '1', '2');
-INSERT INTO `utilizador` (`ID_User`, `User_Name`, `Name`, `Data_Nascimento`, `Password`, `CC`, `Email`, `MoradaID_Morada`, `AprovacaoID_aprovacao`, `cartaoID_Cartao`, `TipoUserID_TipoUser`, `ImagemID_Imagem`, `Status_UtilizadorID_status_utilizador`) VALUES ('3', 'VitorLeite', 'Vitor', '1999-10-01', '$2y$12$F4RUEOD4RAh4lRjvvhe2GeTHn9Jbfrit29D9nNb4jhDopLOE22heG', '212233333', 'vitor@example.com', '15', '22', '3', '2', '4', '2');
+INSERT INTO `utilizador` (`ID_User`, `User_Name`, `Name`, `Data_Nascimento`, `Password`, `CC`, `Email`, `MoradaID_Morada`, `AprovacaoID_aprovacao`, `cartaoID_Cartao`, `TipoUserID_TipoUser`, `ImagemID_Imagem`, `Status_UtilizadorID_status_utilizador`) VALUES ('3', 'VitorLeite', 'Vitor', '1999-10-01', '$2y$12$F4RUEOD4RAh4lRjvvhe2GeTHn9Jbfrit29D9nNb4jhDopLOE22heG', '212233333', 'vitor@example.com', '15', '22', '5', '2', '4', '2');
 INSERT INTO `utilizador` (`ID_User`, `User_Name`, `Name`, `Data_Nascimento`, `Password`, `CC`, `Email`, `MoradaID_Morada`, `AprovacaoID_aprovacao`, `cartaoID_Cartao`, `TipoUserID_TipoUser`, `ImagemID_Imagem`, `Status_UtilizadorID_status_utilizador`) VALUES ('4', 'JoanaBabe', 'Joana', '2001-05-29', '$2y$12$qkiovJb2MBGnrlWBPTMti.eiRRZShJwzfuQYUW6roQMbqoSAmZogq', '45345346', 'joana@example.com', '1', '24', NULL, '2', '5', '8');
 INSERT INTO `utilizador` (`ID_User`, `User_Name`, `Name`, `Data_Nascimento`, `Password`, `CC`, `Email`, `MoradaID_Morada`, `AprovacaoID_aprovacao`, `cartaoID_Cartao`, `TipoUserID_TipoUser`, `ImagemID_Imagem`, `Status_UtilizadorID_status_utilizador`) VALUES ('5', 'vilastheboy', 'Vilas', '2003-01-07', '$2y$12$O6s6K9ioXISMkN127QNJUeJra1MDyYT4ZW8kBnO9AEb36WnyNKloe', '34354363', 'vilas@example.com', '3', '51', NULL, '2', '6', '8');
 INSERT INTO `utilizador` (`ID_User`, `User_Name`, `Name`, `Data_Nascimento`, `Password`, `CC`, `Email`, `MoradaID_Morada`, `AprovacaoID_aprovacao`, `cartaoID_Cartao`, `TipoUserID_TipoUser`, `ImagemID_Imagem`, `Status_UtilizadorID_status_utilizador`) VALUES ('6', 'jose pereira', 'jose', '2007-07-18', '$2y$12$tqYSBQcJPGuGk5IT4SHRPOAxQJhh9UwWd5Dm8q/hcKgZmH7DjbXDq', '10203040', 'pereira@email.com', '20', '49', NULL, '2', '18', '1');
