@@ -1,0 +1,130 @@
+.minhas-compras-container {
+    padding: 1.5rem;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.compra-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: none;
+}
+
+.compra-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+.reclamacao-badge {
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    font-weight: 500;
+}
+
+.reclamacao-badge:hover {
+    opacity: 0.8;
+}
+
+.search-box .form-control {
+    border-radius: 20px;
+    padding-left: 2.5rem;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.search-box .form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+.search-box .input-group-text {
+    background: transparent;
+    border: none;
+    position: absolute;
+    z-index: 4;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.compras-lista {
+    margin-top: 1rem;
+}
+
+.pagination {
+    margin-bottom: 0;
+}
+
+.pagination .page-link {
+    border-radius: 4px;
+    margin: 0 0.25rem;
+    padding: 0.5rem 0.75rem;
+    border: none;
+    background-color: #f8f9fa;
+    color: #495057;
+    transition: all 0.2s ease;
+}
+
+.pagination .page-link:hover {
+    background-color: #e9ecef;
+    color: #212529;
+    transform: translateY(-1px);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #0d6efd;
+    color: white;
+    box-shadow: 0 2px 4px rgba(13, 110, 253, 0.25);
+}
+
+/* Modal customization */
+.modal-content {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+    border-bottom: 2px solid #f8f9fa;
+    padding: 1.5rem;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    border-top: 2px solid #f8f9fa;
+    padding: 1.5rem;
+}
+
+.form-control {
+    border-radius: 8px;
+}
+
+textarea.form-control {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .minhas-compras-container {
+        padding: 1rem;
+    }
+
+    .compra-card .row {
+        flex-direction: column;
+    }
+
+    .compra-card .border-start {
+        border-left: none !important;
+        border-top: 1px solid #e9ecef;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        padding-left: 0 !important;
+    }
+} 

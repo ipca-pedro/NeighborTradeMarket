@@ -4,6 +4,7 @@ import { FaSearch, FaSort, FaStar } from 'react-icons/fa';
 import api from '../../services/api';
 import { format, isValid } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import './MinhasVendas.css';
 
 const MinhasVendas = () => {
     const [vendas, setVendas] = useState([]);

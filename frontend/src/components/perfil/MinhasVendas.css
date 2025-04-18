@@ -1,0 +1,168 @@
+.vendas-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.search-filters {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+}
+
+.search-input {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 10px 15px;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.venda-card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.venda-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.venda-header {
+  padding: 15px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.venda-body {
+  padding: 20px;
+}
+
+.venda-footer {
+  padding: 15px 20px;
+  background: #f8f9fa;
+  border-top: 1px solid #f0f0f0;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.status-badge.pendente {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-badge.confirmada {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-badge.enviada {
+  background-color: #cce5ff;
+  color: #004085;
+}
+
+.status-badge.concluida {
+  background-color: #d1e7dd;
+  color: #0f5132;
+}
+
+.status-badge.cancelada {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.buyer-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.buyer-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.price-tag {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #28a745;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.action-button {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.action-button:hover {
+  transform: translateY(-1px);
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.empty-state-icon {
+  font-size: 3rem;
+  color: #6c757d;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .vendas-container {
+    padding: 10px;
+  }
+
+  .search-filters {
+    padding: 15px;
+  }
+
+  .venda-card {
+    margin-bottom: 15px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .action-button {
+    width: 100%;
+  }
+} 

@@ -1,0 +1,142 @@
+.anuncios-container {
+    padding: 1.5rem;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.anuncio-card {
+    transition: all 0.3s ease;
+    height: 100%;
+    border: none !important;
+}
+
+.anuncio-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1) !important;
+}
+
+.anuncio-card .card-img-top {
+    height: 200px;
+    object-fit: cover;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.anuncio-card .card-body {
+    padding: 1.25rem;
+}
+
+.anuncio-card .card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: #2c3e50;
+}
+
+.anuncio-card .card-text {
+    color: #6c757d;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+
+.anuncio-card .badge {
+    font-weight: 500;
+    padding: 0.5rem 0.75rem;
+    border-radius: 20px;
+}
+
+.anuncio-status {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 2;
+}
+
+.anuncio-preco {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.anuncio-footer {
+    background-color: transparent;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 1rem 1.25rem;
+}
+
+.anuncio-footer .text-muted {
+    font-size: 0.85rem;
+}
+
+.anuncio-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.anuncio-actions .btn {
+    flex: 1;
+    border-radius: 20px;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    color: #6c757d;
+    margin-bottom: 1rem;
+}
+
+.empty-state h5 {
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+}
+
+.categoria-badge {
+    background-color: #e9ecef;
+    color: #495057;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 16px;
+    margin-right: 0.5rem;
+}
+
+.tipo-item-badge {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 16px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .anuncios-container {
+        padding: 1rem;
+    }
+
+    .anuncio-card .card-img-top {
+        height: 160px;
+    }
+
+    .anuncio-card .card-body {
+        padding: 1rem;
+    }
+
+    .anuncio-footer {
+        padding: 0.75rem 1rem;
+    }
+} 

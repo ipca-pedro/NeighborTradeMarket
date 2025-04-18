@@ -14,6 +14,7 @@ use App\Http\Controllers\TestController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\CartaoController;
 use App\Http\Controllers\VendaController;
+use App\Http\Controllers\ReclamacaoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -188,4 +189,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/vendas/minhas', [VendaController::class, 'minhasVendas']);
     Route::post('/vendas/{id}/confirmar', [VendaController::class, 'confirmarVenda']);
     Route::post('/vendas/{id}/enviado', [VendaController::class, 'marcarComoEnviado']);
+
+    // Rotas para Reclamações
+    Route::post('/reclamacoes', [ReclamacaoController::class, 'store']);
+    Route::get('/reclamacoes', [ReclamacaoController::class, 'index']);
+    Route::get('/reclamacoes/{id}', [ReclamacaoController::class, 'show']);
+    Route::post('/reclamacoes/{id}/mensagens', [ReclamacaoController::class, 'addMensagem']);
+    Route::patch('/reclamacoes/{id}/status', [ReclamacaoController::class, 'updateStatus']);
 });

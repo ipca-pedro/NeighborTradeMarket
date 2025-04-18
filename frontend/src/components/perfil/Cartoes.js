@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Alert, Spinner, Modal, Form } from 'react-bootstrap';
+import { FaPlus, FaCreditCard, FaTrash } from 'react-icons/fa';
 import api from '../../services/api';
+import './Cartoes.css';
 
 const Cartoes = () => {
     const [cartoes, setCartoes] = useState([]);
@@ -34,9 +36,17 @@ const Cartoes = () => {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
+        let formattedValue = value;
+
+        if (name === 'Numero') {
+            formattedValue = value.replace(/\D/g, '').replace(/(\d{4})/g, '$1 ').trim();
+        } else if (name === 'CVC') {
+            formattedValue = value.replace(/\D/g, '');
+        }
+
         setNovoCartao(prev => ({
             ...prev,
-            [name]: value
+            [name]: formattedValue
         }));
     };
 
@@ -94,10 +104,11 @@ const Cartoes = () => {
     }
 
     return (
-        <div>
+        <div className="cartoes-container">
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h5 className="mb-0">Meus Cartões</h5>
-                <Button variant="primary" onClick={() => setShowModal(true)}>
+                <Button variant="primary" className="btn-add-card" onClick={() => setShowModal(true)}>
+                    <FaPlus className="me-2" />
                     Adicionar Novo Cartão
                 </Button>
             </div>
@@ -105,30 +116,34 @@ const Cartoes = () => {
             {error && <Alert variant="danger" className="mb-4">{error}</Alert>}
 
             {cartoes.length === 0 ? (
-                <Alert variant="info">
-                    Você ainda não tem cartões cadastrados.
-                </Alert>
+                <div className="empty-state">
+                    <FaCreditCard className="mb-3" />
+                    <h5>Nenhum cartão cadastrado</h5>
+                    <p>Adicione um cartão para começar a fazer compras</p>
+                    <Button variant="primary" className="btn-add-card" onClick={() => setShowModal(true)}>
+                        <FaPlus className="me-2" />
+                        Adicionar Cartão
+                    </Button>
+                </div>
             ) : (
                 <div className="cartoes-lista">
                     {cartoes.map(cartao => (
-                        <Card key={cartao.ID_Cartao} className="mb-3">
-                            <Card.Body>
-                                <div className="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h6 className="mb-1">{formatNumeroCartao(cartao.Numero)}</h6>
-                                        <small className="text-muted">
-                                            Válido até: {cartao.Data}
-                                        </small>
-                                    </div>
-                                    <Button 
-                                        variant="outline-danger" 
-                                        size="sm"
-                                        onClick={() => handleRemoverCartao(cartao.ID_Cartao)}
-                                    >
-                                        Remover
-                                    </Button>
-                                </div>
-                            </Card.Body>
+                        <Card key={cartao.ID_Cartao} className="cartao-card">
+                            <div className="cartao-numero">
+                                {formatNumeroCartao(cartao.Numero)}
+                            </div>
+                            <div className="cartao-validade">
+                                Válido até: {cartao.Data}
+                            </div>
+                            <div className="cartao-actions">
+                                <Button 
+                                    variant="link" 
+                                    className="text-white"
+                                    onClick={() => handleRemoverCartao(cartao.ID_Cartao)}
+                                >
+                                    <FaTrash />
+                                </Button>
+                            </div>
                         </Card>
                     ))}
                 </div>
@@ -149,7 +164,7 @@ const Cartoes = () => {
                                 onChange={handleInputChange}
                                 placeholder="1234 5678 9012 3456"
                                 required
-                                maxLength="16"
+                                maxLength="19"
                             />
                         </Form.Group>
 

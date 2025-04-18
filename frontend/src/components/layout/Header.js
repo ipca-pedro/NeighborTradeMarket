@@ -146,7 +146,7 @@ const Header = () => {
         <header>
             <Navbar bg="primary" variant="dark" expand="lg" className="py-3">
                 <Container>
-                    <Navbar.Brand as={Link} to="/">
+                    <Navbar.Brand as={Link} to="/" className="me-4">
                         <img 
                             src="/images/logo.png" 
                             alt="NeighborTrade" 
@@ -158,16 +158,16 @@ const Header = () => {
                     <div className="search-bar mx-auto flex-grow-1 px-4">
                         <Form onSubmit={handleSearch} className="d-flex">
                             <Form.Control
-    ref={searchRef}
-    type="search"
-    placeholder={searchFocused ? '' : 'Pesquisar por qualquer produto'}
-    className="me-2 text-center"
-    aria-label="Pesquisar"
-    value={searchTerm}
-    onChange={(e) => setSearchTerm(e.target.value)}
-    onFocus={() => setSearchFocused(true)}
-    onBlur={() => setSearchFocused(false)}
-/>
+                                ref={searchRef}
+                                type="search"
+                                placeholder={searchFocused ? '' : 'Pesquisar por qualquer produto'}
+                                className="me-2 text-center"
+                                aria-label="Pesquisar"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                onFocus={() => setSearchFocused(true)}
+                                onBlur={() => setSearchFocused(false)}
+                            />
                             <Button variant="light" type="submit">
                                 <i className="fas fa-search"></i>
                             </Button>

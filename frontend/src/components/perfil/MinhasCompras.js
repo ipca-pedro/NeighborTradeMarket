@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Spinner, Alert, Button, Modal, Form, InputGroup, Row, Col, Pagination } from 'react-bootstrap';
-import { FaSearch, FaSort, FaStar } from 'react-icons/fa';
+import { Card, Spinner, Alert, Button, Modal, Form, InputGroup, Row, Col, Pagination, Badge } from 'react-bootstrap';
+import { FaSearch, FaSort, FaStar, FaExclamationCircle } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { ReclamacaoService } from '../../services/reclamacaoService';
+import './MinhasCompras.css';
 
 const MinhasCompras = () => {
+    const navigate = useNavigate();
     const [compras, setCompras] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -13,8 +17,9 @@ const MinhasCompras = () => {
     const [selectedCompra, setSelectedCompra] = useState(null);
     const [reclamacao, setReclamacao] = useState('');
     const [submittingReclamacao, setSubmittingReclamacao] = useState(false);
+    const [reclamacaoError, setReclamacaoError] = useState('');
     
-    // Novos estados para filtros e paginação
+    // Estados para filtros e paginação
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('Data_compra');
     const [sortOrder, setSortOrder] = useState('desc');
@@ -68,30 +73,46 @@ const MinhasCompras = () => {
     const handleReclamacao = (compra) => {
         setSelectedCompra(compra);
         setShowReclamacaoModal(true);
+        setReclamacaoError('');
     };
 
     const handleSubmitReclamacao = async () => {
         if (!reclamacao.trim()) {
+            setReclamacaoError('Por favor, descreva sua reclamação.');
             return;
         }
 
         try {
             setSubmittingReclamacao(true);
-            await api.post(`/reclamacoes/compra/${selectedCompra.ID_Compra}`, {
-                descricao: reclamacao
+            setReclamacaoError('');
+            
+            const response = await ReclamacaoService.criarReclamacao({
+                descricao: reclamacao,
+                compraId: selectedCompra.ID_Compra
             });
 
             await carregarCompras();
             setReclamacao('');
             setShowReclamacaoModal(false);
             setSelectedCompra(null);
-            alert('Reclamação enviada com sucesso!');
+            
+            // Redireciona para a página de reclamações
+            navigate('/perfil/reclamacoes', { 
+                state: { 
+                    newReclamacao: response.data,
+                    message: 'Reclamação enviada com sucesso!' 
+                }
+            });
         } catch (err) {
             console.error(err);
-            alert('Erro ao enviar reclamação. Por favor, tente novamente.');
+            setReclamacaoError('Erro ao enviar reclamação. Por favor, tente novamente.');
         } finally {
             setSubmittingReclamacao(false);
         }
+    };
+
+    const verReclamacao = (reclamacaoId) => {
+        navigate('/perfil/reclamacoes', { state: { selectedReclamacaoId: reclamacaoId } });
     };
 
     const formatCurrency = (value) => {
@@ -110,6 +131,21 @@ const MinhasCompras = () => {
             </div>
         );
     }
+
+    const getStatusColor = (status) => {
+        switch (status?.toLowerCase()) {
+            case 'pendente':
+                return 'warning';
+            case 'em análise':
+                return 'info';
+            case 'resolvida':
+                return 'success';
+            case 'rejeitada':
+                return 'danger';
+            default:
+                return 'secondary';
+        }
+    };
 
     return (
         <>
@@ -153,9 +189,19 @@ const MinhasCompras = () => {
                 ) : (
                     <div className="compras-lista">
                         {currentItems.map(compra => (
-                            <Card key={compra.ID_Compra} className="mb-3 shadow-sm">
+                            <Card key={compra.ID_Compra} className="mb-3 shadow-sm compra-card">
                                 <Card.Header className="d-flex justify-content-between align-items-center bg-light">
                                     <span className="fw-bold">Compra #{compra.ID_Compra}</span>
+                                    {compra.reclamacao && (
+                                        <Badge 
+                                            bg={getStatusColor(compra.reclamacao.status)}
+                                            className="reclamacao-badge"
+                                            onClick={() => verReclamacao(compra.reclamacao.ID_Reclamacao)}
+                                        >
+                                            <FaExclamationCircle className="me-1" />
+                                            Reclamação {compra.reclamacao.status}
+                                        </Badge>
+                                    )}
                                 </Card.Header>
                                 <Card.Body>
                                     <Row>
@@ -185,13 +231,21 @@ const MinhasCompras = () => {
                                                     <strong>Email:</strong> {compra.anuncio.utilizador.Email}
                                                 </p>
                                                 <div className="mt-3">
-                                                    {!compra.temReclamacao && (
+                                                    {!compra.reclamacao ? (
                                                         <Button 
                                                             variant="danger" 
                                                             size="sm"
                                                             onClick={() => handleReclamacao(compra)}
                                                         >
                                                             Fazer Reclamação
+                                                        </Button>
+                                                    ) : (
+                                                        <Button
+                                                            variant="outline-primary"
+                                                            size="sm"
+                                                            onClick={() => verReclamacao(compra.reclamacao.ID_Reclamacao)}
+                                                        >
+                                                            Ver Reclamação
                                                         </Button>
                                                     )}
                                                 </div>
@@ -208,23 +262,15 @@ const MinhasCompras = () => {
                 {totalPages > 1 && (
                     <div className="d-flex justify-content-center mt-4">
                         <Pagination>
-                            <Pagination.Prev 
-                                disabled={currentPage === 1}
-                                onClick={() => setCurrentPage(currentPage - 1)}
-                            />
                             {[...Array(totalPages)].map((_, index) => (
                                 <Pagination.Item
                                     key={index + 1}
-                                    active={currentPage === index + 1}
+                                    active={index + 1 === currentPage}
                                     onClick={() => setCurrentPage(index + 1)}
                                 >
                                     {index + 1}
                                 </Pagination.Item>
                             ))}
-                            <Pagination.Next
-                                disabled={currentPage === totalPages}
-                                onClick={() => setCurrentPage(currentPage + 1)}
-                            />
                         </Pagination>
                     </div>
                 )}
@@ -236,27 +282,30 @@ const MinhasCompras = () => {
                     <Modal.Title>Fazer Reclamação</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <Form>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Descreva o problema:</Form.Label>
-                            <Form.Control
-                                as="textarea"
-                                rows={4}
-                                value={reclamacao}
-                                onChange={(e) => setReclamacao(e.target.value)}
-                                placeholder="Descreva detalhadamente o problema com a sua compra..."
-                            />
-                        </Form.Group>
-                    </Form>
+                    {reclamacaoError && (
+                        <Alert variant="danger" className="mb-3">
+                            {reclamacaoError}
+                        </Alert>
+                    )}
+                    <Form.Group>
+                        <Form.Label>Descreva o problema:</Form.Label>
+                        <Form.Control
+                            as="textarea"
+                            rows={4}
+                            value={reclamacao}
+                            onChange={(e) => setReclamacao(e.target.value)}
+                            placeholder="Descreva detalhadamente o problema que você está enfrentando..."
+                        />
+                    </Form.Group>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowReclamacaoModal(false)}>
                         Cancelar
                     </Button>
                     <Button 
-                        variant="danger" 
+                        variant="primary" 
                         onClick={handleSubmitReclamacao}
-                        disabled={submittingReclamacao || !reclamacao.trim()}
+                        disabled={submittingReclamacao}
                     >
                         {submittingReclamacao ? 'Enviando...' : 'Enviar Reclamação'}
                     </Button>

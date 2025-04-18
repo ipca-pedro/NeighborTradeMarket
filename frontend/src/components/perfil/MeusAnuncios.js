@@ -1,13 +1,15 @@
-
 import React, { useState, useEffect } from 'react';
 import { Row, Col, Card, Button, Badge, Spinner, Alert, Container } from 'react-bootstrap';
-import { anuncioService } from '../../services/api';
 import { Link, useLocation } from 'react-router-dom';
+import { FaPlus, FaImage, FaCalendarAlt } from 'react-icons/fa';
+import { anuncioService } from '../../services/api';
 import Header from '../layout/Header';
-import Footer from '../layout/Footer';
+import './MeusAnuncios.css';
+
+// Fallback image as base64 - light gray placeholder
+const fallbackImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mN88R8AAtUB6S/lhm4AAAAASUVORK5CYII=';
 
 const MeusAnuncios = () => {
-    // Verificar se o componente está sendo usado como página independente ou dentro do perfil
     const location = useLocation();
     const isStandalone = location.pathname === '/meus-anuncios';
     const [anuncios, setAnuncios] = useState([]);
@@ -21,45 +23,18 @@ const MeusAnuncios = () => {
     const carregarMeusAnuncios = async () => {
         try {
             setLoading(true);
-            // Tentar obter os anúncios do usuário
-            try {
-                const response = await anuncioService.getMeusAnuncios();
-                console.log('Meus anúncios:', response);
-                
-                // Verificar se a resposta é um array válido
-                if (Array.isArray(response)) {
-                    // Filtrar anúncios com dados válidos para evitar erros de renderização
-                    const anunciosValidos = response.filter(anuncio => {
-                        return anuncio && anuncio.ID_Anuncio && 
-                               // Garantir que o título existe
-                               typeof anuncio.Titulo === 'string';
-                    });
-                    
-                    setAnuncios(anunciosValidos);
-                    setError('');
-                } else {
-                    console.error('Resposta inválida do servidor:', response);
-                    setAnuncios([]);
-                    setError('Formato de dados inválido. Por favor, tente novamente.');
-                }
-            } catch (apiError) {
-                console.error('Erro na API:', apiError);
-                // Se houver erro na API, tentar usar dados de sessão ou localStorage
-                const localAnuncios = localStorage.getItem('meusAnuncios');
-                if (localAnuncios) {
-                    try {
-                        const parsedAnuncios = JSON.parse(localAnuncios);
-                        setAnuncios(parsedAnuncios);
-                        setError('Usando dados em cache. Alguns dados podem estar desatualizados.');
-                    } catch (parseError) {
-                        console.error('Erro ao analisar dados locais:', parseError);
-                        setAnuncios([]);
-                        setError('Não foi possível carregar seus anúncios. Por favor, tente novamente mais tarde.');
-                    }
-                } else {
-                    setAnuncios([]);
-                    setError('Não foi possível carregar seus anúncios. Por favor, tente novamente mais tarde.');
-                }
+            const response = await anuncioService.getMeusAnuncios();
+            
+            if (Array.isArray(response)) {
+                const anunciosValidos = response.filter(anuncio => 
+                    anuncio && anuncio.ID_Anuncio && typeof anuncio.Titulo === 'string'
+                );
+                setAnuncios(anunciosValidos);
+                setError('');
+            } else {
+                console.error('Resposta inválida do servidor:', response);
+                setAnuncios([]);
+                setError('Formato de dados inválido. Por favor, tente novamente.');
             }
         } catch (err) {
             console.error('Erro ao carregar anúncios:', err);
@@ -69,13 +44,6 @@ const MeusAnuncios = () => {
             setLoading(false);
         }
     };
-    
-    // Salvar anúncios no localStorage quando eles forem carregados com sucesso
-    useEffect(() => {
-        if (anuncios.length > 0 && !error) {
-            localStorage.setItem('meusAnuncios', JSON.stringify(anuncios));
-        }
-    }, [anuncios, error]);
 
     const formatCurrency = (value) => {
         return new Intl.NumberFormat('pt-PT', {
@@ -85,156 +53,141 @@ const MeusAnuncios = () => {
     };
 
     const getStatusBadge = (statusId) => {
-        switch (statusId) {
-            case 1: // ID 1 is Ativo according to DB
-                return <Badge bg="success">Aprovado</Badge>; 
-            case 4: // ID 4 is Pendente according to DB
-                return <Badge bg="warning">Pendente</Badge>;
-            case 7: // ID 7 is Rejeitado according to DB
-                return <Badge bg="danger">Rejeitado</Badge>;
-            // Add cases for 2 (Inativo) and 3 (Vendido) if needed
-            case 2:
-                 return <Badge bg="secondary">Inativo</Badge>;
-            case 3:
-                 return <Badge bg="info">Vendido</Badge>; 
-            default:
-                // Handle null or unexpected status IDs
-                console.warn(`Status de anúncio desconhecido ou nulo: ${statusId}`);
-                return <Badge bg="secondary">Desconhecido</Badge>;
-        }
+        const statusConfig = {
+            1: { text: 'Aprovado', bg: 'success' },
+            2: { text: 'Inativo', bg: 'secondary' },
+            3: { text: 'Vendido', bg: 'info' },
+            4: { text: 'Pendente', bg: 'warning' },
+            7: { text: 'Rejeitado', bg: 'danger' }
+        };
+
+        const status = statusConfig[statusId] || { text: 'Desconhecido', bg: 'secondary' };
+        return <Badge bg={status.bg}>{status.text}</Badge>;
     };
 
-    // Renderização condicional com base no loading e erro
-    const renderContent = () => {
-        if (loading) {
-            return (
-                <div className="text-center py-5">
-                    <Spinner animation="border" variant="primary" />
-                    <p className="mt-3">Carregando seus anúncios...</p>
-                </div>
-            );
-        }
-
-        if (error) {
-            return <Alert variant="danger">{error}</Alert>;
-        }
-
-        if (anuncios.length === 0) {
-            return (
-                <div className="text-center py-5">
-                    <i className="fas fa-box-open fa-3x text-muted mb-3"></i>
-                    <h5>Você ainda não tem anúncios</h5>
-                    <p className="text-muted">Comece a vender ou trocar seus itens agora mesmo!</p>
-                    <Link to="/anuncios/novo">
-                        <Button variant="primary">
-                            <i className="fas fa-plus me-2"></i> Criar Anúncio
-                        </Button>
-                    </Link>
-                </div>
-            );
-        }
-
+    if (loading) {
         return (
             <>
-                <div className="d-flex justify-content-between align-items-center mb-4">
-                    <h5 className="mb-0">Total: {anuncios.length} anúncios</h5>
-                    <Link to="/anuncios/novo">
-                        <Button variant="primary" size="sm">
-                            <i className="fas fa-plus me-1"></i> Novo Anúncio
-                        </Button>
-                    </Link>
-                </div>
-
-                <Row xs={1} md={2} lg={isStandalone ? 3 : 2} className="g-4">
-                    {anuncios.map(anuncio => (
-                        <Col key={anuncio.ID_Anuncio}>
-                            <Card className="h-100 shadow-sm">
-                                <div className="position-relative">
-                                    {anuncio.item_imagems && anuncio.item_imagems.length > 0 && anuncio.item_imagems[0]?.imagem ? (
-                                        <Card.Img 
-                                            variant="top" 
-                                            src={`http://localhost:8000/storage/${anuncio.item_imagems[0].imagem.Caminho}`}
-                                            style={{ height: '180px', objectFit: 'cover' }}
-                                            onError={(e) => {
-                                                e.target.onerror = null;
-                                                e.target.src = 'https://via.placeholder.com/300x180?text=Imagem+não+disponível';
-                                            }}
-                                        />
-                                    ) : (
-                                        <div 
-                                            className="bg-light d-flex align-items-center justify-content-center" 
-                                            style={{ height: '180px' }}
-                                        >
-                                            <i className="fas fa-image fa-3x text-muted"></i>
-                                        </div>
-                                    )}
-                                    <div className="position-absolute top-0 end-0 m-2">
-                                        {getStatusBadge(anuncio.Status_AnuncioID_Status_Anuncio)}
-                                    </div>
-                                </div>
-                                <Card.Body>
-                                    <Card.Title>{anuncio.Titulo}</Card.Title>
-                                    <Card.Text className="text-muted small">
-                                        {anuncio.Descricao ? (
-                                            <>
-                                                {anuncio.Descricao.substring(0, 100)}
-                                                {anuncio.Descricao.length > 100 ? '...' : ''}
-                                            </>
-                                        ) : (
-                                            <span className="fst-italic">Sem descrição</span>
-                                        )}
-                                    </Card.Text>
-                                    <div className="d-flex justify-content-between align-items-center">
-                                        <Badge bg="info">{anuncio.categorium?.Descricao_Categoria || 'Sem categoria'}</Badge>
-                                        <Badge bg="secondary">{anuncio.tipo_item?.Descricao_TipoItem || 'Não especificado'}</Badge>
-                                        <span className="fw-bold">{anuncio.Preco ? formatCurrency(anuncio.Preco) : 'Preço não definido'}</span>
-                                    </div>
-                                </Card.Body>
-                                <Card.Footer className="bg-white">
-                                    <div className="d-flex justify-content-between">
-                                        <small className="text-muted">
-                                            <i className="far fa-calendar-alt me-1"></i> 
-                                            {anuncio.aprovacao && anuncio.aprovacao.Data_Aprovacao ? 
-                                                new Date(anuncio.aprovacao.Data_Aprovacao).toLocaleDateString() : 
-                                                anuncio.Status_AnuncioID_Status_Anuncio === 1 ? 'Aprovado' : 'Pendente'}
-                                        </small>
-                                        <div>
-                                            <Link to={`/anuncios/${anuncio.ID_Anuncio}`}>
-                                                <Button variant="outline-primary" size="sm" className="me-1">
-                                                    <i className="fas fa-eye"></i>
-                                                </Button>
-                                            </Link>
-                                            <Link to={`/anuncios/${anuncio.ID_Anuncio}/editar`}>
-                                                <Button variant="outline-secondary" size="sm">
-                                                    <i className="fas fa-edit"></i>
-                                                </Button>
-                                            </Link>
-                                        </div>
-                                    </div>
-                                </Card.Footer>
-                            </Card>
-                        </Col>
-                    ))}
-                </Row>
-            </>
-        );
-    };
-    
-    // Se for uma página independente, adicionar o layout completo
-    if (isStandalone) {
-        return (
-            <>
-                <Header />
-                <Container className="my-5">
-                    <h2 className="mb-4">Meus Anúncios</h2>
-                    {renderContent()}
+                {isStandalone && <Header />}
+                <Container>
+                    <div className="text-center py-5">
+                        <Spinner animation="border" variant="primary" />
+                        <p className="mt-3">Carregando seus anúncios...</p>
+                    </div>
                 </Container>
             </>
         );
     }
-    
-    // Se for usado dentro do perfil, retornar apenas o conteúdo
-    return renderContent();
+
+    return (
+        <>
+            {isStandalone && <Header />}
+            <Container>
+                <div className="anuncios-container py-4">
+                    <div className="d-flex justify-content-between align-items-center mb-4">
+                        <h5 className="mb-0">Meus Anúncios</h5>
+                        <Link to="/anuncios/novo">
+                            <Button variant="primary" className="btn-add-anuncio">
+                                <FaPlus className="me-2" />
+                                Novo Anúncio
+                            </Button>
+                        </Link>
+                    </div>
+
+                    {error && <Alert variant="danger" className="mb-4">{error}</Alert>}
+
+                    {anuncios.length === 0 ? (
+                        <div className="empty-state">
+                            <FaImage className="mb-3" />
+                            <h5>Você ainda não tem anúncios</h5>
+                            <p>Comece a vender ou trocar seus itens agora mesmo!</p>
+                            <Link to="/anuncios/novo">
+                                <Button variant="primary">
+                                    <FaPlus className="me-2" />
+                                    Criar Anúncio
+                                </Button>
+                            </Link>
+                        </div>
+                    ) : (
+                        <Row xs={1} md={2} lg={isStandalone ? 3 : 2} className="g-4">
+                            {anuncios.map(anuncio => (
+                                <Col key={anuncio.ID_Anuncio}>
+                                    <Card className="anuncio-card">
+                                        <div className="position-relative">
+                                            {anuncio.item_imagems && anuncio.item_imagems.length > 0 && anuncio.item_imagems[0]?.imagem ? (
+                                                <Card.Img 
+                                                    variant="top" 
+                                                    src={`http://localhost:8000/storage/${anuncio.item_imagems[0].imagem.Caminho}`}
+                                                    onError={(e) => {
+                                                        e.target.onerror = null;
+                                                        e.target.src = fallbackImage;
+                                                    }}
+                                                    alt={anuncio.Titulo}
+                                                />
+                                            ) : (
+                                                <div className="placeholder-img d-flex align-items-center justify-content-center bg-light" style={{ height: '200px' }}>
+                                                    <FaImage size={40} className="text-secondary" />
+                                                </div>
+                                            )}
+                                            <div className="anuncio-status">
+                                                {getStatusBadge(anuncio.Status_AnuncioID_Status_Anuncio)}
+                                            </div>
+                                        </div>
+                                        <Card.Body>
+                                            <Card.Title>{anuncio.Titulo}</Card.Title>
+                                            <Card.Text>
+                                                {anuncio.Descricao ? (
+                                                    anuncio.Descricao.length > 100 
+                                                        ? `${anuncio.Descricao.substring(0, 100)}...`
+                                                        : anuncio.Descricao
+                                                ) : (
+                                                    <span className="fst-italic">Sem descrição</span>
+                                                )}
+                                            </Card.Text>
+                                            <div className="d-flex flex-wrap gap-2 mb-3">
+                                                <span className="categoria-badge">
+                                                    {anuncio.categorium?.Descricao_Categoria || 'Sem categoria'}
+                                                </span>
+                                                <span className="tipo-item-badge">
+                                                    {anuncio.tipo_item?.Descricao_TipoItem || 'Não especificado'}
+                                                </span>
+                                            </div>
+                                            <div className="anuncio-preco">
+                                                {anuncio.Preco ? formatCurrency(anuncio.Preco) : 'Preço não definido'}
+                                            </div>
+                                        </Card.Body>
+                                        <Card.Footer className="anuncio-footer">
+                                            <div className="d-flex justify-content-between align-items-center">
+                                                <small className="text-muted">
+                                                    <FaCalendarAlt className="me-1" />
+                                                    {anuncio.aprovacao?.Data_Aprovacao 
+                                                        ? new Date(anuncio.aprovacao.Data_Aprovacao).toLocaleDateString()
+                                                        : anuncio.Status_AnuncioID_Status_Anuncio === 1 
+                                                            ? 'Aprovado' 
+                                                            : 'Pendente'
+                                                    }
+                                                </small>
+                                                <div className="anuncio-actions">
+                                                    <Button 
+                                                        variant="outline-primary" 
+                                                        size="sm"
+                                                        as={Link}
+                                                        to={`/anuncios/${anuncio.ID_Anuncio}/editar`}
+                                                    >
+                                                        Editar
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </Card.Footer>
+                                    </Card>
+                                </Col>
+                            ))}
+                        </Row>
+                    )}
+                </div>
+            </Container>
+        </>
+    );
 };
 
 export default MeusAnuncios;
