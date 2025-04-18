@@ -8,6 +8,7 @@ import MeusAnuncios from './MeusAnuncios';
 import Cartoes from './Cartoes';
 import Mensagens from '../Mensagens/Mensagens';
 import MinhasCompras from './MinhasCompras';
+import MinhasVendas from './MinhasVendas';
 
 const PerfilUtilizador = () => {
     const { currentUser } = useAuth();
@@ -172,25 +173,44 @@ const PerfilUtilizador = () => {
                             <Card.Body>
                                 <Nav variant="pills" className="flex-column" activeKey={activeTab} onSelect={(k) => setActiveTab(k)}>
                                     <Nav.Item>
-                                        <Nav.Link eventKey="perfil">Perfil</Nav.Link>
+                                        <Nav.Link eventKey="perfil">
+                                            <i className="fas fa-user me-2"></i>Perfil
+                                        </Nav.Link>
                                     </Nav.Item>
                                     <Nav.Item>
-                                        <Nav.Link eventKey="anuncios">Meus Anúncios</Nav.Link>
+                                        <Nav.Link eventKey="anuncios">
+                                            <i className="fas fa-tags me-2"></i>Meus Anúncios
+                                        </Nav.Link>
                                     </Nav.Item>
                                     <Nav.Item>
-                                        <Nav.Link eventKey="favoritos">Favoritos</Nav.Link>
+                                        <Nav.Link eventKey="vendas">
+                                            <i className="fas fa-store me-2"></i>Minhas Vendas
+                                        </Nav.Link>
                                     </Nav.Item>
                                     <Nav.Item>
-                                        <Nav.Link eventKey="mensagens">Mensagens</Nav.Link>
+                                        <Nav.Link eventKey="compras">
+                                            <i className="fas fa-shopping-bag me-2"></i>Minhas Compras
+                                        </Nav.Link>
                                     </Nav.Item>
                                     <Nav.Item>
-                                        <Nav.Link eventKey="notificacoes">Notificações</Nav.Link>
+                                        <Nav.Link eventKey="favoritos">
+                                            <i className="fas fa-heart me-2"></i>Favoritos
+                                        </Nav.Link>
                                     </Nav.Item>
                                     <Nav.Item>
-                                        <Nav.Link eventKey="compras">Minhas Compras</Nav.Link>
+                                        <Nav.Link eventKey="mensagens">
+                                            <i className="fas fa-envelope me-2"></i>Mensagens
+                                        </Nav.Link>
                                     </Nav.Item>
                                     <Nav.Item>
-                                        <Nav.Link eventKey="seguranca">Segurança</Nav.Link>
+                                        <Nav.Link eventKey="notificacoes">
+                                            <i className="fas fa-bell me-2"></i>Notificações
+                                        </Nav.Link>
+                                    </Nav.Item>
+                                    <Nav.Item>
+                                        <Nav.Link eventKey="seguranca">
+                                            <i className="fas fa-shield-alt me-2"></i>Segurança
+                                        </Nav.Link>
                                     </Nav.Item>
                                 </Nav>
                             </Card.Body>
@@ -384,6 +404,24 @@ const PerfilUtilizador = () => {
                                 </Card>
                             </Tab.Pane>
 
+                            <Tab.Pane active={activeTab === 'vendas'}>
+                                <Card>
+                                    <Card.Header as="h5">Minhas Vendas</Card.Header>
+                                    <Card.Body>
+                                        <MinhasVendas />
+                                    </Card.Body>
+                                </Card>
+                            </Tab.Pane>
+
+                            <Tab.Pane active={activeTab === 'compras'}>
+                                <Card>
+                                    <Card.Header as="h5">Minhas Compras</Card.Header>
+                                    <Card.Body>
+                                        <MinhasCompras />
+                                    </Card.Body>
+                                </Card>
+                            </Tab.Pane>
+
                             <Tab.Pane active={activeTab === 'favoritos'}>
                                 <Card>
                                     <Card.Header as="h5">Favoritos</Card.Header>
@@ -415,15 +453,6 @@ const PerfilUtilizador = () => {
                                 </Card>
                             </Tab.Pane>
 
-                            <Tab.Pane active={activeTab === 'compras'}>
-                                <Card>
-                                    <Card.Header as="h5">Minhas Compras</Card.Header>
-                                    <Card.Body>
-                                        <MinhasCompras />
-                                    </Card.Body>
-                                </Card>
-                            </Tab.Pane>
-
                             <Tab.Pane active={activeTab === 'seguranca'}>
                                 <Card>
                                     <Card.Header as="h5">Segurança</Card.Header>
@@ -436,6 +465,7 @@ const PerfilUtilizador = () => {
                     </Col>
                 </Row>
             </Container>
+            <Footer />
         </>
     );
 };

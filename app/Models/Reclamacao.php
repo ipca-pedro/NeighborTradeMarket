@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $AprovacaoID_aprovacao
  * @property int $Status_ReclamacaoID_Status_Reclamacao
  * 
- * @property StatusReclamacao $status_reclamacao
+ * @property StatusReclamacao $status
  * @property Aprovacao $aprovacao
  * @property Collection|Compra[] $compras
  *
@@ -27,7 +27,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Reclamacao extends Model
 {
-	protected $table = 'reclamacao';
+	protected $table = 'Reclamacao';
 	protected $primaryKey = 'ID_Reclamacao';
 	public $timestamps = false;
 
@@ -40,22 +40,28 @@ class Reclamacao extends Model
 	protected $fillable = [
 		'Descricao',
 		'DataReclamacao',
-		'AprovacaoID_aprovacao',
-		'Status_ReclamacaoID_Status_Reclamacao'
+		'Status_ReclamacaoID_Status_Reclamacao',
+		'AprovacaoID_aprovacao'
 	];
 
-	public function status_reclamacao()
+	/**
+	 * Get the status of the complaint
+	 */
+	public function status()
 	{
-		return $this->belongsTo(StatusReclamacao::class, 'Status_ReclamacaoID_Status_Reclamacao');
+		return $this->belongsTo(StatusReclamacao::class, 'Status_ReclamacaoID_Status_Reclamacao', 'ID_Status_Reclamacao');
+	}
+
+	/**
+	 * Get the purchase associated with the complaint
+	 */
+	public function compra()
+	{
+		return $this->belongsToMany(Compra::class, 'Compra_Reclamacao', 'ReclamacaoID_Reclamacao', 'CompraID_Compra');
 	}
 
 	public function aprovacao()
 	{
 		return $this->belongsTo(Aprovacao::class, 'AprovacaoID_aprovacao');
-	}
-
-	public function compras()
-	{
-		return $this->belongsToMany(Compra::class, 'compra_reclamacao', 'ReclamacaoID_Reclamacao', 'CompraID_Compra');
 	}
 }

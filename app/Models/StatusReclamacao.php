@@ -13,24 +13,27 @@ use Illuminate\Database\Eloquent\Model;
  * Class StatusReclamacao
  * 
  * @property int $ID_Status_Reclamacao
- * @property string|null $Descricao_status_reclamacao
+ * @property string|null $Descricao
  * 
- * @property Collection|Reclamacao[] $reclamacaos
+ * @property Collection|Reclamacao[] $reclamacoes
  *
  * @package App\Models
  */
 class StatusReclamacao extends Model
 {
-	protected $table = 'status_reclamacao';
+	protected $table = 'Status_Reclamacao';
 	protected $primaryKey = 'ID_Status_Reclamacao';
 	public $timestamps = false;
 
 	protected $fillable = [
-		'Descricao_status_reclamacao'
+		'Descricao'
 	];
 
-	public function reclamacaos()
+	/**
+	 * Get the complaints with this status
+	 */
+	public function reclamacoes()
 	{
-		return $this->hasMany(Reclamacao::class, 'Status_ReclamacaoID_Status_Reclamacao');
+		return $this->hasMany(Reclamacao::class, 'Status_ReclamacaoID_Status_Reclamacao', 'ID_Status_Reclamacao');
 	}
 }

@@ -13,6 +13,7 @@ use App\Http\Controllers\CompraController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\CartaoController;
+use App\Http\Controllers\VendaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -87,7 +88,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/perfil', [AuthController::class, 'getUserProfile']);
     Route::post('/perfil', [AuthController::class, 'updateUserProfile']);
     
-    // Rotas de compras do usuário
+    // Rotas de compras do Utilizador
     Route::get('/compras/minhas', [CompraController::class, 'minhasCompras']);
     Route::get('/compras/{id}', [CompraController::class, 'show']);
     
@@ -182,4 +183,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/vendas/minhas', [CompraController::class, 'minhasVendas']);
     Route::put('/compras/{compraId}/status', [CompraController::class, 'atualizarStatus']);
     Route::get('/compras/{compraId}', [CompraController::class, 'detalhes']);
+
+    // Rotas para vendas
+    Route::get('/vendas/minhas', [VendaController::class, 'minhasVendas']);
+    Route::post('/vendas/{id}/confirmar', [VendaController::class, 'confirmarVenda']);
+    Route::post('/vendas/{id}/enviado', [VendaController::class, 'marcarComoEnviado']);
 });
