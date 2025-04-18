@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { ReclamacaoService } from '../../services/reclamacaoService';
+import { criarReclamacao } from '../../services/reclamacaoService';
 import './MinhasCompras.css';
 
 const MinhasCompras = () => {
@@ -86,7 +86,7 @@ const MinhasCompras = () => {
             setSubmittingReclamacao(true);
             setReclamacaoError('');
             
-            const response = await ReclamacaoService.criarReclamacao({
+            const response = await criarReclamacao({
                 descricao: reclamacao,
                 compraId: selectedCompra.ID_Compra
             });
@@ -99,7 +99,7 @@ const MinhasCompras = () => {
             // Redireciona para a página de reclamações
             navigate('/perfil/reclamacoes', { 
                 state: { 
-                    newReclamacao: response.data,
+                    newReclamacao: response,
                     message: 'Reclamação enviada com sucesso!' 
                 }
             });

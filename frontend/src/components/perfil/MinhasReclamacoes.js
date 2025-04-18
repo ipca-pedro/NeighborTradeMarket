@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Container, Form, Card, Badge, Button, Spinner, Alert } from 'react-bootstrap';
 import { FaSearch, FaPaperPlane } from 'react-icons/fa';
+import { buscarMinhasReclamacoes, enviarMensagem, buscarMensagens } from '../../services/reclamacaoService';
 import './MinhasReclamacoes.css';
 
 const MinhasReclamacoes = () => {
@@ -34,10 +35,9 @@ const MinhasReclamacoes = () => {
     const carregarReclamacoes = async () => {
         try {
             setLoading(true);
-            const response = await fetch('/api/reclamacoes');
-            if (!response.ok) throw new Error('Erro ao carregar reclamações');
-            const data = await response.json();
+            const data = await buscarMinhasReclamacoes();
             setReclamacoes(data);
+            setError(null);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -47,35 +47,27 @@ const MinhasReclamacoes = () => {
 
     const carregarMensagens = async (reclamacaoId) => {
         try {
-            const response = await fetch(`/api/reclamacoes/${reclamacaoId}/mensagens`);
-            if (!response.ok) throw new Error('Erro ao carregar mensagens');
-            const data = await response.json();
+            const data = await buscarMensagens(reclamacaoId);
             setMensagens(data);
+            setError(null);
         } catch (err) {
             console.error('Erro ao carregar mensagens:', err);
+            setError('Erro ao carregar mensagens. Por favor, tente novamente.');
         }
     };
 
-    const enviarMensagem = async (e) => {
+    const handleEnviarMensagem = async (e) => {
         e.preventDefault();
         if (!novaMensagem.trim() || !selectedReclamacao) return;
 
         try {
-            const response = await fetch(`/api/reclamacoes/${selectedReclamacao.ID_Reclamacao}/mensagens`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ mensagem: novaMensagem }),
-            });
-
-            if (!response.ok) throw new Error('Erro ao enviar mensagem');
-            
-            const novaMensagemData = await response.json();
+            const novaMensagemData = await enviarMensagem(selectedReclamacao.ID_Reclamacao, novaMensagem);
             setMensagens([...mensagens, novaMensagemData]);
             setNovaMensagem('');
+            setError(null);
         } catch (err) {
             console.error('Erro ao enviar mensagem:', err);
+            setError('Erro ao enviar mensagem. Por favor, tente novamente.');
         }
     };
 
@@ -185,7 +177,7 @@ const MinhasReclamacoes = () => {
                                 ))}
                                 <div ref={messagesEndRef} />
                             </div>
-                            <Form onSubmit={enviarMensagem} className="message-form">
+                            <Form onSubmit={handleEnviarMensagem} className="message-form">
                                 <div className="d-flex form-group">
                                     <Form.Control
                                         type="text"
