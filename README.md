@@ -81,6 +81,9 @@ npm install react-bootstrap bootstrap
 # axios - Cliente HTTP para chamadas à API
 npm install axios
 
+# react date-fns
+npm install date-fns
+
 # react-toastify - Notificações toast
 npm install react-toastify
 ```
