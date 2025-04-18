@@ -155,121 +155,125 @@ const Mensagens = () => {
   };
 
   return (
-    <div className="mensagens-container">
-      <div className="conversas-lista">
-        <h2>Conversas</h2>
-        {conversations.length === 0 ? (
-          <div className="empty-state">
-            <p>Não tem mensagens ainda</p>
-          </div>
-        ) : (
-          <>
-            <div className="conversas">
-              {conversations.map(conversa => (
-                <div
-                  key={conversa.ID_Anuncio}
-                  className={`conversa-item ${conversa.unread_count > 0 ? 'has-unread' : ''}`}
-                  onClick={() => {
-                    setSelectedConversation(conversa);
-                    setMessagePage(1); // Reset message page when selecting new conversation
-                  }}
-                >
-                  <div className="anuncio-info">
-                    <h3>{conversa.Titulo}</h3>
-                    <p className="last-message">
-                      {formatDate(conversa.last_message_date)}
-                    </p>
-                  </div>
-                  {conversa.unread_count > 0 && (
-                    <div className="meta-info">
-                      <span className="unread-badge">
-                        {conversa.unread_count}
-                      </span>
+    <div className="mensagens-wrapper">
+      <div className="mensagens-container">
+        <div className="conversas-lista">
+          <h2>Conversas</h2>
+          {conversations.length === 0 ? (
+            <div className="empty-state">
+              <p>Não tem mensagens ainda</p>
+            </div>
+          ) : (
+            <>
+              <div className="conversas">
+                {conversations.map(conversa => (
+                  <div
+                    key={conversa.ID_Anuncio}
+                    className={`conversa-item ${conversa.unread_count > 0 ? 'has-unread' : ''}`}
+                    onClick={() => {
+                      setSelectedConversation(conversa);
+                      setMessagePage(1);
+                    }}
+                  >
+                    <div className="anuncio-info">
+                      <h3>{conversa.Titulo}</h3>
+                      <p className="last-message">
+                        {formatDate(conversa.last_message_date)}
+                      </p>
                     </div>
-                  )}
+                    {conversa.unread_count > 0 && (
+                      <div className="meta-info">
+                        <span className="unread-badge">
+                          {conversa.unread_count}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              {conversationPagination?.current_page < conversationPagination?.last_page && (
+                <button 
+                  className="load-more-btn"
+                  onClick={loadMoreConversations}
+                >
+                  Carregar mais conversas
+                </button>
+              )}
+            </>
+          )}
+        </div>
+
+        {selectedConversation ? (
+          <div className="mensagens-detalhe">
+            <div className="anuncio-header">
+              <a href={`/anuncios/${selectedConversation.ID_Anuncio}`} className="anuncio-link">
+                <h3>{selectedConversation.Titulo}</h3>
+              </a>
+              <span className="owner-name">{selectedConversation.OwnerName}</span>
+            </div>
+
+            <div 
+              className="mensagens-lista" 
+              ref={messagesListRef}
+              onScroll={handleScroll}
+            >
+              {loadingMore && (
+                <div className="loading-messages">
+                  Carregando mensagens anteriores...
+                </div>
+              )}
+              {messages.map(message => (
+                <div
+                  key={message.ID_Mensagem}
+                  className={`mensagem ${message.isMine ? 'mine' : ''}`}
+                >
+                  <div className="mensagem-content">
+                    {!message.isMine && (
+                      <div className="sender-info">
+                        {message.SenderImage && (
+                          <img
+                            src={`/api/files/id/${message.SenderImage}`}
+                            className="sender-avatar"
+                            alt={message.SenderName}
+                          />
+                        )}
+                        <span className="sender-name">{message.SenderName}</span>
+                      </div>
+                    )}
+                    <div className="message-bubble">
+                      {message.Conteudo}
+                    </div>
+                    <span className="message-time">
+                      {formatTime(message.Data_mensagem)}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
-            {conversationPagination?.current_page < conversationPagination?.last_page && (
-              <button 
-                className="load-more-btn"
-                onClick={loadMoreConversations}
-              >
-                Carregar mais conversas
+
+            <div className="mensagem-input">
+              <textarea
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                placeholder="Digite sua mensagem..."
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                  }
+                }}
+              />
+              <button onClick={sendMessage} disabled={!newMessage.trim()}>
+                Enviar
               </button>
-            )}
-          </>
+            </div>
+          </div>
+        ) : (
+          <div className="no-conversation-selected">
+            Selecione uma conversa para ver as mensagens
+          </div>
         )}
       </div>
-
-      {selectedConversation ? (
-        <div className="mensagens-detalhe">
-          <div className="anuncio-header">
-            <a href={`/anuncios/${selectedConversation.ID_Anuncio}`} className="anuncio-link">
-              <h3>{selectedConversation.Titulo}</h3>
-            </a>
-            <span className="owner-name">{selectedConversation.OwnerName}</span>
-          </div>
-
-          <div 
-            className="mensagens-lista" 
-            ref={messagesListRef}
-            onScroll={handleScroll}
-          >
-            {loadingMore && (
-              <div className="loading-messages">
-                Carregando mensagens anteriores...
-              </div>
-            )}
-            {messages.map(message => (
-              <div
-                key={message.ID_Mensagem}
-                className={`mensagem ${message.isMine ? 'mine' : ''}`}
-              >
-                <div className="mensagem-content">
-                  {!message.isMine && (
-                    <div className="sender-info">
-                      {message.SenderImage && (
-                        <img
-                          src={`/api/files/id/${message.SenderImage}`}
-                          className="sender-avatar"
-                          alt={message.SenderName}
-                        />
-                      )}
-                      <span className="sender-name">{message.SenderName}</span>
-                    </div>
-                  )}
-                  <div className="message-bubble">
-                    {message.Conteudo}
-                  </div>
-                  <span className="message-time">
-                    {formatTime(message.Data_mensagem)}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mensagem-input">
-            <textarea
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              placeholder="Escreva a sua mensagem..."
-              onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-            />
-            <button
-              onClick={sendMessage}
-              disabled={!newMessage.trim()}
-            >
-              Enviar
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div className="no-conversation-selected">
-          Selecione uma conversa para ver as mensagens
-        </div>
-      )}
     </div>
   );
 };

@@ -87,6 +87,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/perfil', [AuthController::class, 'getUserProfile']);
     Route::post('/perfil', [AuthController::class, 'updateUserProfile']);
     
+    // Rotas de compras do usuário
+    Route::get('/compras/minhas', [CompraController::class, 'minhasCompras']);
+    Route::get('/compras/{id}', [CompraController::class, 'show']);
+    
     // Rotas de administrador
     Route::prefix('admin')->group(function () {
         // Users
@@ -160,7 +164,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // Rotas de compras
     Route::get('/compras', [CompraController::class, 'index']);
     Route::get('/vendas', [CompraController::class, 'sales']);
-    Route::get('/compras/{id}', [CompraController::class, 'show']);
     Route::post('/compras', [CompraController::class, 'store']);
     Route::put('/compras/{id}/status', [CompraController::class, 'updateStatus']);
     Route::post('/compras/{id}/cancelar', [CompraController::class, 'cancel']);

@@ -314,14 +314,25 @@ class CompraController extends Controller
             $compra->Data = now();
             $compra->save();
 
+            // Atualizar status do anúncio para vendido
+            $anuncio->Status_AnuncioID_Status_Anuncio = 3; // ID 3 = Vendido
+            $anuncio->save();
+
+            // Criar registo de pagamento
+            DB::table('pagamento')->insert([
+                'Valor' => (int)($anuncio->Preco * 100), // Convertendo para centavos e para inteiro
+                'Data' => now(),
+                'CompraID_Compra' => $compra->ID_Compra
+            ]);
+
             // Criar notificação para o vendedor
             DB::table('notificacao')->insert([
                 'Mensagem' => 'Nova solicitação de compra para o anúncio: ' . $anuncio->Titulo,
                 'DataNotificacao' => now(),
                 'ReferenciaID' => $compra->ID_Compra,
                 'UtilizadorID_User' => $anuncio->UtilizadorID_User,
-                'ReferenciaTipoID_ReferenciaTipo' => 3, // Tipo Compra
-                'TIpo_notificacaoID_TipoNotificacao' => 1 // Nova compra
+                'ReferenciaTipoID_ReferenciaTipo' => 6, // ID 6 = Compra na tabela referenciatipo
+                'TIpo_notificacaoID_TipoNotificacao' => 8 // ID 8 = Compra na tabela TIpo_notificacao
             ]);
 
             DB::commit();
@@ -342,13 +353,47 @@ class CompraController extends Controller
      */
     public function minhasCompras()
     {
-        $user = Auth::user();
-        $compras = Compra::with(['anuncio', 'utilizador'])
-            ->where('UtilizadorID_User', $user->ID_User)
-            ->orderBy('Data', 'desc')
-            ->get();
+        try {
+            $user = Auth::user();
+            
+            // Buscar todas as compras do usuário com relacionamentos
+            $compras = Compra::with(['anuncio.utilizador'])
+                ->where('UtilizadorID_User', $user->ID_User)
+                ->orderBy('Data', 'desc')
+                ->get()
+                ->map(function ($compra) {
+                    // Verificar se o anúncio existe
+                    if (!$compra->anuncio) {
+                        return null;
+                    }
 
-        return response()->json($compras);
+                    return [
+                        'ID_Compra' => $compra->ID_Compra,
+                        'Data_compra' => $compra->Data,
+                        'Status' => 'Pendente', // Status padrão por enquanto
+                        'anuncio' => [
+                            'ID_Anuncio' => $compra->anuncio->ID_Anuncio,
+                            'Titulo' => $compra->anuncio->Titulo,
+                            'Preco' => $compra->anuncio->Preco,
+                            'Descricao' => $compra->anuncio->Descricao,
+                            'utilizador' => [
+                                'ID_User' => $compra->anuncio->utilizador->ID_User,
+                                'Nome' => $compra->anuncio->utilizador->Name,
+                                'Email' => $compra->anuncio->utilizador->Email
+                            ]
+                        ]
+                    ];
+                })
+                ->filter() // Remove itens nulos
+                ->values(); // Reindexar array
+
+            return response()->json($compras);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Erro ao buscar compras: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

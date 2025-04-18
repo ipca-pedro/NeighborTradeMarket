@@ -1,7 +1,16 @@
+.mensagens-wrapper {
+  height: 100%;
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
+}
+
 .mensagens-container {
   display: flex;
-  height: calc(100vh - 64px);
+  flex: 1;
   background: #f5f5f5;
+  border-radius: 4px;
+  overflow: hidden;
 }
 
 .conversas-lista {

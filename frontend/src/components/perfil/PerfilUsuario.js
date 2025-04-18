@@ -7,6 +7,7 @@ import Footer from '../layout/Footer';
 import MeusAnuncios from './MeusAnuncios';
 import Cartoes from './Cartoes';
 import Mensagens from '../Mensagens/Mensagens';
+import MinhasCompras from './MinhasCompras';
 
 const PerfilUtilizador = () => {
     const { currentUser } = useAuth();
@@ -184,6 +185,9 @@ const PerfilUtilizador = () => {
                                     </Nav.Item>
                                     <Nav.Item>
                                         <Nav.Link eventKey="notificacoes">Notificações</Nav.Link>
+                                    </Nav.Item>
+                                    <Nav.Item>
+                                        <Nav.Link eventKey="compras">Minhas Compras</Nav.Link>
                                     </Nav.Item>
                                     <Nav.Item>
                                         <Nav.Link eventKey="seguranca">Segurança</Nav.Link>
@@ -407,6 +411,15 @@ const PerfilUtilizador = () => {
                                         <p className="text-center py-5">
                                             Funcionalidade em desenvolvimento. Em breve poderá ver todas as suas notificações aqui.
                                         </p>
+                                    </Card.Body>
+                                </Card>
+                            </Tab.Pane>
+
+                            <Tab.Pane active={activeTab === 'compras'}>
+                                <Card>
+                                    <Card.Header as="h5">Minhas Compras</Card.Header>
+                                    <Card.Body>
+                                        <MinhasCompras />
                                     </Card.Body>
                                 </Card>
                             </Tab.Pane>
