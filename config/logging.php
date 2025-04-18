@@ -1,6 +1,5 @@
 <?php
 
-use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
 use Monolog\Processor\PsrLogMessageProcessor;
@@ -33,7 +32,7 @@ return [
 
     'deprecations' => [
         'channel' => env('LOG_DEPRECATIONS_CHANNEL', 'null'),
-        'trace' => env('LOG_DEPRECATIONS_TRACE', false),
+        'trace' => false,
     ],
 
     /*
@@ -54,7 +53,7 @@ return [
 
         'stack' => [
             'driver' => 'stack',
-            'channels' => explode(',', env('LOG_STACK', 'single')),
+            'channels' => ['daily', 'errorlog'],
             'ignore_exceptions' => false,
         ],
 
@@ -69,8 +68,28 @@ return [
             'driver' => 'daily',
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
-            'days' => env('LOG_DAILY_DAYS', 14),
+            'days' => 7,
             'replace_placeholders' => true,
+        ],
+
+        'errorlog' => [
+            'driver' => 'errorlog',
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+        ],
+
+        'mysql' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/mysql.log'),
+            'level' => 'debug',
+            'days' => 7,
+        ],
+
+        'debug' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/debug.log'),
+            'level' => 'debug',
+            'days' => 7,
         ],
 
         'slack' => [
@@ -109,12 +128,6 @@ return [
             'driver' => 'syslog',
             'level' => env('LOG_LEVEL', 'debug'),
             'facility' => env('LOG_SYSLOG_FACILITY', LOG_USER),
-            'replace_placeholders' => true,
-        ],
-
-        'errorlog' => [
-            'driver' => 'errorlog',
-            'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
         ],
 

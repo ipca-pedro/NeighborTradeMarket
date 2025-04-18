@@ -1,0 +1,61 @@
+2025-04-18 18:25:30 - Erro ao realizar backup
+2025-04-18 18:27:30 - Erro ao realizar backup
+2025-04-18 18:31:10 [INFO] Iniciando backup...
+2025-04-18 18:31:10 [INFO] Comando: "C:\xampp\mysql\bin\mysqldump.exe" --host=localhost --user=root --password= --databases db_nt --result-file="C:\xampp\htdocs\NT/backups/backup_2025-04-18_18-31-10.sql" 2>&1
+2025-04-18 18:31:12 [ERRO] Erro ao realizar backup
+2025-04-18 18:31:12 [ERRO] Código de retorno: 2
+2025-04-18 18:31:12 [ERRO] Saída do comando:
+2025-04-18 18:31:12 [ERRO] mysqldump.exe: Got error: 1932: "Table 'db_nt.notificacao' doesn't exist in engine" when using LOCK TABLES
+2025-04-18 18:33:16 [INFO] Iniciando backup...
+2025-04-18 18:33:16 [INFO] Comando: "C:\xampp\mysql\bin\mysqldump.exe" --skip-lock-tables --host=localhost --user=root --password= --databases db_nt --result-file="C:\xampp\htdocs\NT/backups/backup_2025-04-18_18-33-16.sql" 2>&1
+2025-04-18 18:33:18 [ERRO] Erro ao realizar backup
+2025-04-18 18:33:18 [ERRO] Código de retorno: 2
+2025-04-18 18:33:18 [ERRO] Saída do comando:
+2025-04-18 18:33:18 [ERRO] mysqldump.exe: Couldn't execute 'show create table `notificacao`': Table 'db_nt.notificacao' doesn't exist in engine (1932)
+2025-04-18 18:43:46 [INFO] Iniciando backup...
+2025-04-18 18:43:46 [INFO] Comando: "C:\xampp\mysql\bin\mysqldump.exe" --skip-lock-tables --host=localhost --user=root --password= --databases db_nt --result-file="C:\xampp\htdocs\NT/backups/backup_2025-04-18_18-43-46.sql" 2>&1
+2025-04-18 18:43:48 [INFO] Backup realizado com sucesso: C:\xampp\htdocs\NT/backups/backup_2025-04-18_18-43-46.sql
+2025-04-18 18:47:19 [INFO] Iniciando backup...
+2025-04-18 18:47:19 [INFO] Comando: "C:\xampp\mysql\bin\mysqldump.exe" --opt --user="root" --host="localhost" --complete-insert --skip-extended-insert --routines --triggers --default-character-set=utf8mb4 "db_nt" > "C:\xampp\htdocs\NT/backups/backup_2025-04-18_18-47-19.sql" 2>&1
+2025-04-18 18:47:21 [INFO] Backup realizado com sucesso: backup_2025-04-18_18-47-19.sql
+2025-04-18 18:47:21 [INFO] Número de INSERTs no backup: 305
+2025-04-18 18:47:21 [INFO] 
+Tabelas incluídas no backup:
+2025-04-18 18:47:21 [INFO] - anuncio
+2025-04-18 18:47:21 [INFO] - aprovacao
+2025-04-18 18:47:21 [INFO] - avaliacao
+2025-04-18 18:47:21 [INFO] - cache
+2025-04-18 18:47:21 [INFO] - cache_locks
+2025-04-18 18:47:21 [INFO] - cartao
+2025-04-18 18:47:21 [INFO] - categoria
+2025-04-18 18:47:21 [INFO] - compra
+2025-04-18 18:47:21 [INFO] - compra_reclamacao
+2025-04-18 18:47:21 [INFO] - failed_jobs
+2025-04-18 18:47:21 [INFO] - imagem
+2025-04-18 18:47:21 [INFO] - item_imagem
+2025-04-18 18:47:21 [INFO] - job_batches
+2025-04-18 18:47:21 [INFO] - jobs
+2025-04-18 18:47:21 [INFO] - mensagem
+2025-04-18 18:47:21 [INFO] - mensagem_utilizador
+2025-04-18 18:47:21 [INFO] - migrations
+2025-04-18 18:47:21 [INFO] - morada
+2025-04-18 18:47:21 [INFO] - nota
+2025-04-18 18:47:21 [INFO] - notificacao
+2025-04-18 18:47:21 [INFO] - pagamento
+2025-04-18 18:47:21 [INFO] - password_reset_tokens
+2025-04-18 18:47:21 [INFO] - personal_access_tokens
+2025-04-18 18:47:21 [INFO] - reclamacao
+2025-04-18 18:47:21 [INFO] - referenciatipo
+2025-04-18 18:47:21 [INFO] - sessions
+2025-04-18 18:47:21 [INFO] - status_anuncio
+2025-04-18 18:47:21 [INFO] - status_aprovacao
+2025-04-18 18:47:21 [INFO] - status_mensagem
+2025-04-18 18:47:21 [INFO] - status_reclamacao
+2025-04-18 18:47:21 [INFO] - status_troca
+2025-04-18 18:47:21 [INFO] - status_utilizador
+2025-04-18 18:47:21 [INFO] - tipo_item
+2025-04-18 18:47:21 [INFO] - tipo_notificacao
+2025-04-18 18:47:21 [INFO] - tipouser
+2025-04-18 18:47:21 [INFO] - troca
+2025-04-18 18:47:21 [INFO] - users
+2025-04-18 18:47:21 [INFO] - utilizador
