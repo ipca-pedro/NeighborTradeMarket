@@ -86,7 +86,12 @@ npm install date-fns
 
 # react-toastify - Notificações toast
 npm install react-toastify
+
+# react-icons 
+npm install react-icons
 ```
+
+
 
 ### Executando o Projeto
 
