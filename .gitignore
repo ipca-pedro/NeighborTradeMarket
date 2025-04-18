@@ -80,8 +80,14 @@ yarn-error.log*
 
 # Cache
 .cache/
+**/.cache/
+**/node_modules/.cache/
+**/node_modules/.cache/**/*
+*.cache
+*.cache.*
 node_modules/.cache/
 frontend/node_modules/.cache/
+frontend/node_modules/.cache/**/*
 
 # IDE
 .idea/
