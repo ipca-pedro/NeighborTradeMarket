@@ -16,14 +16,29 @@ class VendaController extends Controller
     {
         $user = Auth::user();
 
-        $vendas = Compra::with(['anuncio', 'comprador'])
+        $vendas = Compra::with(['anuncio', 'utilizador'])
             ->whereHas('anuncio', function ($query) use ($user) {
                 $query->where('UtilizadorID_User', $user->ID_User);
             })
-            ->orderBy('Data_compra', 'desc')
+            ->orderBy('Data', 'desc')
             ->get();
 
         return response()->json($vendas);
+    }
+
+    /**
+     * Listar compras do usuário autenticado
+     */
+    public function minhasCompras()
+    {
+        $user = Auth::user();
+
+        $compras = Compra::with(['anuncio', 'anuncio.utilizador'])
+            ->where('UtilizadorID_User', $user->ID_User)
+            ->orderBy('Data', 'desc')
+            ->get();
+
+        return response()->json($compras);
     }
 
     /**
@@ -34,7 +49,7 @@ class VendaController extends Controller
         try {
             $user = Auth::user();
             
-            $venda = Compra::with('anuncio')
+            $venda = Compra::with(['anuncio', 'status'])
                 ->whereHas('anuncio', function ($query) use ($user) {
                     $query->where('UtilizadorID_User', $user->ID_User);
                 })
@@ -85,7 +100,7 @@ class VendaController extends Controller
         try {
             $user = Auth::user();
             
-            $venda = Compra::with('anuncio')
+            $venda = Compra::with(['anuncio', 'status'])
                 ->whereHas('anuncio', function ($query) use ($user) {
                     $query->where('UtilizadorID_User', $user->ID_User);
                 })

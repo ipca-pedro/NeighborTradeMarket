@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Button, Form, Alert, Nav, Tab, Image } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Form, Alert, Nav, Tab, Image, Spinner } from 'react-bootstrap';
 import { useAuth } from '../../contexts/AuthContext';
 import { authService } from '../../services/api';
 import Header from '../layout/Header';
@@ -9,6 +9,7 @@ import Cartoes from './Cartoes';
 import Mensagens from '../Mensagens/Mensagens';
 import MinhasCompras from './MinhasCompras';
 import MinhasVendas from './MinhasVendas';
+import { FaUser, FaTags, FaStore, FaShoppingBag, FaHeart, FaCreditCard, FaEnvelope, FaCamera } from 'react-icons/fa';
 
 const PerfilUtilizador = () => {
     const { currentUser } = useAuth();
@@ -32,6 +33,7 @@ const PerfilUtilizador = () => {
     });
     const [profileImage, setProfileImage] = useState(null);
     const [profileImagePreview, setProfileImagePreview] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
 
     useEffect(() => {
         if (currentUser) {
@@ -96,30 +98,236 @@ const PerfilUtilizador = () => {
         try {
             const data = new FormData();
             
-            // Adicionar campos básicos
             Object.keys(formData).forEach(key => {
                 if (key !== 'Morada') {
                     data.append(key, formData[key]);
                 }
             });
             
-            // Adicionar campos de morada
             Object.keys(formData.Morada).forEach(key => {
                 data.append(`Morada[${key}]`, formData.Morada[key]);
             });
             
-            // Adicionar imagem de perfil se existir
             if (profileImage) {
                 data.append('Imagem', profileImage);
             }
 
             await authService.updateUserProfile(data);
             setMessage('Perfil atualizado com sucesso!');
+            setIsEditing(false);
         } catch (err) {
             setError('Erro ao atualizar perfil. Verifique os dados e tente novamente.');
             console.error(err);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const renderProfileContent = () => {
+        if (activeTab === 'perfil') {
+            return (
+                <Card className="shadow-sm">
+                    <Card.Body>
+                        {message && <Alert variant="success">{message}</Alert>}
+                        {error && <Alert variant="danger">{error}</Alert>}
+                        
+                        <div className="text-center mb-4">
+                            <div className="position-relative d-inline-block">
+                                {profileImagePreview ? (
+                                    <Image 
+                                        src={profileImagePreview} 
+                                        roundedCircle 
+                                        style={{ width: '150px', height: '150px', objectFit: 'cover' }} 
+                                    />
+                                ) : (
+                                    <div 
+                                        className="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto" 
+                                        style={{ width: '150px', height: '150px' }}
+                                    >
+                                        <span style={{ fontSize: '3rem' }}>{currentUser?.Name?.charAt(0) || 'U'}</span>
+                                    </div>
+                                )}
+                                <label 
+                                    className="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle p-2 cursor-pointer"
+                                    style={{ cursor: 'pointer' }}
+                                >
+                                    <FaCamera />
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleProfileImageChange}
+                                        className="d-none"
+                                    />
+                                </label>
+                            </div>
+                            <h4 className="mt-3">{currentUser?.Name}</h4>
+                            <p className="text-muted">@{currentUser?.User_Name}</p>
+                        </div>
+
+                        <Form onSubmit={handleSubmit}>
+                            <Row>
+                                <Col md={6}>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Nome Completo</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="Name"
+                                            value={formData.Name}
+                                            onChange={handleChange}
+                                            disabled={!isEditing}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={6}>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Nome de Usuário</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="User_Name"
+                                            value={formData.User_Name}
+                                            onChange={handleChange}
+                                            disabled={!isEditing}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+
+                            <Row>
+                                <Col md={6}>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Email</Form.Label>
+                                        <Form.Control
+                                            type="email"
+                                            name="Email"
+                                            value={formData.Email}
+                                            onChange={handleChange}
+                                            disabled={!isEditing}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={6}>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Data de Nascimento</Form.Label>
+                                        <Form.Control
+                                            type="date"
+                                            name="Data_Nascimento"
+                                            value={formData.Data_Nascimento}
+                                            onChange={handleChange}
+                                            disabled={!isEditing}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+
+                            <h5 className="mt-4 mb-3">Endereço</h5>
+                            <Row>
+                                <Col md={8}>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Rua</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="Morada.Rua"
+                                            value={formData.Morada.Rua}
+                                            onChange={handleChange}
+                                            disabled={!isEditing}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={4}>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Número</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="Morada.Numero"
+                                            value={formData.Morada.Numero}
+                                            onChange={handleChange}
+                                            disabled={!isEditing}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+
+                            <Row>
+                                <Col md={4}>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Código Postal</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="Morada.CodigoPostal"
+                                            value={formData.Morada.CodigoPostal}
+                                            onChange={handleChange}
+                                            disabled={!isEditing}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={4}>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Localidade</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="Morada.Localidade"
+                                            value={formData.Morada.Localidade}
+                                            onChange={handleChange}
+                                            disabled={!isEditing}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={4}>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Distrito</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="Morada.Distrito"
+                                            value={formData.Morada.Distrito}
+                                            onChange={handleChange}
+                                            disabled={!isEditing}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+
+                            <div className="text-end mt-4">
+                                {!isEditing ? (
+                                    <Button variant="primary" onClick={() => setIsEditing(true)}>
+                                        Editar Perfil
+                                    </Button>
+                                ) : (
+                                    <>
+                                        <Button variant="secondary" className="me-2" onClick={() => setIsEditing(false)}>
+                                            Cancelar
+                                        </Button>
+                                        <Button variant="primary" type="submit" disabled={loading}>
+                                            {loading ? (
+                                                <>
+                                                    <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                                                    <span className="ms-2">Salvando...</span>
+                                                </>
+                                            ) : (
+                                                'Salvar Alterações'
+                                            )}
+                                        </Button>
+                                    </>
+                                )}
+                            </div>
+                        </Form>
+                    </Card.Body>
+                </Card>
+            );
+        }
+
+        switch (activeTab) {
+            case 'anuncios':
+                return <MeusAnuncios />;
+            case 'vendas':
+                return <MinhasVendas />;
+            case 'compras':
+                return <MinhasCompras />;
+            case 'cartoes':
+                return <Cartoes />;
+            case 'mensagens':
+                return <Mensagens />;
+            default:
+                return null;
         }
     };
 
@@ -129,7 +337,7 @@ const PerfilUtilizador = () => {
             <Container className="my-5">
                 <Row>
                     <Col md={3}>
-                        <Card className="mb-4">
+                        <Card className="mb-4 shadow-sm">
                             <Card.Body className="text-center">
                                 <div className="mb-3">
                                     {profileImagePreview ? (
@@ -149,319 +357,54 @@ const PerfilUtilizador = () => {
                                 </div>
                                 <h5 className="mb-1">{currentUser?.Name}</h5>
                                 <p className="text-muted mb-3">@{currentUser?.User_Name}</p>
-                                <div className="d-flex justify-content-center mb-2">
-                                    <Button 
-                                        variant="primary" 
-                                        size="sm" 
-                                        className="me-2"
-                                        onClick={() => setActiveTab('anuncios')}
-                                    >
-                                        Meus Anúncios
-                                    </Button>
-                                    <Button 
-                                        variant="outline-primary" 
-                                        size="sm"
-                                        onClick={() => setActiveTab('mensagens')}
-                                    >
-                                        Mensagens
-                                    </Button>
-                                </div>
                             </Card.Body>
                         </Card>
 
-                        <Card>
+                        <Card className="shadow-sm">
                             <Card.Body>
                                 <Nav variant="pills" className="flex-column" activeKey={activeTab} onSelect={(k) => setActiveTab(k)}>
                                     <Nav.Item>
-                                        <Nav.Link eventKey="perfil">
-                                            <i className="fas fa-user me-2"></i>Perfil
+                                        <Nav.Link eventKey="perfil" className="d-flex align-items-center">
+                                            <FaUser className="me-2" />
+                                            Perfil
                                         </Nav.Link>
                                     </Nav.Item>
                                     <Nav.Item>
-                                        <Nav.Link eventKey="anuncios">
-                                            <i className="fas fa-tags me-2"></i>Meus Anúncios
+                                        <Nav.Link eventKey="anuncios" className="d-flex align-items-center">
+                                            <FaTags className="me-2" />
+                                            Meus Anúncios
                                         </Nav.Link>
                                     </Nav.Item>
                                     <Nav.Item>
-                                        <Nav.Link eventKey="vendas">
-                                            <i className="fas fa-store me-2"></i>Minhas Vendas
+                                        <Nav.Link eventKey="vendas" className="d-flex align-items-center">
+                                            <FaStore className="me-2" />
+                                            Minhas Vendas
                                         </Nav.Link>
                                     </Nav.Item>
                                     <Nav.Item>
-                                        <Nav.Link eventKey="compras">
-                                            <i className="fas fa-shopping-bag me-2"></i>Minhas Compras
+                                        <Nav.Link eventKey="compras" className="d-flex align-items-center">
+                                            <FaShoppingBag className="me-2" />
+                                            Minhas Compras
                                         </Nav.Link>
                                     </Nav.Item>
                                     <Nav.Item>
-                                        <Nav.Link eventKey="favoritos">
-                                            <i className="fas fa-heart me-2"></i>Favoritos
+                                        <Nav.Link eventKey="cartoes" className="d-flex align-items-center">
+                                            <FaCreditCard className="me-2" />
+                                            Cartões
                                         </Nav.Link>
                                     </Nav.Item>
                                     <Nav.Item>
-                                        <Nav.Link eventKey="mensagens">
-                                            <i className="fas fa-envelope me-2"></i>Mensagens
-                                        </Nav.Link>
-                                    </Nav.Item>
-                                    <Nav.Item>
-                                        <Nav.Link eventKey="notificacoes">
-                                            <i className="fas fa-bell me-2"></i>Notificações
-                                        </Nav.Link>
-                                    </Nav.Item>
-                                    <Nav.Item>
-                                        <Nav.Link eventKey="seguranca">
-                                            <i className="fas fa-shield-alt me-2"></i>Segurança
+                                        <Nav.Link eventKey="mensagens" className="d-flex align-items-center">
+                                            <FaEnvelope className="me-2" />
+                                            Mensagens
                                         </Nav.Link>
                                     </Nav.Item>
                                 </Nav>
                             </Card.Body>
                         </Card>
                     </Col>
-
                     <Col md={9}>
-                        <Tab.Content>
-                            <Tab.Pane active={activeTab === 'perfil'}>
-                                <Card>
-                                    <Card.Header as="h5">Informações do Perfil</Card.Header>
-                                    <Card.Body>
-                                        {message && <Alert variant="success">{message}</Alert>}
-                                        {error && <Alert variant="danger">{error}</Alert>}
-
-                                        <Form onSubmit={handleSubmit}>
-                                            <Row className="mb-3">
-                                                <Col md={6}>
-                                                    <Form.Group className="mb-3">
-                                                        <Form.Label>Nome Completo</Form.Label>
-                                                        <Form.Control
-                                                            type="text"
-                                                            name="Name"
-                                                            value={formData.Name}
-                                                            onChange={handleChange}
-                                                            required
-                                                        />
-                                                    </Form.Group>
-                                                </Col>
-                                                <Col md={6}>
-                                                    <Form.Group className="mb-3">
-                                                        <Form.Label>Nome de Utilizador</Form.Label>
-                                                        <Form.Control
-                                                            type="text"
-                                                            name="User_Name"
-                                                            value={formData.User_Name}
-                                                            onChange={handleChange}
-                                                            required
-                                                        />
-                                                    </Form.Group>
-                                                </Col>
-                                            </Row>
-
-                                            <Row className="mb-3">
-                                                <Col md={6}>
-                                                    <Form.Group className="mb-3">
-                                                        <Form.Label>Email</Form.Label>
-                                                        <Form.Control
-                                                            type="email"
-                                                            name="Email"
-                                                            value={formData.Email}
-                                                            onChange={handleChange}
-                                                            required
-                                                            readOnly
-                                                        />
-                                                        <Form.Text className="text-muted">
-                                                            O email não pode ser alterado.
-                                                        </Form.Text>
-                                                    </Form.Group>
-                                                </Col>
-                                                <Col md={6}>
-                                                    <Form.Group className="mb-3">
-                                                        <Form.Label>Data de Nascimento</Form.Label>
-                                                        <Form.Control
-                                                            type="date"
-                                                            name="Data_Nascimento"
-                                                            value={formData.Data_Nascimento}
-                                                            onChange={handleChange}
-                                                            required
-                                                        />
-                                                    </Form.Group>
-                                                </Col>
-                                            </Row>
-
-                                            <Row className="mb-3">
-                                                <Col md={6}>
-                                                    <Form.Group className="mb-3">
-                                                        <Form.Label>CC</Form.Label>
-                                                        <Form.Control
-                                                            type="text"
-                                                            name="CC"
-                                                            value={formData.CC}
-                                                            onChange={handleChange}
-                                                            required
-                                                            readOnly
-                                                        />
-                                                        <Form.Text className="text-muted">
-                                                            O número de CC não pode ser alterado.
-                                                        </Form.Text>
-                                                    </Form.Group>
-                                                </Col>
-                                                <Col md={6}>
-                                                    <Form.Group className="mb-3">
-                                                        <Form.Label>Imagem de Perfil</Form.Label>
-                                                        <Form.Control
-                                                            type="file"
-                                                            accept="image/*"
-                                                            onChange={handleProfileImageChange}
-                                                        />
-                                                    </Form.Group>
-                                                </Col>
-                                            </Row>
-
-                                            <h5 className="mt-4 mb-3">Morada</h5>
-                                            <Row className="mb-3">
-                                                <Col md={8}>
-                                                    <Form.Group className="mb-3">
-                                                        <Form.Label>Rua</Form.Label>
-                                                        <Form.Control
-                                                            type="text"
-                                                            name="Morada.Rua"
-                                                            value={formData.Morada.Rua}
-                                                            onChange={handleChange}
-                                                            required
-                                                        />
-                                                    </Form.Group>
-                                                </Col>
-                                                <Col md={4}>
-                                                    <Form.Group className="mb-3">
-                                                        <Form.Label>Número</Form.Label>
-                                                        <Form.Control
-                                                            type="text"
-                                                            name="Morada.Numero"
-                                                            value={formData.Morada.Numero}
-                                                            onChange={handleChange}
-                                                            required
-                                                        />
-                                                    </Form.Group>
-                                                </Col>
-                                            </Row>
-
-                                            <Row className="mb-3">
-                                                <Col md={4}>
-                                                    <Form.Group className="mb-3">
-                                                        <Form.Label>Código Postal</Form.Label>
-                                                        <Form.Control
-                                                            type="text"
-                                                            name="Morada.CodigoPostal"
-                                                            value={formData.Morada.CodigoPostal}
-                                                            onChange={handleChange}
-                                                            required
-                                                        />
-                                                    </Form.Group>
-                                                </Col>
-                                                <Col md={4}>
-                                                    <Form.Group className="mb-3">
-                                                        <Form.Label>Localidade</Form.Label>
-                                                        <Form.Control
-                                                            type="text"
-                                                            name="Morada.Localidade"
-                                                            value={formData.Morada.Localidade}
-                                                            onChange={handleChange}
-                                                            required
-                                                        />
-                                                    </Form.Group>
-                                                </Col>
-                                                <Col md={4}>
-                                                    <Form.Group className="mb-3">
-                                                        <Form.Label>Distrito</Form.Label>
-                                                        <Form.Control
-                                                            type="text"
-                                                            name="Morada.Distrito"
-                                                            value={formData.Morada.Distrito}
-                                                            onChange={handleChange}
-                                                            required
-                                                        />
-                                                    </Form.Group>
-                                                </Col>
-                                            </Row>
-
-                                            <div className="text-end mt-4">
-                                                <Button 
-                                                    variant="primary" 
-                                                    type="submit" 
-                                                    disabled={loading}
-                                                >
-                                                    {loading ? 'A guardar...' : 'Guardar Alterações'}
-                                                </Button>
-                                            </div>
-                                        </Form>
-                                    </Card.Body>
-                                </Card>
-                            </Tab.Pane>
-
-                            <Tab.Pane active={activeTab === 'anuncios'}>
-                                <Card>
-                                    <Card.Header as="h5">Meus Anúncios</Card.Header>
-                                    <Card.Body>
-                                        <MeusAnuncios />
-                                    </Card.Body>
-                                </Card>
-                            </Tab.Pane>
-
-                            <Tab.Pane active={activeTab === 'vendas'}>
-                                <Card>
-                                    <Card.Header as="h5">Minhas Vendas</Card.Header>
-                                    <Card.Body>
-                                        <MinhasVendas />
-                                    </Card.Body>
-                                </Card>
-                            </Tab.Pane>
-
-                            <Tab.Pane active={activeTab === 'compras'}>
-                                <Card>
-                                    <Card.Header as="h5">Minhas Compras</Card.Header>
-                                    <Card.Body>
-                                        <MinhasCompras />
-                                    </Card.Body>
-                                </Card>
-                            </Tab.Pane>
-
-                            <Tab.Pane active={activeTab === 'favoritos'}>
-                                <Card>
-                                    <Card.Header as="h5">Favoritos</Card.Header>
-                                    <Card.Body>
-                                        <p className="text-center py-5">
-                                            Funcionalidade em desenvolvimento. Em breve poderá ver todos os seus anúncios favoritos aqui.
-                                        </p>
-                                    </Card.Body>
-                                </Card>
-                            </Tab.Pane>
-
-                            <Tab.Pane active={activeTab === 'mensagens'}>
-                                <Card>
-                                    <Card.Header as="h5">Mensagens</Card.Header>
-                                    <Card.Body>
-                                        <Mensagens />
-                                    </Card.Body>
-                                </Card>
-                            </Tab.Pane>
-
-                            <Tab.Pane active={activeTab === 'notificacoes'}>
-                                <Card>
-                                    <Card.Header as="h5">Notificações</Card.Header>
-                                    <Card.Body>
-                                        <p className="text-center py-5">
-                                            Funcionalidade em desenvolvimento. Em breve poderá ver todas as suas notificações aqui.
-                                        </p>
-                                    </Card.Body>
-                                </Card>
-                            </Tab.Pane>
-
-                            <Tab.Pane active={activeTab === 'seguranca'}>
-                                <Card>
-                                    <Card.Header as="h5">Segurança</Card.Header>
-                                    <Card.Body>
-                                        <Cartoes />
-                                    </Card.Body>
-                                </Card>
-                            </Tab.Pane>
-                        </Tab.Content>
+                        {renderProfileContent()}
                     </Col>
                 </Row>
             </Container>
