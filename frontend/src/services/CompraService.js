@@ -9,7 +9,7 @@ class CompraService {
         try {
             const token = localStorage.getItem('token');
             if (!token) {
-                throw new Error('Usuário não autenticado');
+                throw new Error('Utilizador não autenticado');
             }
 
             const response = await axios.post(`${API_URL}/compras/anuncio/${anuncioId}`, {
@@ -99,9 +99,9 @@ class CompraService {
         return response.data;
     }
 
-    // Verificar se o usuário tem cartão associado
+    // Verificar se o utilizador tem cartão associado
     async verificarCartao() {
-        const response = await api.get('/usuario/cartao');
+        const response = await api.get('/utilizador/cartao');
         return response.data;
     }
 }
@@ -134,7 +134,7 @@ export const buscarCompraPorId = async (id) => {
     try {
         const token = localStorage.getItem('token');
         if (!token) {
-            throw new Error('Usuário não autenticado');
+            throw new Error('Utilizador não autenticado');
         }
 
         const response = await api.get(`/compras/${id}`, {

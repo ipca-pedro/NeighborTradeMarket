@@ -77,7 +77,7 @@ const ChatBot = () => {
                     'Outro assunto'
                 ];
             } else {
-                botResponse.text = 'Para esse assunto, recomendo entrar em contato com nossa equipe por email: info@neighbortrade.com';
+                botResponse.text = 'Para esse assunto, recomendo entrar em contacto com nossa equipe por email: info@neighbortrade.com';
                 botResponse.options = ['Voltar ao início'];
             }
 
