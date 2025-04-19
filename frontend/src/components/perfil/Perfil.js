@@ -5,6 +5,7 @@ import MinhasVendas from './MinhasVendas';
 import MeusAnuncios from '../produtos/MeusAnuncios';
 import Cartoes from './Cartoes';
 import DadosPessoais from './DadosPessoais';
+import MinhasReclamacoes from './MinhasReclamacoes';
 import './Perfil.css';
 
 const Perfil = () => {
@@ -47,6 +48,12 @@ const Perfil = () => {
                                         Cartões
                                     </Nav.Link>
                                 </Nav.Item>
+                                <Nav.Item>
+                                    <Nav.Link eventKey="reclamacoes" className="d-flex align-items-center">
+                                        <i className="fas fa-exclamation-circle me-2"></i>
+                                        Minhas Reclamações
+                                    </Nav.Link>
+                                </Nav.Item>
                             </Nav>
                         </div>
                     </Col>
@@ -66,6 +73,9 @@ const Perfil = () => {
                             </Tab.Pane>
                             <Tab.Pane eventKey="cartoes">
                                 <Cartoes />
+                            </Tab.Pane>
+                            <Tab.Pane eventKey="reclamacoes">
+                                <MinhasReclamacoes />
                             </Tab.Pane>
                         </Tab.Content>
                     </Col>

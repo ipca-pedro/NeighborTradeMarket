@@ -53,9 +53,9 @@ class Reclamacao extends Model
 	}
 
 	/**
-	 * Get the purchase associated with the complaint
+	 * Get the purchases associated with the complaint
 	 */
-	public function compra()
+	public function compras()
 	{
 		return $this->belongsToMany(Compra::class, 'Compra_Reclamacao', 'ReclamacaoID_Reclamacao', 'CompraID_Compra');
 	}

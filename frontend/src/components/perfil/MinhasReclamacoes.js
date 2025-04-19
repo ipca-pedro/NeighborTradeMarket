@@ -1,209 +1,194 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Container, Form, Card, Badge, Button, Spinner, Alert } from 'react-bootstrap';
-import { FaSearch, FaPaperPlane } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { Card, Badge, Button, Modal, Form, Alert, Spinner } from 'react-bootstrap';
 import { buscarMinhasReclamacoes, enviarMensagem, buscarMensagens } from '../../services/reclamacaoService';
+import { formatarData } from '../../utils/dataUtils';
 import './MinhasReclamacoes.css';
 
 const MinhasReclamacoes = () => {
     const [reclamacoes, setReclamacoes] = useState([]);
-    const [selectedReclamacao, setSelectedReclamacao] = useState(null);
-    const [mensagens, setMensagens] = useState([]);
-    const [novaMensagem, setNovaMensagem] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [searchTerm, setSearchTerm] = useState('');
-    const messagesEndRef = useRef(null);
-
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    };
+    const [showMensagens, setShowMensagens] = useState(false);
+    const [mensagens, setMensagens] = useState([]);
+    const [reclamacaoSelecionada, setReclamacaoSelecionada] = useState(null);
+    const [novaMensagem, setNovaMensagem] = useState('');
 
     useEffect(() => {
         carregarReclamacoes();
     }, []);
 
-    useEffect(() => {
-        if (selectedReclamacao) {
-            carregarMensagens(selectedReclamacao.ID_Reclamacao);
-        }
-    }, [selectedReclamacao]);
-
-    useEffect(() => {
-        scrollToBottom();
-    }, [mensagens]);
-
     const carregarReclamacoes = async () => {
         try {
             setLoading(true);
-            const data = await buscarMinhasReclamacoes();
-            setReclamacoes(data);
             setError(null);
+            const data = await buscarMinhasReclamacoes();
+            console.log('Reclamações carregadas:', data);
+            setReclamacoes(data);
         } catch (err) {
-            setError(err.message);
+            console.error('Erro ao carregar reclamações:', err);
+            setError(err.response?.data?.message || 'Erro ao carregar reclamações. Por favor, tente novamente.');
         } finally {
             setLoading(false);
         }
     };
 
-    const carregarMensagens = async (reclamacaoId) => {
+    const handleVerMensagens = async (reclamacao) => {
+        setReclamacaoSelecionada(reclamacao);
         try {
-            const data = await buscarMensagens(reclamacaoId);
-            setMensagens(data);
-            setError(null);
+            const mensagensData = await buscarMensagens(reclamacao.ID_Reclamacao);
+            console.log('Mensagens recebidas:', mensagensData);
+            // Extract messages from the response
+            const mensagensArray = mensagensData.mensagens || [];
+            console.log('Array de mensagens:', mensagensArray);
+            setMensagens(mensagensArray);
+            setShowMensagens(true);
         } catch (err) {
             console.error('Erro ao carregar mensagens:', err);
-            setError('Erro ao carregar mensagens. Por favor, tente novamente.');
+            setError('Erro ao carregar mensagens');
         }
     };
 
-    const handleEnviarMensagem = async (e) => {
-        e.preventDefault();
-        if (!novaMensagem.trim() || !selectedReclamacao) return;
+    const handleEnviarMensagem = async () => {
+        if (!novaMensagem.trim()) return;
 
         try {
-            const novaMensagemData = await enviarMensagem(selectedReclamacao.ID_Reclamacao, novaMensagem);
-            setMensagens([...mensagens, novaMensagemData]);
+            await enviarMensagem(reclamacaoSelecionada.ID_Reclamacao, novaMensagem);
+            const mensagensData = await buscarMensagens(reclamacaoSelecionada.ID_Reclamacao);
+            console.log('Mensagens após envio:', mensagensData);
+            // Extract messages from the response
+            const mensagensArray = mensagensData.mensagens || [];
+            console.log('Array de mensagens após envio:', mensagensArray);
+            setMensagens(mensagensArray);
             setNovaMensagem('');
-            setError(null);
         } catch (err) {
             console.error('Erro ao enviar mensagem:', err);
-            setError('Erro ao enviar mensagem. Por favor, tente novamente.');
+            setError('Erro ao enviar mensagem');
         }
     };
 
-    const getStatusColor = (status) => {
-        switch (status?.toLowerCase()) {
-            case 'aberta':
-                return 'warning';
-            case 'em análise':
-                return 'info';
-            case 'resolvida':
-                return 'success';
-            case 'fechada':
-                return 'secondary';
+    const getStatusBadgeVariant = (status) => {
+        // Handle numeric status IDs
+        switch (status) {
+            case 1:
+                return 'warning';  // Pendente
+            case 2:
+                return 'info';     // Em análise
+            case 3:
+                return 'success';  // Resolvida
+            case 4:
+                return 'danger';   // Rejeitada
             default:
-                return 'primary';
+                return 'secondary';
         }
     };
-
-    const filteredReclamacoes = reclamacoes.filter(reclamacao =>
-        reclamacao.Descricao.toLowerCase().includes(searchTerm.toLowerCase())
-    );
 
     if (loading) {
         return (
-            <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '300px' }}>
+            <div className="text-center py-5">
                 <Spinner animation="border" role="status">
                     <span className="visually-hidden">Carregando...</span>
                 </Spinner>
-            </Container>
+            </div>
         );
     }
 
     if (error) {
         return (
-            <Container>
-                <Alert variant="danger">
-                    {error}
-                </Alert>
-            </Container>
+            <Alert variant="danger" className="my-3">
+                <Alert.Heading>Erro ao carregar reclamações</Alert.Heading>
+                <p>{error}</p>
+                <div className="d-flex justify-content-end">
+                    <Button variant="outline-danger" onClick={carregarReclamacoes}>
+                        Tentar Novamente
+                    </Button>
+                </div>
+            </Alert>
         );
     }
 
     return (
-        <Container fluid>
-            <div className="search-box mb-4">
-                <FaSearch className="search-icon" />
-                <Form.Control
-                    type="text"
-                    placeholder="Pesquisar reclamações..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
-
-            <div className="reclamacoes-grid">
-                <div className="reclamacoes-lista">
-                    {filteredReclamacoes.map(reclamacao => (
-                        <Card
-                            key={reclamacao.ID_Reclamacao}
-                            className={`reclamacao-card mb-3 ${selectedReclamacao?.ID_Reclamacao === reclamacao.ID_Reclamacao ? 'selected' : ''}`}
-                            onClick={() => setSelectedReclamacao(reclamacao)}
-                        >
-                            <Card.Body>
-                                <div className="d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <Card.Title className="h6 mb-2">
-                                            Reclamação #{reclamacao.ID_Reclamacao}
-                                        </Card.Title>
-                                        <Card.Text className="text-muted small mb-2">
-                                            {new Date(reclamacao.DataReclamacao).toLocaleDateString()}
-                                        </Card.Text>
-                                    </div>
-                                    <Badge bg={getStatusColor(reclamacao.status)}>
-                                        {reclamacao.status}
-                                    </Badge>
+        <div className="minhas-reclamacoes">
+            <h2 className="mb-4">Minhas Reclamações</h2>
+            {reclamacoes.length === 0 ? (
+                <p>Você não possui reclamações registradas.</p>
+            ) : (
+                reclamacoes.map((reclamacao) => (
+                    <Card key={reclamacao.ID_Reclamacao} className="mb-3">
+                        <Card.Body>
+                            <div className="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <Card.Title>
+                                        Reclamação #{reclamacao.ID_Reclamacao}
+                                        <Badge 
+                                            bg={getStatusBadgeVariant(reclamacao.Status_ReclamacaoID_Status_Reclamacao)} 
+                                            className="ms-2"
+                                        >
+                                            {reclamacao.status?.Descricao_status_reclamacao || 'Pendente'}
+                                        </Badge>
+                                    </Card.Title>
+                                    <Card.Subtitle className="mb-2 text-muted">
+                                        {formatarData(reclamacao.DataReclamacao)}
+                                    </Card.Subtitle>
                                 </div>
-                                <Card.Text className="mb-0 text-truncate">
-                                    {reclamacao.Descricao}
-                                </Card.Text>
-                            </Card.Body>
-                        </Card>
-                    ))}
-                </div>
+                            </div>
+                            <Card.Text>{reclamacao.Descricao}</Card.Text>
+                            <Button 
+                                variant="outline-primary" 
+                                onClick={() => handleVerMensagens(reclamacao)}
+                            >
+                                Ver Mensagens
+                            </Button>
+                        </Card.Body>
+                    </Card>
+                ))
+            )}
 
-                <div className="chat-container">
-                    {selectedReclamacao ? (
-                        <>
-                            <div className="chat-header">
-                                <h5 className="mb-0">Reclamação #{selectedReclamacao.ID_Reclamacao}</h5>
-                                <Badge bg={getStatusColor(selectedReclamacao.status)}>
-                                    {selectedReclamacao.status}
-                                </Badge>
-                            </div>
-                            <div className="messages-container">
-                                {mensagens.map((mensagem, index) => (
-                                    <div
-                                        key={index}
-                                        className={`message ${mensagem.isUser ? 'sent' : 'received'}`}
-                                    >
-                                        <div className="message-content">
-                                            <p>{mensagem.conteudo}</p>
-                                            <small>
-                                                {new Date(mensagem.data).toLocaleString()}
-                                            </small>
-                                        </div>
+            <Modal show={showMensagens} onHide={() => setShowMensagens(false)} size="lg">
+                <Modal.Header closeButton>
+                    <Modal.Title>
+                        Mensagens da Reclamação #{reclamacaoSelecionada?.ID_Reclamacao}
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className="mensagens-container mb-3">
+                        {mensagens.length === 0 ? (
+                            <p>Nenhuma mensagem encontrada.</p>
+                        ) : (
+                            mensagens.map((mensagem, index) => (
+                                <div 
+                                    key={index} 
+                                    className={`mensagem ${mensagem.usuario === 'admin' ? 'admin' : 'user'}`}
+                                >
+                                    <div className="mensagem-content">
+                                        <p>{mensagem.mensagem}</p>
+                                        <small className="text-muted">
+                                            {formatarData(mensagem.data)}
+                                        </small>
                                     </div>
-                                ))}
-                                <div ref={messagesEndRef} />
-                            </div>
-                            <Form onSubmit={handleEnviarMensagem} className="message-form">
-                                <div className="d-flex form-group">
-                                    <Form.Control
-                                        type="text"
-                                        value={novaMensagem}
-                                        onChange={(e) => setNovaMensagem(e.target.value)}
-                                        placeholder="Digite sua mensagem..."
-                                        disabled={selectedReclamacao.status === 'fechada'}
-                                    />
-                                    <Button
-                                        type="submit"
-                                        variant="primary"
-                                        disabled={!novaMensagem.trim() || selectedReclamacao.status === 'fechada'}
-                                    >
-                                        <FaPaperPlane />
-                                    </Button>
                                 </div>
-                            </Form>
-                        </>
-                    ) : (
-                        <div className="d-flex justify-content-center align-items-center h-100">
-                            <p className="text-muted">Selecione uma reclamação para ver os detalhes</p>
-                        </div>
-                    )}
-                </div>
-            </div>
-        </Container>
+                            ))
+                        )}
+                    </div>
+                    <Form.Group>
+                        <Form.Control
+                            as="textarea"
+                            rows={3}
+                            value={novaMensagem}
+                            onChange={(e) => setNovaMensagem(e.target.value)}
+                            placeholder="Digite sua mensagem..."
+                        />
+                    </Form.Group>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowMensagens(false)}>
+                        Fechar
+                    </Button>
+                    <Button variant="primary" onClick={handleEnviarMensagem}>
+                        Enviar Mensagem
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+        </div>
     );
 };
 

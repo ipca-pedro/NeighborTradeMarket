@@ -78,6 +78,27 @@ class InitialDataSeeder extends Seeder
             ]);
         }
 
+        // Tipos de Notificação
+        if (DB::table('TIpo_notificacao')->count() == 0) {
+            DB::table('TIpo_notificacao')->insert([
+                ['ID_TipoNotificacao' => 1, 'Descricao' => 'Nova Reclamação'],
+                ['ID_TipoNotificacao' => 2, 'Descricao' => 'Nova Mensagem'],
+                ['ID_TipoNotificacao' => 3, 'Descricao' => 'Atualização de Status'],
+                ['ID_TipoNotificacao' => 4, 'Descricao' => 'Nova Avaliação']
+            ]);
+        }
+
+        // Tipos de Referência
+        if (DB::table('ReferenciaTipo')->count() == 0) {
+            DB::table('ReferenciaTipo')->insert([
+                ['ID_ReferenciaTipo' => 1, 'Descricao' => 'Anúncio'],
+                ['ID_ReferenciaTipo' => 2, 'Descricao' => 'Compra'],
+                ['ID_ReferenciaTipo' => 3, 'Descricao' => 'Mensagem'],
+                ['ID_ReferenciaTipo' => 4, 'Descricao' => 'Reclamação'],
+                ['ID_ReferenciaTipo' => 5, 'Descricao' => 'Avaliação']
+            ]);
+        }
+
         // Status de Compra - Tabela será criada posteriormente se necessário
 
         // Notas para avaliações

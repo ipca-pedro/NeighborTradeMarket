@@ -59,3 +59,47 @@ Tabelas incluídas no backup:
 2025-04-18 18:47:21 [INFO] - troca
 2025-04-18 18:47:21 [INFO] - users
 2025-04-18 18:47:21 [INFO] - utilizador
+2025-04-19 15:56:21 [INFO] Iniciando backup...
+2025-04-19 15:56:21 [INFO] Comando: "C:\xampp\mysql\bin\mysqldump.exe" --opt --user="root" --host="localhost" --complete-insert --skip-extended-insert --routines --triggers --default-character-set=utf8mb4 "db_nt" > "C:\xampp\htdocs\NT/backups/backup_2025-04-19_15-56-20.sql" 2>&1
+2025-04-19 15:56:23 [INFO] Backup realizado com sucesso: backup_2025-04-19_15-56-20.sql
+2025-04-19 15:56:23 [INFO] Número de INSERTs no backup: 306
+2025-04-19 15:56:23 [INFO] 
+Tabelas incluídas no backup:
+2025-04-19 15:56:23 [INFO] - anuncio
+2025-04-19 15:56:23 [INFO] - aprovacao
+2025-04-19 15:56:23 [INFO] - avaliacao
+2025-04-19 15:56:23 [INFO] - cache
+2025-04-19 15:56:23 [INFO] - cache_locks
+2025-04-19 15:56:23 [INFO] - cartao
+2025-04-19 15:56:23 [INFO] - categoria
+2025-04-19 15:56:23 [INFO] - compra
+2025-04-19 15:56:23 [INFO] - compra_reclamacao
+2025-04-19 15:56:23 [INFO] - failed_jobs
+2025-04-19 15:56:23 [INFO] - imagem
+2025-04-19 15:56:23 [INFO] - item_imagem
+2025-04-19 15:56:23 [INFO] - job_batches
+2025-04-19 15:56:23 [INFO] - jobs
+2025-04-19 15:56:23 [INFO] - mensagem
+2025-04-19 15:56:23 [INFO] - mensagem_utilizador
+2025-04-19 15:56:23 [INFO] - migrations
+2025-04-19 15:56:23 [INFO] - morada
+2025-04-19 15:56:23 [INFO] - nota
+2025-04-19 15:56:23 [INFO] - notificacao
+2025-04-19 15:56:23 [INFO] - pagamento
+2025-04-19 15:56:23 [INFO] - password_reset_tokens
+2025-04-19 15:56:23 [INFO] - personal_access_tokens
+2025-04-19 15:56:23 [INFO] - reclamacao
+2025-04-19 15:56:23 [INFO] - referenciatipo
+2025-04-19 15:56:23 [INFO] - sessions
+2025-04-19 15:56:23 [INFO] - status_anuncio
+2025-04-19 15:56:23 [INFO] - status_aprovacao
+2025-04-19 15:56:23 [INFO] - status_mensagem
+2025-04-19 15:56:23 [INFO] - status_reclamacao
+2025-04-19 15:56:23 [INFO] - status_troca
+2025-04-19 15:56:23 [INFO] - status_utilizador
+2025-04-19 15:56:23 [INFO] - tipo_item
+2025-04-19 15:56:23 [INFO] - tipo_notificacao
+2025-04-19 15:56:23 [INFO] - tipouser
+2025-04-19 15:56:23 [INFO] - troca
+2025-04-19 15:56:23 [INFO] - users
+2025-04-19 15:56:23 [INFO] - utilizador

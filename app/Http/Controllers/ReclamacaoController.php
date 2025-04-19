@@ -7,6 +7,7 @@ use App\Models\Compra;
 use App\Models\Aprovacao;
 use App\Models\Notificacao;
 use App\Models\StatusReclamacao;
+use App\Models\Utilizador;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -19,72 +20,64 @@ class ReclamacaoController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'compra_id' => 'required|exists:compra,ID_Compra',
-            'descricao' => 'required|string|max:255'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Dados inválidos',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        DB::beginTransaction();
-
         try {
-            // Verificar se o usuário é o comprador
-            $compra = Compra::with('anuncio.utilizador')->find($request->compra_id);
-            if (!$compra || $compra->UtilizadorID_User !== Auth::id()) {
-                return response()->json([
-                    'message' => 'Você não tem permissão para criar uma reclamação para esta compra'
-                ], 403);
+            // Validate request
+            $request->validate([
+                'compraId' => 'required|exists:compra,ID_Compra',
+                'descricao' => 'required|string'
+            ]);
+
+            // Get the purchase and check if user is the buyer
+            $compra = Compra::findOrFail($request->compraId);
+            if ($compra->UtilizadorID_Comprador !== auth()->id()) {
+                return response()->json(['message' => 'Não autorizado a criar reclamação para esta compra'], 403);
             }
 
-            // Criar aprovação (pendente)
+            // Check if complaint already exists for this purchase
+            if ($compra->reclamacoes()->exists()) {
+                return response()->json(['message' => 'Já existe uma reclamação para esta compra'], 400);
+            }
+
+            DB::beginTransaction();
+
+            // 1. Create approval (pending)
             $aprovacao = new Aprovacao();
             $aprovacao->Data_Submissao = now();
-            $aprovacao->Status_AprovacaoID_Status_Aprovacao = 1; // Pendente
+            $aprovacao->Status_AprovacaoID_Status_Aprovacao = 1; // Assuming 1 is "Pendente"
             $aprovacao->save();
 
-            // Criar reclamação
+            // 2. Create complaint
             $reclamacao = new Reclamacao();
             $reclamacao->Descricao = $request->descricao;
             $reclamacao->DataReclamacao = now();
             $reclamacao->AprovacaoID_aprovacao = $aprovacao->ID_aprovacao;
-            $reclamacao->Status_ReclamacaoID_Status_Reclamacao = 1; // Recebida
+            $reclamacao->Status_ReclamacaoID_Status_Reclamacao = 1; // Assuming 1 is "Pendente"
             $reclamacao->save();
 
-            // Vincular reclamação à compra
-            DB::table('compra_reclamacao')->insert([
-                'CompraID_Compra' => $request->compra_id,
-                'ReclamacaoID_Reclamacao' => $reclamacao->ID_Reclamacao
-            ]);
+            // 3. Link complaint to purchase
+            $compra->reclamacoes()->attach($reclamacao->ID_Reclamacao);
 
-            // Criar notificação para o vendedor
+            // 4. Create notifications
+            // For seller
             $notificacaoVendedor = new Notificacao();
             $notificacaoVendedor->Mensagem = "Nova reclamação recebida para sua venda";
             $notificacaoVendedor->DataNotificacao = now();
             $notificacaoVendedor->ReferenciaID = $reclamacao->ID_Reclamacao;
-            $notificacaoVendedor->UtilizadorID_User = $compra->anuncio->utilizador->ID_User;
-            $notificacaoVendedor->ReferenciaTipoID_ReferenciaTipo = 4; // Tipo Reclamação
-            $notificacaoVendedor->TIpo_notificacaoID_TipoNotificacao = 1; // Nova Reclamação
+            $notificacaoVendedor->UtilizadorID_User = $compra->UtilizadorID_Vendedor;
+            $notificacaoVendedor->ReferenciaTipoID_ReferenciaTipo = 4; // Assuming 4 is for "Reclamação"
+            $notificacaoVendedor->TIpo_notificacaoID_TipoNotificacao = 1; // Assuming 1 is "Nova Reclamação"
             $notificacaoVendedor->save();
 
-            // Criar notificação para os admins
-            $admins = DB::table('utilizador')
-                ->where('TipoUserID_TipoUser', 1)
-                ->get();
-
+            // For admins
+            $admins = Utilizador::where('TipoUtilizadorID_TipoUtilizador', 1)->get(); // Assuming 1 is admin type
             foreach ($admins as $admin) {
                 $notificacaoAdmin = new Notificacao();
-                $notificacaoAdmin->Mensagem = "Nova reclamação necessita de moderação";
+                $notificacaoAdmin->Mensagem = "Nova reclamação necessita moderação";
                 $notificacaoAdmin->DataNotificacao = now();
                 $notificacaoAdmin->ReferenciaID = $reclamacao->ID_Reclamacao;
-                $notificacaoAdmin->UtilizadorID_User = $admin->ID_User;
-                $notificacaoAdmin->ReferenciaTipoID_ReferenciaTipo = 4; // Tipo Reclamação
-                $notificacaoAdmin->TIpo_notificacaoID_TipoNotificacao = 1; // Nova Reclamação
+                $notificacaoAdmin->UtilizadorID_User = $admin->ID_Utilizador;
+                $notificacaoAdmin->ReferenciaTipoID_ReferenciaTipo = 4; // Assuming 4 is for "Reclamação"
+                $notificacaoAdmin->TIpo_notificacaoID_TipoNotificacao = 1; // Assuming 1 is "Nova Reclamação"
                 $notificacaoAdmin->save();
             }
 
@@ -97,8 +90,16 @@ class ReclamacaoController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
+            \Log::error('Erro ao criar reclamação: ' . $e->getMessage(), [
+                'user_id' => auth()->id(),
+                'compra_id' => $request->compraId ?? null,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return response()->json([
-                'message' => 'Erro ao criar reclamação: ' . $e->getMessage()
+                'message' => 'Erro ao criar reclamação',
+                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -111,7 +112,7 @@ class ReclamacaoController extends Controller
         $user = Auth::user();
         $query = Reclamacao::with([
             'aprovacao',
-            'status_reclamacao',
+            'status',
             'compras.anuncio.utilizador',
             'compras.utilizador'
         ]);
@@ -261,7 +262,7 @@ class ReclamacaoController extends Controller
                 $notificacao->ReferenciaID = $reclamacao->ID_Reclamacao;
                 $notificacao->UtilizadorID_User = $userId;
                 $notificacao->ReferenciaTipoID_ReferenciaTipo = 4; // Tipo Reclamação
-                $notificacao->TIpo_notificacaoID_TipoNotificacao = 3; // Atualização de Status
+                $notificacao->TIpo_notificacaoID_TipoNotificacao = 5; // Usando tipo Mensagem temporariamente
                 $notificacao->save();
             }
 
@@ -287,7 +288,7 @@ class ReclamacaoController extends Controller
     {
         $reclamacao = Reclamacao::with([
             'aprovacao',
-            'status_reclamacao',
+            'status',
             'compras.anuncio.utilizador',
             'compras.utilizador'
         ])->find($id);
@@ -311,5 +312,68 @@ class ReclamacaoController extends Controller
         }
 
         return response()->json($reclamacao);
+    }
+
+    /**
+     * Get messages for a complaint
+     */
+    public function getMensagens($id)
+    {
+        try {
+            $reclamacao = Reclamacao::with(['compras.anuncio.utilizador', 'compras.utilizador', 'aprovacao'])->find($id);
+            
+            if (!$reclamacao) {
+                return response()->json(['message' => 'Reclamação não encontrada'], 404);
+            }
+
+            $user = Auth::user();
+            $compra = $reclamacao->compras->first();
+
+            // Check if user has permission to view messages
+            $isAdmin = $user->TipoUserID_TipoUser === 1;
+            $isComprador = $compra->UtilizadorID_User === $user->ID_User;
+            $isVendedor = $compra->anuncio->UtilizadorID_User === $user->ID_User;
+
+            if (!$isAdmin && !$isComprador && !$isVendedor) {
+                return response()->json([
+                    'message' => 'Você não tem permissão para ver as mensagens desta reclamação'
+                ], 403);
+            }
+
+            // Parse messages from the Comentario field
+            $comentario = $reclamacao->aprovacao->Comentario ?? '';
+            $mensagens = [];
+            
+            if ($comentario) {
+                $linhas = explode("\n", $comentario);
+                foreach ($linhas as $linha) {
+                    if (preg_match('/^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) - ([^:]+): (.+)$/', $linha, $matches)) {
+                        $mensagens[] = [
+                            'data' => $matches[1],
+                            'usuario' => $matches[2],
+                            'mensagem' => $matches[3]
+                        ];
+                    }
+                }
+            }
+
+            return response()->json([
+                'mensagens' => $mensagens,
+                'reclamacao' => $reclamacao
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Erro ao buscar mensagens da reclamação: ' . $e->getMessage(), [
+                'user_id' => auth()->id(),
+                'reclamacao_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'message' => 'Erro ao buscar mensagens da reclamação',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 } 

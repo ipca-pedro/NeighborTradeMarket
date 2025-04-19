@@ -12,13 +12,33 @@ const api = axios.create({
 // Interceptor para adicionar o token em todas as requisições
 api.interceptors.request.use(config => {
     const token = localStorage.getItem('token');
+    console.log('Token encontrado:', token); // Debug
+
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+        console.log('Headers da requisição:', config.headers); // Debug
+    } else {
+        console.log('Nenhum token encontrado no localStorage'); // Debug
     }
     return config;
 }, error => {
+    console.error('Erro no interceptor:', error); // Debug
     return Promise.reject(error);
 });
+
+// Interceptor para tratar respostas
+api.interceptors.response.use(
+    response => response,
+    error => {
+        console.error('Erro na resposta:', error.response); // Debug
+        if (error.response?.status === 403) {
+            console.log('Erro 403 detectado - Verificando token...'); // Debug
+            const token = localStorage.getItem('token');
+            console.log('Token atual:', token); // Debug
+        }
+        return Promise.reject(error);
+    }
+);
 
 export const moradaService = {
     getMoradas: async () => {

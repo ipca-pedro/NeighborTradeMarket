@@ -92,6 +92,24 @@ const AdminDashboard = () => {
                     </Col>
 
                     <Col>
+                        <Card className="h-100 shadow-sm border-danger">
+                            <Card.Body className="d-flex flex-column">
+                                <Card.Title><i className="fas fa-exclamation-circle me-2 text-danger"></i>Gestão de Reclamações</Card.Title>
+                                <Card.Text className="text-muted small">
+                                    Gerencie as reclamações dos usuários, atualize status e resolva problemas.
+                                </Card.Text>
+                                <div className="mt-auto">
+                                    <Link to="/admin/reclamacoes">
+                                        <Button variant="danger" className="w-100">
+                                            <i className="fas fa-tasks me-1"></i> Gerir Reclamações
+                                        </Button>
+                                    </Link>
+                                </div>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+
+                    <Col>
                         <Card className="h-100 shadow-sm border-secondary">
                             <Card.Body className="d-flex flex-column">
                                 <Card.Title><i className="fas fa-chart-bar me-2 text-secondary"></i>Estatísticas</Card.Title>

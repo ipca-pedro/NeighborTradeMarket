@@ -106,4 +106,46 @@ class CompraService {
     }
 }
 
-export default new CompraService(); 
+export default new CompraService();
+
+export const buscarMinhasCompras = async () => {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('Utilizador não autenticado');
+        }
+
+        const response = await api.get('/compras/minhas', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        });
+        console.log('Resposta das compras:', response.data); // Debug
+        return response.data;
+    } catch (error) {
+        console.error('Erro detalhado:', error.response || error); // Debug
+        throw new Error('Erro ao buscar compras: ' + error.message);
+    }
+};
+
+export const buscarCompraPorId = async (id) => {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('Usuário não autenticado');
+        }
+
+        const response = await api.get(`/compras/${id}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        });
+        return response.data;
+    } catch (error) {
+        throw new Error('Erro ao buscar compra: ' + error.message);
+    }
+}; 

@@ -39,6 +39,11 @@ import Privacy from './components/legal/Privacy';
 import Terms from './components/legal/Terms';
 import Security from './components/legal/Security';
 
+// Componentes de Reclamações
+import MinhasReclamacoes from './components/perfil/MinhasReclamacoes';
+import GestaoReclamacoes from './components/admin/GestaoReclamacoes';
+import DetalhesReclamacao from './components/reclamacao/DetalhesReclamacao';
+
 // Componente para rotas protegidas que requerem autenticação
 const ProtectedRoute = ({ children }) => {
   const { currentUser, loading } = useAuth();
@@ -110,13 +115,16 @@ function App() {
               <Route path="/perfil" element={<ProtectedRoute><PerfilUtilizador /></ProtectedRoute>} />
               <Route path="/anuncios/novo" element={<ProtectedRoute><CriarProduto /></ProtectedRoute>} />
               <Route path="/meus-anuncios" element={<ProtectedRoute><MeusAnuncios /></ProtectedRoute>} />
+              <Route path="/minhas-reclamacoes" element={<ProtectedRoute><MinhasReclamacoes /></ProtectedRoute>} />
+              <Route path="/reclamacoes/:id" element={<ProtectedRoute><DetalhesReclamacao /></ProtectedRoute>} />
               
               {/* Rotas de Admin */}
-              <Route path="/admin" element={<ProtectedRoute requiredRole={1}><AdminDashboard /></ProtectedRoute>} />
-              <Route path="/admin/produtos-pendentes" element={<ProtectedRoute requiredRole={1}><ProdutosPendentes /></ProtectedRoute>} />
-              <Route path="/admin/users-pendentes" element={<ProtectedRoute requiredRole={1}><PendingUsers /></ProtectedRoute>} />
-              <Route path="/admin/users" element={<ProtectedRoute requiredRole={1}><AllUsers /></ProtectedRoute>} />
-              <Route path="/admin/anuncios" element={<ProtectedRoute requiredRole={1}><AllAnuncios /></ProtectedRoute>} />
+              <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+              <Route path="/admin/produtos-pendentes" element={<AdminRoute><ProdutosPendentes /></AdminRoute>} />
+              <Route path="/admin/users-pendentes" element={<AdminRoute><PendingUsers /></AdminRoute>} />
+              <Route path="/admin/users" element={<AdminRoute><AllUsers /></AdminRoute>} />
+              <Route path="/admin/anuncios" element={<AdminRoute><AllAnuncios /></AdminRoute>} />
+              <Route path="/admin/reclamacoes" element={<AdminRoute><GestaoReclamacoes /></AdminRoute>} />
               
               {/* Rota para URLs não encontrados */}
               <Route path="*" element={<Navigate to="/" />} />

@@ -3,9 +3,9 @@ import api from './api';
 export const buscarMinhasReclamacoes = async () => {
     try {
         const response = await api.get('/reclamacoes');
-        return response.data;
+        return Array.isArray(response.data) ? response.data : [response.data];
     } catch (error) {
-        throw new Error('Erro ao carregar reclamações: ' + error.message);
+        throw new Error('Erro ao buscar reclamações: ' + error.message);
     }
 };
 
@@ -21,7 +21,7 @@ export const buscarMensagens = async (reclamacaoId) => {
 export const enviarMensagem = async (reclamacaoId, mensagem) => {
     try {
         const response = await api.post(`/reclamacoes/${reclamacaoId}/mensagens`, {
-            mensagem
+            mensagem: mensagem
         });
         return response.data;
     } catch (error) {
@@ -32,10 +32,8 @@ export const enviarMensagem = async (reclamacaoId, mensagem) => {
 export const criarReclamacao = async (data) => {
     try {
         const response = await api.post('/reclamacoes', {
-            Descricao: data.descricao,
-            DataReclamacao: new Date().toISOString(),
-            CompraID_Compra: data.compraId,
-            Status_ReclamacaoID_Status_Reclamacao: 1 // Status inicial (pendente)
+            compra_id: data.compraId,
+            descricao: data.descricao
         });
         return response.data;
     } catch (error) {
@@ -69,5 +67,23 @@ export const atualizarStatus = async (id, status) => {
         return response.data;
     } catch (error) {
         throw error;
+    }
+};
+
+export const buscarReclamacaoPorId = async (id) => {
+    try {
+        const response = await api.get(`/reclamacoes/${id}`);
+        return response.data;
+    } catch (error) {
+        throw new Error('Erro ao buscar reclamação: ' + error.message);
+    }
+};
+
+export const buscarParticipantes = async (reclamacaoId) => {
+    try {
+        const response = await api.get(`/reclamacoes/${reclamacaoId}/participantes`);
+        return response.data;
+    } catch (error) {
+        throw new Error('Erro ao buscar participantes: ' + error.message);
     }
 }; 

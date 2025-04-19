@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Form, Alert, Nav, Image } from 'react-bootstrap';
 import { useAuth } from '../../contexts/AuthContext';
 import { authService } from '../../services/api';
-import { FaUser, FaTags, FaStore, FaShoppingBag, FaCreditCard, FaEnvelope } from 'react-icons/fa';
+import { FaUser, FaTags, FaStore, FaShoppingBag, FaCreditCard, FaEnvelope, FaExclamationCircle } from 'react-icons/fa';
 import Header from '../layout/Header';
 import MeusAnuncios from './MeusAnuncios';
 import MinhasVendas from './MinhasVendas';
 import MinhasCompras from './MinhasCompras';
 import Cartoes from './Cartoes';
 import Mensagens from '../Mensagens/Mensagens';
+import MinhasReclamacoes from './MinhasReclamacoes';
 import './PerfilUsuario.css';
 
 // Fallback image as base64 - light gray placeholder with user icon
@@ -77,7 +78,7 @@ const PerfilUtilizador = () => {
             // Apenas enviar os campos editáveis
             const editableFields = ['Name', 'User_Name', 'Email', 'Data_Nascimento'];
             editableFields.forEach(key => {
-                data.append(key, formData[key]);
+                    data.append(key, formData[key]);
             });
 
             await authService.updateUserProfile(data);
@@ -225,6 +226,8 @@ const PerfilUtilizador = () => {
                 return <Cartoes />;
             case 'mensagens':
                 return <Mensagens />;
+            case 'reclamacoes':
+                return <MinhasReclamacoes />;
             default:
                 return null;
         }
@@ -240,7 +243,7 @@ const PerfilUtilizador = () => {
                             <Card.Body className="text-center">
                                 <Image 
                                     src={profileImage}
-                                    roundedCircle
+                                    roundedCircle 
                                     className="profile-image mb-3"
                                     onError={(e) => {
                                         e.target.onerror = null;
@@ -248,145 +251,65 @@ const PerfilUtilizador = () => {
                                     }}
                                     alt={`Foto de perfil de ${currentUser?.Name || 'usuário'}`}
                                 />
-                                <h5>{currentUser?.Name}</h5>
+                                <h5 className="mb-1">{currentUser?.Name}</h5>
                                 <p className="text-muted">@{currentUser?.User_Name}</p>
                             </Card.Body>
                         </Card>
-
                         <Card>
-                            <Card.Body>
-                                <Nav className="flex-column" activeKey={activeTab} onSelect={(k) => setActiveTab(k)}>
-                                    <Nav.Link eventKey="perfil" className="d-flex align-items-center">
-                                        <FaUser className="me-2" />
-                                        Perfil
+                            <Card.Body className="p-0">
+                                <Nav className="flex-column">
+                                    <Nav.Link 
+                                        className={`d-flex align-items-center p-3 ${activeTab === 'perfil' ? 'active' : ''}`}
+                                        onClick={() => setActiveTab('perfil')}
+                                    >
+                                        <FaUser className="me-2" /> Perfil
                                     </Nav.Link>
-                                    <Nav.Link eventKey="anuncios" className="d-flex align-items-center">
-                                        <FaTags className="me-2" />
-                                        Meus Anúncios
+                                    <Nav.Link 
+                                        className={`d-flex align-items-center p-3 ${activeTab === 'anuncios' ? 'active' : ''}`}
+                                        onClick={() => setActiveTab('anuncios')}
+                                    >
+                                        <FaTags className="me-2" /> Meus Anúncios
                                     </Nav.Link>
-                                    <Nav.Link eventKey="vendas" className="d-flex align-items-center">
-                                        <FaStore className="me-2" />
-                                        Minhas Vendas
+                                    <Nav.Link 
+                                        className={`d-flex align-items-center p-3 ${activeTab === 'vendas' ? 'active' : ''}`}
+                                        onClick={() => setActiveTab('vendas')}
+                                    >
+                                        <FaStore className="me-2" /> Minhas Vendas
                                     </Nav.Link>
-                                    <Nav.Link eventKey="compras" className="d-flex align-items-center">
-                                        <FaShoppingBag className="me-2" />
-                                        Minhas Compras
+                                    <Nav.Link 
+                                        className={`d-flex align-items-center p-3 ${activeTab === 'compras' ? 'active' : ''}`}
+                                        onClick={() => setActiveTab('compras')}
+                                    >
+                                        <FaShoppingBag className="me-2" /> Minhas Compras
                                     </Nav.Link>
-                                    <Nav.Link eventKey="cartoes" className="d-flex align-items-center">
-                                        <FaCreditCard className="me-2" />
-                                        Cartões
+                                    <Nav.Link 
+                                        className={`d-flex align-items-center p-3 ${activeTab === 'cartoes' ? 'active' : ''}`}
+                                        onClick={() => setActiveTab('cartoes')}
+                                    >
+                                        <FaCreditCard className="me-2" /> Cartões
                                     </Nav.Link>
-                                    <Nav.Link eventKey="mensagens" className="d-flex align-items-center">
-                                        <FaEnvelope className="me-2" />
-                                        Mensagens
+                                    <Nav.Link 
+                                        className={`d-flex align-items-center p-3 ${activeTab === 'mensagens' ? 'active' : ''}`}
+                                        onClick={() => setActiveTab('mensagens')}
+                                    >
+                                        <FaEnvelope className="me-2" /> Mensagens
+                                    </Nav.Link>
+                                    <Nav.Link 
+                                        className={`d-flex align-items-center p-3 ${activeTab === 'reclamacoes' ? 'active' : ''}`}
+                                        onClick={() => setActiveTab('reclamacoes')}
+                                    >
+                                        <FaExclamationCircle className="me-2" /> Reclamações
                                     </Nav.Link>
                                 </Nav>
                             </Card.Body>
                         </Card>
                     </Col>
                     <Col md={9}>
-                        {activeTab === 'perfil' ? (
-                            <div className="profile-content">
-                                {message && <Alert variant="success">{message}</Alert>}
-                                {error && <Alert variant="danger">{error}</Alert>}
-
-                                <Form onSubmit={handleSubmit}>
-                                    <Row>
-                                        <Col md={6}>
-                                            <Form.Group className="mb-3">
-                                                <Form.Label>Nome Completo</Form.Label>
-                                                <Form.Control
-                                                    type="text"
-                                                    name="Name"
-                                                    value={formData.Name}
-                                                    onChange={handleChange}
-                                                    disabled={!isEditing}
-                                                />
-                                            </Form.Group>
-                                        </Col>
-                                        <Col md={6}>
-                                            <Form.Group className="mb-3">
-                                                <Form.Label>Nome de Usuário</Form.Label>
-                                                <Form.Control
-                                                    type="text"
-                                                    name="User_Name"
-                                                    value={formData.User_Name}
-                                                    onChange={handleChange}
-                                                    disabled={!isEditing}
-                                                />
-                                            </Form.Group>
-                                        </Col>
-                                    </Row>
-
-                                    <Row>
-                                        <Col md={6}>
-                                            <Form.Group className="mb-3">
-                                                <Form.Label>Email</Form.Label>
-                                                <Form.Control
-                                                    type="email"
-                                                    name="Email"
-                                                    value={formData.Email}
-                                                    onChange={handleChange}
-                                                    disabled={!isEditing}
-                                                />
-                                            </Form.Group>
-                                        </Col>
-                                        <Col md={6}>
-                                            <Form.Group className="mb-3">
-                                                <Form.Label>Data de Nascimento</Form.Label>
-                                                <Form.Control
-                                                    type="date"
-                                                    name="Data_Nascimento"
-                                                    value={formData.Data_Nascimento}
-                                                    onChange={handleChange}
-                                                    disabled={!isEditing}
-                                                />
-                                            </Form.Group>
-                                        </Col>
-                                    </Row>
-
-                                    <h5 className="mt-4 mb-3">Endereço <small className="text-muted">(Verificado)</small></h5>
-                                    <div className="address-info bg-light p-3 rounded mb-4">
-                                        <div className="d-flex justify-content-between align-items-center mb-3">
-                                            <span className="text-muted small">
-                                                <i className="fas fa-info-circle me-2"></i>
-                                                O endereço só pode ser alterado mediante apresentação de comprovativo de morada
-                                            </span>
-                                        </div>
-                                        <Form.Group className="mb-3">
-                                            <Form.Label>Endereço Completo</Form.Label>
-                                            <Form.Control
-                                                type="text"
-                                                name="Morada.Rua"
-                                                value={formData.Morada.Rua || 'Endereço não registrado'}
-                                                disabled={true}
-                                                readOnly
-                                                className="bg-white"
-                                            />
-                                        </Form.Group>
-                                    </div>
-
-                                    <div className="text-end mt-4">
-                                        {!isEditing ? (
-                                            <Button variant="primary" onClick={() => setIsEditing(true)}>
-                                                Editar Perfil
-                                            </Button>
-                                        ) : (
-                                            <>
-                                                <Button variant="secondary" className="me-2" onClick={() => setIsEditing(false)}>
-                                                    Cancelar
-                                                </Button>
-                                                <Button variant="primary" type="submit" disabled={loading}>
-                                                    {loading ? 'Salvando...' : 'Salvar Alterações'}
-                                                </Button>
-                                            </>
-                                        )}
-                                    </div>
-                                </Form>
-                            </div>
-                        ) : (
-                            renderProfileContent()
-                        )}
+                        <Card>
+                            <Card.Body>
+                                {renderProfileContent()}
+                            </Card.Body>
+                        </Card>
                     </Col>
                 </Row>
             </Container>
