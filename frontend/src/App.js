@@ -76,7 +76,7 @@ const AdminRoute = ({ children }) => {
                  (localUser && localUser.TipoUserID_TipoUser === 1);
   
   if (!isAdmin) {
-    console.log('Usuário não é administrador, redirecionando para home');
+    console.log('Utilizador não é administrador, redirecionando para home');
     return <Navigate to="/" />;
   }
   

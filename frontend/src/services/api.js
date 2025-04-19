@@ -16,7 +16,7 @@ api.interceptors.request.use(config => {
 
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
-        console.log('Headers da requisição:', config.headers); // Debug
+        console.log('Cabeçalhos do pedido:', config.headers); // Debug
     } else {
         console.log('Nenhum token encontrado no localStorage'); // Debug
     }
@@ -32,7 +32,7 @@ api.interceptors.response.use(
     error => {
         console.error('Erro na resposta:', error.response); // Debug
         if (error.response?.status === 403) {
-            console.log('Erro 403 detectado - Verificando token...'); // Debug
+            console.log('Erro 403 detetado - Verificando token...'); // Debug
             const token = localStorage.getItem('token');
             console.log('Token atual:', token); // Debug
         }
@@ -57,37 +57,37 @@ export const authService = {
         try {
             // Tentativa com a rota /auth/login
             try {
-                console.log('Tentando login com /auth/login');
+                console.log('A tentar login com /auth/login');
                 const response = await api.post('/auth/login', { Email: email, Password: password });
                 console.log('Resposta de /auth/login:', response.data);
                 if (response.data.token) {
-                    // Debug: Verificar dados do usuário antes de armazenar
-                    console.log('Dados do usuário antes de armazenar:', response.data.user);
-                    console.log('ID do usuário:', response.data.user.ID_User);
+                    // Debug: Verificar dados do utilizador antes de armazenar
+                    console.log('Dados do utilizador antes de guardar:', response.data.user);
+                    console.log('ID do utilizador:', response.data.user.ID_User);
                     
-                    // Garantir que o ID do usuário seja um número
+                    // Garantir que o ID do utilizador seja um número
                     const userData = {
                         ...response.data.user,
                         ID_User: parseInt(response.data.user.ID_User)
                     };
                     
-                    console.log('Dados do usuário após conversão:', userData);
+                    console.log('Dados do utilizador após conversão:', userData);
                     
                     localStorage.setItem('token', response.data.token);
                     localStorage.setItem('user', JSON.stringify(userData));
-                    console.log('Utilizador armazenado no localStorage:', userData);
+                    console.log('Utilizador guardado no localStorage:', userData);
                     console.log('TipoUserID_TipoUser:', userData.TipoUserID_TipoUser);
                 }
                 return response.data;
             } catch (authError) {
-                console.log('Erro em /auth/login, tentando /login', authError);
+                console.log('Erro em /auth/login, a tentar /login', authError);
                 // Se falhar, tenta com a rota /login (para compatibilidade)
                 const response = await api.post('/login', { Email: email, Password: password });
                 console.log('Resposta de /login:', response.data);
                 if (response.data.token) {
                     localStorage.setItem('token', response.data.token);
                     localStorage.setItem('user', JSON.stringify(response.data.user));
-                    console.log('Utilizador armazenado no localStorage:', response.data.user);
+                    console.log('Utilizador guardado no localStorage:', response.data.user);
                     console.log('TipoUserID_TipoUser:', response.data.user.TipoUserID_TipoUser);
                 }
                 return response.data;
@@ -106,7 +106,7 @@ export const authService = {
                 }
             };
             const response = await api.post('/auth/register', userData, config);
-            // Não armazenar token ou dados do usuário, pois o registro está pendente
+            // Não armazenar token ou dados do utilizador, pois o registro está pendente
             return response.data;
         } catch (error) {
             throw error;
@@ -281,7 +281,7 @@ export const adminService = {
     // Aprovar um anúncio
     aprovarAnuncio: async (anuncioId) => {
         try {
-            console.log('Tentando aprovar anúncio:', anuncioId);
+            console.log('A tentar aprovar anúncio:', anuncioId);
             const response = await api.post(`/admin/anuncios/${anuncioId}/aprovar`);
             console.log('Resposta da aprovação:', response.data);
             return response.data;
@@ -333,7 +333,7 @@ export const anuncioService = {
     // Obter todos os anúncios
     getAnuncios: async (filtros = {}) => {
         try {
-            console.log('Buscando anúncios com filtros:', filtros);
+            console.log('Procurando anúncios com filtros:', filtros);
             // Este endpoint deve ser uma rota pública que não requer autenticação
             const response = await api.get('/anuncios', { params: filtros });
             console.log('Anúncios recebidos:', response.data?.length || 0);
@@ -341,7 +341,7 @@ export const anuncioService = {
         } catch (error) {
             console.error('Erro ao obter anúncios:', error);
             if (error.response?.status === 401) {
-                console.log('Erro de autenticação, tentando via endpoint público');
+                console.log('Erro de autenticação, a tentar via endpoint público');
                 // Tentar buscar via endpoint público alternativo
                 try {
                     const publicResponse = await api.get('/anuncios/publicos', { params: filtros });
@@ -388,11 +388,11 @@ export const anuncioService = {
             // Se temos o ID do utilizador, usar a rota alternativa
             if (userId) {
                 response = await api.get(`/user/${userId}/anuncios`);
-                console.log('Usando rota alternativa para obter anúncios');
+                console.log('A usar rota alternativa para obter anúncios');
             } else {
                 // Caso contrário, tentar a rota original
                 response = await api.get('/meus-anuncios');
-                console.log('Usando rota original para obter anúncios');
+                console.log('A usar rota original para obter anúncios');
             }
             
             return response.data;
@@ -491,7 +491,7 @@ export const anuncioService = {
     // Obter anúncios por categoria
     getAnunciosPorCategoria: async (categoriaId) => {
         try {
-            console.log('Buscando anúncios da categoria:', categoriaId);
+            console.log('Procurando anúncios da categoria:', categoriaId);
             const response = await api.get(`/anuncios/categoria/${categoriaId}`);
             return response.data;
         } catch (error) {

@@ -26,7 +26,7 @@ export function AuthProvider({ children }) {
     const fetchUserProfile = async (authToken) => {
         try {
             // Não precisa configurar o token aqui pois o interceptor do api.js já faz isso
-            console.log('Buscando perfil do usuário com token:', authToken);
+            console.log('Buscando perfil do utilizador com token:', authToken);
             
             // Obter o perfil do utilizador
             const response = await api.get('/perfil');

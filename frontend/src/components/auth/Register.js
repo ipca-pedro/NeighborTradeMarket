@@ -30,7 +30,7 @@ function Register() {
     useEffect(() => {
         const fetchMoradas = async () => {
             try {
-                console.log('Iniciando busca de moradas...');
+                console.log('A iniciar busca de moradas...');
                 const data = await moradaService.getMoradas();
                 console.log('Moradas recebidas:', data);
                 setMoradas(data);

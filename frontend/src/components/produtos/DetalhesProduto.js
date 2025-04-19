@@ -25,7 +25,7 @@ const DetalhesProduto = () => {
 
     useEffect(() => {
         console.log('Status de autenticação:', isAuthenticated);
-        console.log('Usuário atual:', currentUser);
+        console.log('Utilizador atual:', currentUser);
     }, [currentUser, isAuthenticated]);
 
     const carregarAnuncio = async () => {

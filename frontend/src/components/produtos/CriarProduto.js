@@ -29,13 +29,13 @@ const CriarProduto = () => {
         const fetchData = async () => {
             try {
                 // Carregar categorias
-                console.log('Tentando carregar categorias...');
+                console.log('A tentar carregar categorias...');
                 const categorias = await anuncioService.getCategories();
                 setCategorias(categorias);
                 console.log('Categorias carregadas:', categorias);
                 
                 // Carregar tipos de item
-                console.log('Tentando carregar tipos de item...');
+                console.log('A tentar carregar tipos de item...');
                 const tipos = await anuncioService.getItemTypes();
                 setTiposItem(tipos);
                 console.log('Tipos de item carregados:', tipos);
