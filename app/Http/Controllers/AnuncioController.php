@@ -15,10 +15,57 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * @OA\Tag(
+ *     name="Anúncios",
+ *     description="API Endpoints para gerenciamento de anúncios"
+ * )
+ */
 class AnuncioController extends Controller
 {
     /**
-     * Listar todos os anúncios aprovados
+     * @OA\Get(
+     *     path="/api/anuncios",
+     *     summary="Listar todos os anúncios aprovados",
+     *     description="Retorna uma lista paginada de anúncios que foram aprovados e estão ativos",
+     *     operationId="getAnuncios",
+     *     tags={"Anúncios"},
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="Número da página para paginação",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=1)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de anúncios recuperada com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="current_page", type="integer", example=1),
+     *             @OA\Property(property="data", type="array", 
+     *                 @OA\Items(
+     *                     @OA\Property(property="ID_Anuncio", type="integer", example=1),
+     *                     @OA\Property(property="Titulo", type="string", example="Smartphone Xiaomi"),
+     *                     @OA\Property(property="Descricao", type="string", example="Smartphone Xiaomi Redmi Note 10 128GB"),
+     *                     @OA\Property(property="Preco", type="number", format="float", example=299.99)
+     *                 )
+     *             ),
+     *             @OA\Property(property="first_page_url", type="string", example="http://localhost/api/anuncios?page=1"),
+     *             @OA\Property(property="from", type="integer", example=1),
+     *             @OA\Property(property="last_page", type="integer", example=5),
+     *             @OA\Property(property="last_page_url", type="string", example="http://localhost/api/anuncios?page=5"),
+     *             @OA\Property(property="per_page", type="integer", example=10),
+     *             @OA\Property(property="total", type="integer", example=50)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro no servidor",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Erro ao buscar anúncios")
+     *         )
+     *     )
+     * )
      */
     public function index()
     {
@@ -32,7 +79,38 @@ class AnuncioController extends Controller
     }
     
     /**
-     * Listar anúncios por categoria
+     * @OA\Get(
+     *     path="/api/anuncios/categoria/{categoriaId}",
+     *     summary="Listar anúncios por categoria",
+     *     description="Retorna todos os anúncios ativos de uma categoria específica",
+     *     operationId="getAnunciosByCategoria",
+     *     tags={"Anúncios"},
+     *     @OA\Parameter(
+     *         name="categoriaId",
+     *         in="path",
+     *         description="ID da categoria para filtrar os anúncios",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de anúncios da categoria recuperada com sucesso",
+     *         @OA\JsonContent(type="array", @OA\Items(
+     *             @OA\Property(property="ID_Anuncio", type="integer", example=1),
+     *             @OA\Property(property="Titulo", type="string", example="Smartphone Xiaomi"),
+     *             @OA\Property(property="Descricao", type="string", example="Smartphone Xiaomi Redmi Note 10 128GB"),
+     *             @OA\Property(property="Preco", type="number", format="float", example=299.99)
+     *         ))
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro no servidor",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Erro ao buscar anúncios por categoria"),
+     *             @OA\Property(property="anuncios", type="array", @OA\Items())
+     *         )
+     *     )
+     * )
      */
     public function byCategoria($categoriaId)
     {
@@ -68,7 +146,52 @@ class AnuncioController extends Controller
     }
     
     /**
-     * Listar anúncios pendentes de aprovação (apenas para administradores)
+     * @OA\Get(
+     *     path="/api/admin/anuncios/pendentes",
+     *     summary="Listar anúncios pendentes de aprovação",
+     *     description="Retorna todos os anúncios que estão aguardando aprovação de um administrador",
+     *     operationId="getAnunciosPendentes",
+     *     tags={"Anúncios", "Admin"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de anúncios pendentes recuperada com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="data", type="array", @OA\Items(
+     *                 @OA\Property(property="ID_Anuncio", type="integer", example=1),
+     *                 @OA\Property(property="Titulo", type="string", example="Smartphone Xiaomi"),
+     *                 @OA\Property(property="Descricao", type="string", example="Smartphone Xiaomi Redmi Note 10 128GB"),
+     *                 @OA\Property(property="Preco", type="number", format="float", example=299.99),
+     *                 @OA\Property(property="utilizador", type="object"),
+     *                 @OA\Property(property="categorium", type="object"),
+     *                 @OA\Property(property="tipo_item", type="object"),
+     *                 @OA\Property(property="item_imagems", type="array", @OA\Items())
+     *             )),
+     *             @OA\Property(property="message", type="string", example="Anúncios pendentes recuperados com sucesso")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Não autorizado - usuário não autenticado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Usuário não autenticado")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Proibido - usuário não é administrador",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Acesso não autorizado")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro no servidor",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Erro ao buscar anúncios pendentes")
+     *         )
+     *     )
+     * )
      */
     public function anunciosPendentes()
     {
@@ -129,7 +252,64 @@ class AnuncioController extends Controller
     }
     
     /**
-     * Aprovar um anúncio (apenas para administradores)
+     * @OA\Post(
+     *     path="/api/admin/anuncios/{id}/aprovar",
+     *     summary="Aprovar um anúncio",
+     *     description="Aprova um anúncio pendente, tornando-o visível para os usuários",
+     *     operationId="aprovarAnuncio",
+     *     tags={"Anúncios", "Admin"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID do anúncio a ser aprovado",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Anúncio aprovado com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Anúncio aprovado com sucesso"),
+     *             @OA\Property(property="anuncio", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Requisição inválida - anúncio já processado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Este anúncio já foi processado")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Não autorizado - usuário não autenticado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Usuário não autenticado")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Proibido - usuário não é administrador",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Acesso não autorizado - Tipo de usuário inválido")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Anúncio não encontrado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="O recurso solicitado não foi encontrado")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro no servidor",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Erro ao aprovar anúncio")
+     *         )
+     *     )
+     * )
      */
     public function aprovarAnuncio($id)
     {

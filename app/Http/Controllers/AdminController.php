@@ -197,8 +197,22 @@ class AdminController extends Controller
     }
     
     /**
-     * Listar todos os utilizadores
-     */
+ * @OA\Get(
+ *     path="/api/admin/users",
+ *     summary="Listar todos os utilizadores",
+ *     description="Retorna todos os utilizadores com suas relações. Apenas administradores podem acessar.",
+ *     tags={"Admin"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Lista de utilizadores retornada com sucesso"
+ *     ),
+ *     @OA\Response(
+ *         response=403,
+ *         description="Acesso não autorizado"
+ *     )
+ * )
+ */
     public function getAllUsers()
     {
         // Verificar se o utilizador autenticado é administrador
@@ -217,8 +231,36 @@ class AdminController extends Controller
     }
     
     /**
-     * Atualizar o status de um utilizador
-     */
+ * @OA\Put(
+ *     path="/api/admin/users/{userId}/status",
+ *     summary="Atualizar o status de um utilizador",
+ *     description="Permite ao administrador atualizar o status de um utilizador.",
+ *     tags={"Admin"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="userId",
+ *         in="path",
+ *         required=true,
+ *         description="ID do utilizador",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             required={"status"},
+ *             @OA\Property(property="status", type="string", example="ativo")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Status atualizado com sucesso"
+ *     ),
+ *     @OA\Response(
+ *         response=403,
+ *         description="Acesso não autorizado"
+ *     )
+ * )
+ */
     public function updateUserStatus(Request $request, $userId)
     {
         // Verificar se o utilizador autenticado é administrador
@@ -277,8 +319,21 @@ class AdminController extends Controller
     }
     
     /**
-     * Obter contagem de utilizadores pendentes para notificações
-     */
+ * @OA\Get(
+ *     path="/api/admin/users/pending",
+ *     summary="Listar utilizadores pendentes de aprovação",
+ *     tags={"Admin"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Lista de utilizadores pendentes"
+ *     ),
+ *     @OA\Response(
+ *         response=403,
+ *         description="Acesso não autorizado"
+ *     )
+ * )
+ */
     public function getPendingUsersCount()
     {
         // Verificar se o utilizador autenticado é administrador
@@ -420,7 +475,25 @@ class AdminController extends Controller
     }
 
     /**
-     * Contar utilizadores pendentes e notificações não lidas para o admin autenticado
+     * @OA\Get(
+     *     path="/api/admin/users/pending/count",
+     *     summary="Contar utilizadores pendentes e notificações não lidas para o admin autenticado",
+     *     description="Retorna a contagem de utilizadores pendentes e notificações não lidas para o admin autenticado. Apenas administradores podem acessar.",
+     *     tags={"Admin"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Contagem retornada com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="pendingCount", type="integer", example=3),
+     *             @OA\Property(property="unreadNotifications", type="integer", example=5)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Acesso não autorizado"
+     *     )
+     * )
      */
     public function pendingUsersCount()
     {

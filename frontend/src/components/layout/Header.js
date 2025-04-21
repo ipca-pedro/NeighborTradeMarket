@@ -7,6 +7,7 @@ import LoginPopup from '../auth/LoginPopup';
 import CategoryMenu from './CategoryMenu';
 import HelpModal from '../help/HelpModal';
 import NotificationDropdown from '../notifications/NotificationDropdown';
+import { buscarMinhasNotificacoes, marcarComoLida } from '../../services/notificacaoService';
 
 const Header = () => {
     const [showLoginPopup, setShowLoginPopup] = useState(false);
@@ -29,14 +30,21 @@ const Header = () => {
         const fetchNotifications = async () => {
             if (currentUser && currentUser.ID_User) {
                 try {
-                    // Aqui você deve fazer uma chamada API para buscar notificações
-                    // Por exemplo: const response = await api.get('/notificacoes');
-                    // Simulando notificações para teste
-                    const mockNotifications = [];
+                    // Buscar notificações reais da API
+                    const notificacoes = await buscarMinhasNotificacoes();
                     
-                    // Se o usuário for admin, adicionar notificações de registro de usuário
+                    // Mapear para o formato esperado pelo componente
+                    const mappedNotifications = notificacoes.map(notif => ({
+                        id: notif.ID_Notificacao,
+                        type: notif.TipoNotificacao,
+                        titulo: notif.TipoReferencia,
+                        message: notif.Mensagem,
+                        read: notif.Lida === 1,
+                        createdAt: notif.DataNotificacao
+                    }));
+                    
+                    // Adicionar notificações administrativas se for admin
                     if (currentUser.TipoUserID_TipoUser === 1) {
-                        // Buscar notificações de pendentes
                         try {
                             const response = await fetch('http://127.0.0.1:8000/api/admin/pending-users-count', {
                                 headers: {
@@ -47,12 +55,12 @@ const Header = () => {
                             
                             if (response.ok) {
                                 const data = await response.json();
-                                if (data.count > 0) {
-                                    mockNotifications.push({
+                                if (data.pending_users > 0) {
+                                    mappedNotifications.push({
                                         id: 'user-reg-1',
                                         type: 'USER_REGISTRATION',
-                                        userName: 'Novos utilizadores',
-                                        message: `${data.count} novos pedidos de registo pendentes`,
+                                        titulo: 'Novos utilizadores',
+                                        message: `${data.pending_users} novos pedidos de registo pendentes`,
                                         read: false,
                                         createdAt: new Date().toISOString()
                                     });
@@ -63,9 +71,11 @@ const Header = () => {
                         }
                     }
                     
-                    setNotifications(mockNotifications);
+                    setNotifications(mappedNotifications);
                 } catch (error) {
                     console.error('Erro ao buscar notificações:', error);
+                    // Em caso de erro, usar lista vazia
+                    setNotifications([]);
                 }
             }
         };
@@ -83,7 +93,20 @@ const Header = () => {
         setUnreadCount(notifications.filter(n => !n.read).length);
     }, [notifications]);
 
-    const handleReadNotifications = (notificationIds) => {
+    const handleReadNotifications = async (notificationIds) => {
+        // Para cada ID de notificação, chamar a API
+        for (const id of notificationIds) {
+            try {
+                // Ignorar IDs especiais como 'user-reg-1'
+                if (!id.toString().startsWith('user-reg')) {
+                    await marcarComoLida(id);
+                }
+            } catch (error) {
+                console.error(`Erro ao marcar notificação ${id} como lida:`, error);
+            }
+        }
+        
+        // Atualizar o estado local independentemente de sucesso na API
         setNotifications(prevNotifications =>
             prevNotifications.map(notification =>
                 notificationIds.includes(notification.id)
@@ -92,7 +115,6 @@ const Header = () => {
             )
         );
     };
-    // Moved to above the useEffect hook
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -199,9 +221,9 @@ const Header = () => {
                         
                         <div className="position-relative me-3 notifications-dropdown">
                             <Nav.Link 
-                                href="#" 
-                                className="text-white position-relative" 
+                                className="text-white position-relative d-flex align-items-center" 
                                 onClick={() => setShowNotificationsDropdown(!showNotificationsDropdown)}
+                                style={{ cursor: 'pointer' }}
                             >
                                 <i className="fas fa-bell"></i>
                                 {unreadCount > 0 && (
@@ -214,10 +236,21 @@ const Header = () => {
                                 )}
                             </Nav.Link>
                             {showNotificationsDropdown && (
-                                <NotificationDropdown 
-                                    notifications={notifications}
-                                    onRead={handleReadNotifications}
-                                />
+                                <>
+                                    <NotificationDropdown 
+                                        notifications={notifications}
+                                        onRead={handleReadNotifications}
+                                    />
+                                    <div className="text-center p-2 border-top">
+                                        <Link 
+                                            to="/perfil?tab=notificacoes" 
+                                            className="text-decoration-none small"
+                                            onClick={() => setShowNotificationsDropdown(false)}
+                                        >
+                                            Ver todas as notificações
+                                        </Link>
+                                    </div>
+                                </>
                             )}
                         </div>
                         <div className="position-relative me-3 messages-dropdown">

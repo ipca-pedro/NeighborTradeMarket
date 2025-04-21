@@ -9,10 +9,50 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * @OA\Tag(
+ *     name="Notificações",
+ *     description="API Endpoints para gerenciamento de notificações"
+ * )
+ */
 class NotificacaoController extends Controller
 {
     /**
-     * Listar todas as notificações do utilizador autenticado
+     * @OA\Get(
+     *     path="/api/notificacoes",
+     *     summary="Listar todas as notificações do utilizador",
+     *     description="Retorna todas as notificações do utilizador autenticado",
+     *     operationId="getAllNotificacoes",
+     *     tags={"Notificações"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de notificações recuperada com sucesso",
+     *         @OA\JsonContent(type="array", @OA\Items(
+     *             @OA\Property(property="ID_Notificacao", type="integer", example=1),
+     *             @OA\Property(property="Mensagem", type="string", example="Seu anúncio foi aprovado"),
+     *             @OA\Property(property="DataNotificacao", type="string", format="date-time", example="2023-01-01 12:00:00"),
+     *             @OA\Property(property="Lida", type="integer", example=0),
+     *             @OA\Property(property="ReferenciaID", type="integer", example=123),
+     *             @OA\Property(property="TipoReferencia", type="string", example="Anúncio"),
+     *             @OA\Property(property="TipoNotificacao", type="string", example="Aprovação")
+     *         ))
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Não autorizado - usuário não autenticado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Não autenticado")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro no servidor",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Erro ao buscar notificações")
+     *         )
+     *     )
+     * )
      */
     public function index()
     {
@@ -38,7 +78,34 @@ class NotificacaoController extends Controller
     }
     
     /**
-     * Listar notificações não lidas do utilizador autenticado
+     * @OA\Get(
+     *     path="/api/notificacoes/nao-lidas",
+     *     summary="Listar notificações não lidas",
+     *     description="Retorna todas as notificações não lidas do utilizador autenticado",
+     *     operationId="getUnreadNotificacoes",
+     *     tags={"Notificações"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de notificações não lidas recuperada com sucesso",
+     *         @OA\JsonContent(type="array", @OA\Items(
+     *             @OA\Property(property="ID_Notificacao", type="integer", example=1),
+     *             @OA\Property(property="Mensagem", type="string", example="Seu anúncio foi aprovado"),
+     *             @OA\Property(property="DataNotificacao", type="string", format="date-time", example="2023-01-01 12:00:00"),
+     *             @OA\Property(property="Lida", type="integer", example=0),
+     *             @OA\Property(property="ReferenciaID", type="integer", example=123),
+     *             @OA\Property(property="TipoReferencia", type="string", example="Anúncio"),
+     *             @OA\Property(property="TipoNotificacao", type="string", example="Aprovação")
+     *         ))
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Não autorizado - usuário não autenticado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Não autenticado")
+     *         )
+     *     )
+     * )
      */
     public function unread()
     {
@@ -65,7 +132,42 @@ class NotificacaoController extends Controller
     }
     
     /**
-     * Marcar uma notificação como lida
+     * @OA\Post(
+     *     path="/api/notificacoes/{id}/lida",
+     *     summary="Marcar notificação como lida",
+     *     description="Marca uma notificação específica como lida",
+     *     operationId="markNotificationAsRead",
+     *     tags={"Notificações"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID da notificação a ser marcada como lida",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Notificação marcada como lida com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Notificação marcada como lida")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Notificação não encontrada",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Notificação não encontrada ou não pertence ao utilizador")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Não autorizado - usuário não autenticado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Não autenticado")
+     *         )
+     *     )
+     * )
      */
     public function markAsRead($id)
     {
@@ -94,7 +196,29 @@ class NotificacaoController extends Controller
     }
     
     /**
-     * Marcar todas as notificações como lidas
+     * @OA\Post(
+     *     path="/api/notificacoes/todas-lidas",
+     *     summary="Marcar todas as notificações como lidas",
+     *     description="Marca todas as notificações não lidas do utilizador como lidas",
+     *     operationId="markAllNotificationsAsRead",
+     *     tags={"Notificações"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Notificações marcadas como lidas com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Todas as notificações foram marcadas como lidas"),
+     *             @OA\Property(property="count", type="integer", example=5)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Não autorizado - usuário não autenticado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Não autenticado")
+     *         )
+     *     )
+     * )
      */
     public function markAllAsRead()
     {
@@ -113,7 +237,42 @@ class NotificacaoController extends Controller
     }
     
     /**
-     * Excluir uma notificação
+     * @OA\Delete(
+     *     path="/api/notificacoes/{id}",
+     *     summary="Excluir notificação",
+     *     description="Exclui uma notificação específica do utilizador",
+     *     operationId="deleteNotification",
+     *     tags={"Notificações"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID da notificação a ser excluída",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Notificação excluída com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Notificação excluída com sucesso")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Notificação não encontrada",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Notificação não encontrada ou não pertence ao utilizador")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Não autorizado - usuário não autenticado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Não autenticado")
+     *         )
+     *     )
+     * )
      */
     public function destroy($id)
     {
@@ -142,7 +301,29 @@ class NotificacaoController extends Controller
     }
     
     /**
-     * Excluir todas as notificações lidas
+     * @OA\Delete(
+     *     path="/api/notificacoes/lidas",
+     *     summary="Excluir todas as notificações lidas",
+     *     description="Exclui todas as notificações já lidas do utilizador",
+     *     operationId="deleteAllReadNotifications",
+     *     tags={"Notificações"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Notificações lidas excluídas com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Todas as notificações lidas foram excluídas"),
+     *             @OA\Property(property="count", type="integer", example=10)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Não autorizado - usuário não autenticado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Não autenticado")
+     *         )
+     *     )
+     * )
      */
     public function deleteAllRead()
     {
@@ -161,7 +342,28 @@ class NotificacaoController extends Controller
     }
     
     /**
-     * Contar notificações não lidas
+     * @OA\Get(
+     *     path="/api/notificacoes/nao-lidas/contar",
+     *     summary="Contar notificações não lidas",
+     *     description="Retorna o número de notificações não lidas do utilizador autenticado",
+     *     operationId="countUnreadNotifications",
+     *     tags={"Notificações"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Contagem de notificações não lidas",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="count", type="integer", example=5)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Não autorizado - usuário não autenticado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Não autenticado")
+     *         )
+     *     )
+     * )
      */
     public function countUnread()
     {
@@ -178,7 +380,48 @@ class NotificacaoController extends Controller
     }
     
     /**
-     * Obter detalhes de uma notificação específica
+     * @OA\Get(
+     *     path="/api/notificacoes/{id}",
+     *     summary="Visualizar notificação específica",
+     *     description="Retorna detalhes de uma notificação específica e a marca como lida",
+     *     operationId="getNotificationDetails",
+     *     tags={"Notificações"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID da notificação a ser visualizada",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Detalhes da notificação recuperados com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="ID_Notificacao", type="integer", example=1),
+     *             @OA\Property(property="Mensagem", type="string", example="Seu anúncio foi aprovado"),
+     *             @OA\Property(property="DataNotificacao", type="string", format="date-time", example="2023-01-01 12:00:00"),
+     *             @OA\Property(property="Lida", type="integer", example=1),
+     *             @OA\Property(property="ReferenciaID", type="integer", example=123),
+     *             @OA\Property(property="TipoReferencia", type="string", example="Anúncio"),
+     *             @OA\Property(property="TipoNotificacao", type="string", example="Aprovação")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Notificação não encontrada",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Notificação não encontrada ou não pertence ao utilizador")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Não autorizado - usuário não autenticado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Não autenticado")
+     *         )
+     *     )
+     * )
      */
     public function show($id)
     {
@@ -214,101 +457,24 @@ class NotificacaoController extends Controller
         // Buscar detalhes adicionais com base no tipo de referência
         $detalhes = null;
         
-        switch ($notificacao->TipoReferencia) {
-            case 'Mensagem':
-                // Buscar detalhes da mensagem
-                $detalhes = DB::table('Mensagem as m')
-                    ->join('Anuncio as a', 'm.ItemID_Item', '=', 'a.ID_Anuncio')
-                    ->join('Utilizador as u', function($join) {
-                        $join->join('Mensagem_Utilizador as mu', 'mu.UtilizadorID_User', '=', 'u.ID_User')
-                            ->on('mu.MensagemID_Mensagem', '=', 'm.ID_Mensagem');
-                    })
-                    ->where('m.ID_Mensagem', $notificacao->ReferenciaID)
-                    ->select(
-                        'm.ID_Mensagem',
-                        'm.Conteudo',
-                        'm.Data_mensagem',
-                        'a.ID_Anuncio',
-                        'a.Titulo as TituloAnuncio',
-                        'u.ID_User',
-                        'u.Name as NomeRemetente'
-                    )
-                    ->first();
-                break;
+        // Exemplo: se for referência a um anúncio, buscar detalhes do anúncio
+        if ($notificacao->TipoReferencia == 'Anúncio') {
+            $anuncio = DB::table('Anuncio')
+                ->where('ID_Anuncio', $notificacao->ReferenciaID)
+                ->select('ID_Anuncio', 'Titulo', 'Descricao', 'Preco')
+                ->first();
                 
-            case 'Troca':
-                // Buscar detalhes da troca
-                $detalhes = DB::table('Troca as t')
-                    ->join('Anuncio as a1', 't.ItemID_ItemOferecido', '=', 'a1.ID_Anuncio')
-                    ->join('Anuncio as a2', 't.ItemID_Solicitado', '=', 'a2.ID_Anuncio')
-                    ->join('Utilizador as u1', 'a1.UtilizadorID_User', '=', 'u1.ID_User')
-                    ->join('Utilizador as u2', 'a2.UtilizadorID_User', '=', 'u2.ID_User')
-                    ->join('Status_Troca as st', 't.Status_TrocaID_Status_Troca', '=', 'st.ID_Status_Troca')
-                    ->where('t.ID_Troca', $notificacao->ReferenciaID)
-                    ->select(
-                        't.ID_Troca',
-                        't.DataTroca',
-                        'a1.ID_Anuncio as ItemOferecidoID',
-                        'a1.Titulo as ItemOferecidoTitulo',
-                        'a2.ID_Anuncio as ItemSolicitadoID',
-                        'a2.Titulo as ItemSolicitadoTitulo',
-                        'u1.ID_User as UtilizadorOfereceuID',
-                        'u1.Name as UtilizadorOfereceuNome',
-                        'u2.ID_User as UtilizadorSolicitadoID',
-                        'u2.Name as UtilizadorSolicitadoNome',
-                        'st.Descricao_status_troca as StatusTroca'
-                    )
-                    ->first();
-                break;
-                
-            case 'Avaliacao':
-                // Buscar detalhes da avaliação
-                $detalhes = DB::table('Avaliacao as av')
-                    ->join('Compra as c', 'av.OrdemID_Produto', '=', 'c.ID_Compra')
-                    ->join('Anuncio as a', 'c.AnuncioID_Anuncio', '=', 'a.ID_Anuncio')
-                    ->join('Utilizador as u1', 'c.UtilizadorID_User', '=', 'u1.ID_User')
-                    ->join('Utilizador as u2', 'a.UtilizadorID_User', '=', 'u2.ID_User')
-                    ->join('Nota as n', 'av.NotaID_Nota', '=', 'n.ID_Nota')
-                    ->where('av.Id_Avaliacao', $notificacao->ReferenciaID)
-                    ->select(
-                        'av.Id_Avaliacao',
-                        'av.Comentario',
-                        'av.Resposta',
-                        'av.Data_Avaliacao',
-                        'av.Data_Resposta',
-                        'c.ID_Compra',
-                        'a.ID_Anuncio',
-                        'a.Titulo as TituloAnuncio',
-                        'u1.ID_User as CompradorID',
-                        'u1.Name as CompradorNome',
-                        'u2.ID_User as VendedorID',
-                        'u2.Name as VendedorNome',
-                        'n.Descricao_nota as Nota'
-                    )
-                    ->first();
-                break;
-                
-            case 'Aprovacao':
-                // Buscar detalhes da aprovação
-                $detalhes = DB::table('Aprovacao as ap')
-                    ->join('Status_Aprovacao as sa', 'ap.Status_AprovacaoID_Status_Aprovacao', '=', 'sa.ID_Status_Aprovacao')
-                    ->join('Utilizador as u', 'ap.UtilizadorID_Admin', '=', 'u.ID_User')
-                    ->where('ap.ID_aprovacao', $notificacao->ReferenciaID)
-                    ->select(
-                        'ap.ID_aprovacao',
-                        'ap.Data_Submissao',
-                        'ap.Data_Aprovacao',
-                        'sa.Descricao_status_aprovacao as StatusAprovacao',
-                        'u.ID_User as AdminID',
-                        'u.Name as AdminNome'
-                    )
-                    ->first();
-                break;
+            if ($anuncio) {
+                $detalhes = $anuncio;
+            }
         }
         
-        return response()->json([
-            'notificacao' => $notificacao,
-            'detalhes' => $detalhes
-        ]);
+        // Adicionar detalhes à resposta se encontrados
+        $resposta = (array) $notificacao;
+        if ($detalhes) {
+            $resposta['detalhes'] = $detalhes;
+        }
+        
+        return response()->json($resposta);
     }
 }

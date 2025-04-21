@@ -1,15 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Nav, Tab, Row, Col } from 'react-bootstrap';
+import { useLocation } from 'react-router-dom';
 import MinhasCompras from './MinhasCompras';
 import MinhasVendas from './MinhasVendas';
 import MeusAnuncios from '../produtos/MeusAnuncios';
 import Cartoes from './Cartoes';
 import DadosPessoais from './DadosPessoais';
 import MinhasReclamacoes from './MinhasReclamacoes';
+import MinhasNotificacoes from '../notifications/MinhasNotificacoes';
 import './Perfil.css';
 
 const Perfil = () => {
+    const location = useLocation();
     const [key, setKey] = useState('dados');
+    
+    useEffect(() => {
+        // Verificar parâmetros na URL para determinar a aba inicial
+        const params = new URLSearchParams(location.search);
+        const tabParam = params.get('tab');
+        
+        if (tabParam) {
+            // Mapear possíveis valores do parâmetro para as chaves de abas
+            const tabMapping = {
+                'notificacoes': 'notificacoes',
+                'compras': 'compras',
+                'vendas': 'vendas',
+                'anuncios': 'anuncios',
+                'cartoes': 'cartoes',
+                'reclamacoes': 'reclamacoes',
+                'dados': 'dados'
+            };
+            
+            // Definir a aba ativa se o parâmetro for válido
+            if (tabMapping[tabParam]) {
+                setKey(tabMapping[tabParam]);
+            }
+        }
+    }, [location.search]);
 
     return (
         <Container className="py-4">
@@ -54,6 +81,12 @@ const Perfil = () => {
                                         Minhas Reclamações
                                     </Nav.Link>
                                 </Nav.Item>
+                                <Nav.Item>
+                                    <Nav.Link eventKey="notificacoes" className="d-flex align-items-center">
+                                        <i className="fas fa-bell me-2"></i>
+                                        Notificações
+                                    </Nav.Link>
+                                </Nav.Item>
                             </Nav>
                         </div>
                     </Col>
@@ -76,6 +109,9 @@ const Perfil = () => {
                             </Tab.Pane>
                             <Tab.Pane eventKey="reclamacoes">
                                 <MinhasReclamacoes />
+                            </Tab.Pane>
+                            <Tab.Pane eventKey="notificacoes">
+                                <MinhasNotificacoes />
                             </Tab.Pane>
                         </Tab.Content>
                     </Col>

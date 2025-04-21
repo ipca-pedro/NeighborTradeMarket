@@ -1,3 +1,226 @@
+/* Estilos para o container principal */
+.reclamacoes-simples {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+}
+
+/* Estilos para os cards de reclamação */
+.reclamacao-card-simples {
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    transition: all 0.2s;
+    margin-bottom: 15px;
+}
+
+.reclamacao-card-simples:hover {
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+/* Estilos para o estado vazio */
+.empty-state {
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    padding: 20px;
+    text-align: center;
+}
+
+/* Status badge */
+.status-badge {
+    font-size: 0.75rem;
+    padding: 5px 10px;
+    border-radius: 20px;
+}
+
+/* Estilos para o container principal */
+.reclamacoes-container {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+}
+
+.page-title {
+    color: #343a40;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+/* Estilos para a lista de reclamações */
+.reclamacoes-list {
+    margin-top: 1rem;
+}
+
+.reclamacao-card {
+    transition: all 0.2s ease;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.reclamacao-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+.chat-button {
+    border-radius: 20px;
+    padding: 0.4rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.chat-button:hover {
+    transform: translateY(-2px);
+}
+
+/* Estilos para caixa de pesquisa */
+.search-box {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #adb5bd;
+    z-index: 10;
+}
+
+.search-box .form-control {
+    padding-left: 35px;
+    border-radius: 20px;
+}
+
+/* Estilos para guias de filtro */
+.filter-tabs .nav-tabs {
+    border-bottom: none;
+}
+
+.filter-tabs .nav-link {
+    border: none;
+    color: #6c757d;
+    padding: 0.5rem 0.75rem;
+    margin-right: 0.5rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+}
+
+.filter-tabs .nav-link:hover {
+    color: #495057;
+    background-color: #f8f9fa;
+}
+
+.filter-tabs .nav-link.active {
+    color: #fff;
+    background-color: #0d6efd;
+}
+
+/* Estilos para o chat */
+.chat-icon-circle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #e9ecef;
+    color: #0d6efd;
+}
+
+.chat-status {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.chat-messages-container {
+    height: 350px;
+    overflow-y: auto;
+    background-color: #f9fbfd;
+}
+
+.chat-message {
+    display: flex;
+    margin-bottom: 1rem;
+}
+
+.chat-message.incoming {
+    justify-content: flex-start;
+}
+
+.chat-message.outgoing {
+    justify-content: flex-end;
+}
+
+.chat-message.sistema {
+    justify-content: center;
+}
+
+.sender-avatar {
+    margin-right: 10px;
+    display: flex;
+    align-items: flex-start;
+    padding-top: 5px;
+}
+
+.message-content {
+    max-width: 75%;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    background-color: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eaedf0;
+}
+
+.message-content.sistema {
+    background-color: #f8f9fa;
+    max-width: 90%;
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+    padding: 0.5rem 1rem;
+}
+
+.chat-message.incoming .message-content {
+    border-top-left-radius: 2px;
+    background-color: #f2f6ff;
+}
+
+.chat-message.outgoing .message-content {
+    border-top-right-radius: 2px;
+    background-color: #e1f5fe;
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+}
+
+.sender-name {
+    font-weight: 600;
+    color: #495057;
+}
+
+.message-time {
+    color: #adb5bd;
+}
+
+.message-body {
+    word-break: break-word;
+}
+
+.chat-input-container {
+    background-color: #fff;
+}
+
 .reclamacoes-grid {
     display: grid;
     grid-template-columns: 1fr 2fr;
@@ -6,47 +229,9 @@
     height: calc(100vh - 200px);
 }
 
-.search-box {
-    position: relative;
-    max-width: 500px;
-    margin: 0 auto;
-}
-
-.search-icon {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #6c757d;
-}
-
-.search-box .form-control {
-    padding-left: 40px;
-    border-radius: 20px;
-    border: 2px solid #e9ecef;
-    transition: all 0.3s ease;
-}
-
-.search-box .form-control:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
-}
-
 .reclamacoes-lista {
     overflow-y: auto;
     padding-right: 1rem;
-}
-
-.reclamacao-card {
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-}
-
-.reclamacao-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .reclamacao-card.selected {
@@ -91,22 +276,6 @@
 
 .message.received {
     align-self: flex-start;
-}
-
-.message-content {
-    padding: 0.75rem 1rem;
-    border-radius: 12px;
-    position: relative;
-}
-
-.message.sent .message-content {
-    background-color: #0d6efd;
-    color: white;
-}
-
-.message.received .message-content {
-    background-color: #f0f2f5;
-    color: #212529;
 }
 
 .message-content p {

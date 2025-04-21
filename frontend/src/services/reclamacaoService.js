@@ -61,9 +61,9 @@ export const buscarTodasReclamacoes = async () => {
     }
 };
 
-export const atualizarStatus = async (id, status) => {
+export const atualizarStatus = async (id, status_id) => {
     try {
-        const response = await api.put(`/reclamacoes/${id}/status`, { status });
+        const response = await api.patch(`/reclamacoes/${id}/status`, { status_id });
         return response.data;
     } catch (error) {
         throw error;

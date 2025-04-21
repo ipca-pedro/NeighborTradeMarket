@@ -17,10 +17,66 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Auth\Events\PasswordReset;
 
+/**
+ * @OA\Tag(
+ *     name="Autenticação",
+ *     description="API Endpoints para autenticação e gestão de utilizadores"
+ * )
+ */
 class AuthController extends Controller
 {
     /**
-     * Login do utilizador
+     * @OA\Post(
+     *     path="/api/auth/login",
+     *     summary="Login do utilizador",
+     *     description="Autentica um utilizador e retorna o token de acesso",
+     *     operationId="login",
+     *     tags={"Autenticação"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         description="Credenciais do utilizador",
+     *         @OA\JsonContent(
+     *             required={"Email", "Password"},
+     *             @OA\Property(property="Email", type="string", format="email", example="user@example.com"),
+     *             @OA\Property(property="Password", type="string", format="password", example="password123")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Login realizado com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="user", type="object", 
+     *                 @OA\Property(property="ID_User", type="integer", example=1),
+     *                 @OA\Property(property="Name", type="string", example="João Silva"),
+     *                 @OA\Property(property="Email", type="string", format="email", example="user@example.com"),
+     *                 @OA\Property(property="User_Name", type="string", example="joaosilva")
+     *             ),
+     *             @OA\Property(property="token", type="string", example="1|LzUVRjIoQmVXb8mWLRlHWt4H0FALvCx9PjCFFRlI"),
+     *             @OA\Property(property="message", type="string", example="Login realizado com sucesso")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Credenciais inválidas",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Utilizador não encontrado ou senha incorreta")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Utilizador não aprovado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="A sua conta ainda está pendente de aprovação pelo administrador")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro no servidor",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Erro ao processar o login")
+     *         )
+     *     )
+     * )
      */
     public function login(Request $request)
     {
@@ -111,7 +167,60 @@ class AuthController extends Controller
     }
 
     /**
-     * Registo de novo utilizador
+     * @OA\Post(
+     *     path="/api/auth/register",
+     *     summary="Registo de novo utilizador",
+     *     description="Regista um novo utilizador no sistema, sujeito à aprovação por um administrador",
+     *     operationId="register",
+     *     tags={"Autenticação"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         description="Dados do novo utilizador",
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 required={"User_Name", "Name", "Email", "Password", "Password_confirmation", "Data_Nascimento", "CC", "MoradaID_Morada", "comprovativo_morada"},
+     *                 @OA\Property(property="User_Name", type="string", example="joaosilva"),
+     *                 @OA\Property(property="Name", type="string", example="João Silva"),
+     *                 @OA\Property(property="Email", type="string", format="email", example="user@example.com"),
+     *                 @OA\Property(property="Password", type="string", format="password", example="password123"),
+     *                 @OA\Property(property="Password_confirmation", type="string", format="password", example="password123"),
+     *                 @OA\Property(property="Data_Nascimento", type="string", format="date", example="1990-01-01"),
+     *                 @OA\Property(property="CC", type="string", example="12345678"),
+     *                 @OA\Property(property="MoradaID_Morada", type="integer", example=1),
+     *                 @OA\Property(property="comprovativo_morada", type="string", format="binary")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Utilizador registado com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Registo realizado com sucesso. Aguardando aprovação do administrador."),
+     *             @OA\Property(property="user", type="object", 
+     *                 @OA\Property(property="ID_User", type="integer", example=1),
+     *                 @OA\Property(property="Name", type="string", example="João Silva"),
+     *                 @OA\Property(property="Email", type="string", format="email", example="user@example.com"),
+     *                 @OA\Property(property="User_Name", type="string", example="joaosilva")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Dados inválidos",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="O campo User_Name já está sendo utilizado"),
+     *             @OA\Property(property="errors", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro no servidor",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Erro ao processar o registo")
+     *         )
+     *     )
+     * )
      */
     public function register(Request $request)
     {
@@ -271,153 +380,168 @@ class AuthController extends Controller
     }
 
     /**
-     * Logout do utilizador
+     * @OA\Post(
+     *     path="/api/auth/logout",
+     *     summary="Logout do utilizador",
+     *     description="Encerra a sessão do utilizador e revoga o token de acesso",
+     *     operationId="logout",
+     *     tags={"Autenticação"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Logout realizado com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Logout realizado com sucesso")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Não autorizado - usuário não autenticado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Não autenticado")
+     *         )
+     *     )
+     * )
      */
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
-        return response()->json(['message' => 'Logout realizado com sucesso.']);
+        return response()->json(['message' => 'Logout realizado com sucesso']);
     }
-    
+
     /**
-     * Retorna todas as moradas disponíveis para registo
+     * @OA\Get(
+     *     path="/api/moradas",
+     *     summary="Listar moradas disponíveis",
+     *     description="Retorna uma lista de moradas disponíveis para selecionar durante o registo",
+     *     operationId="getMoradas",
+     *     tags={"Autenticação"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de moradas recuperada com sucesso",
+     *         @OA\JsonContent(type="array", @OA\Items(
+     *             @OA\Property(property="ID_Morada", type="integer", example=1),
+     *             @OA\Property(property="Rua", type="string", example="Rua da Juventude, nº 44")
+     *         ))
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro no servidor",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Erro ao buscar moradas")
+     *         )
+     *     )
+     * )
      */
     public function getMoradas()
     {
         try {
-            // Buscar apenas os campos que existem na tabela
-            $moradas = Morada::all();
+            $moradas = Morada::select('ID_Morada', 'Rua')->get();
             return response()->json($moradas);
         } catch (\Exception $e) {
-            // Registrar o erro e retornar uma resposta amigável
-            \Log::error('Erro ao buscar moradas: ' . $e->getMessage());
             return response()->json([
-                'message' => 'Não foi possível obter a lista de moradas.',
-                'error' => config('app.debug') ? $e->getMessage() : null
+                'message' => 'Erro ao buscar moradas: ' . $e->getMessage()
             ], 500);
         }
     }
 
     /**
-     * Obter dados do utilizador autenticado
+     * @OA\Get(
+     *     path="/api/auth/me",
+     *     summary="Obter dados do utilizador autenticado",
+     *     description="Retorna os dados do utilizador atualmente autenticado",
+     *     operationId="getAuthenticatedUser",
+     *     tags={"Autenticação"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Dados do utilizador recuperados com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="ID_User", type="integer", example=1),
+     *             @OA\Property(property="Name", type="string", example="João Silva"),
+     *             @OA\Property(property="Email", type="string", format="email", example="user@example.com"),
+     *             @OA\Property(property="User_Name", type="string", example="joaosilva"),
+     *             @OA\Property(property="Data_Nascimento", type="string", format="date", example="1990-01-01")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Não autorizado - usuário não autenticado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Não autenticado")
+     *         )
+     *     )
+     * )
      */
     public function me()
     {
-        $user = Auth::user();
-        
-        // Carregar relações importantes
-        $user->load(['morada', 'status_utilizador', 'tipouser', 'imagem']);
-        
-        return response()->json($user);
+        return response()->json(Auth::user()->load(['morada', 'tipouser', 'imagem']));
     }
-    
+
     /**
-     * Obter perfil do utilizador
+     * @OA\Get(
+     *     path="/api/auth/profile",
+     *     summary="Obter perfil do utilizador",
+     *     description="Retorna o perfil completo do utilizador autenticado",
+     *     operationId="getUserProfile",
+     *     tags={"Autenticação"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Perfil do utilizador recuperado com sucesso",
+     *         @OA\JsonContent(type="object")
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Não autorizado - usuário não autenticado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Não autenticado")
+     *         )
+     *     )
+     * )
      */
     public function getUserProfile()
     {
-        $user = Auth::user();
-        
-        // Carregar relações importantes
-        $user->load(['morada', 'status_utilizador', 'tipouser', 'imagem']);
-        
-        return response()->json($user);
+        return response()->json(Auth::user()->load(['morada', 'tipouser', 'imagem']));
     }
-    
+
     /**
-     * Atualizar perfil do utilizador
-     */
-    public function updateUserProfile(Request $request)
-    {
-        $user = Auth::user();
-        
-        $request->validate([
-            'Name' => 'sometimes|string|max:255',
-            'User_Name' => 'sometimes|string|max:255|unique:utilizador,User_Name,' . $user->ID_User . ',ID_User',
-            'Email' => 'sometimes|string|email|max:255|unique:utilizador,Email,' . $user->ID_User . ',ID_User',
-            'profile_image' => 'sometimes|file|mimes:jpeg,png,jpg|max:2048'
-        ]);
-        
-        DB::beginTransaction();
-        
-        try {
-            // Atualizar dados básicos
-            if ($request->has('Name')) {
-                $user->Name = $request->Name;
-            }
-            
-            if ($request->has('User_Name')) {
-                $user->User_Name = $request->User_Name;
-            }
-            
-            if ($request->has('Email')) {
-                $user->Email = $request->Email;
-            }
-            
-            // Processar imagem de perfil
-            if ($request->hasFile('profile_image')) {
-                $file = $request->file('profile_image');
-                $filename = time() . '_' . $file->getClientOriginalName();
-                $path = $file->storeAs('public/perfil', $filename);
-                
-                $imagem = new Imagem([
-                    'Caminho' => $path
-                ]);
-                $imagem->save();
-                
-                $user->ImagemID_Imagem = $imagem->ID_Imagem;
-            }
-            
-            $user->save();
-            
-            DB::commit();
-            
-            // Recarregar o utilizador com suas relações
-            $user->load(['morada', 'status_utilizador', 'tipouser', 'imagem']);
-            
-            return response()->json([
-                'user' => $user,
-                'message' => 'Perfil atualizado com sucesso'
-            ]);
-            
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'message' => 'Erro ao atualizar perfil: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-    
-    /**
-     * Alterar senha do utilizador
-     */
-    public function changePassword(Request $request)
-    {
-        $request->validate([
-            'current_password' => 'required|string',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
-        
-        $user = Auth::user();
-        
-        // Verificar senha atual
-        if (!Hash::check($request->current_password, $user->Password)) {
-            return response()->json([
-                'message' => 'A senha atual está incorreta'
-            ], 400);
-        }
-        
-        // Atualizar senha
-        $user->Password = Hash::make($request->password);
-        $user->save();
-        
-        return response()->json([
-            'message' => 'Senha alterada com sucesso'
-        ]);
-    }
-    
-    /**
-     * Enviar link de redefinição de senha
+     * @OA\Post(
+     *     path="/api/auth/reset-password",
+     *     summary="Solicitar redefinição de senha",
+     *     description="Envia um email com o link para redefinir a senha",
+     *     operationId="requestPasswordReset",
+     *     tags={"Autenticação"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         description="Email do utilizador",
+     *         @OA\JsonContent(
+     *             required={"email"},
+     *             @OA\Property(property="email", type="string", format="email", example="user@example.com")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Email de redefinição enviado com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Email de redefinição de senha enviado com sucesso")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Email não encontrado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Não conseguimos encontrar um utilizador com esse endereço de email")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro no servidor",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Erro ao processar a solicitação de redefinição de senha")
+     *         )
+     *     )
+     * )
      */
     public function sendResetLinkEmail(Request $request)
     {
@@ -461,108 +585,78 @@ class AuthController extends Controller
             'token' => $token // Em produção, não retorne o token na resposta
         ]);
     }
-    
+
     /**
-     * Mostrar formulário de redefinição de senha (verificar token)
+     * @OA\Post(
+     *     path="/api/auth/change-password",
+     *     summary="Alterar senha",
+     *     description="Altera a senha do utilizador autenticado",
+     *     operationId="changePassword",
+     *     tags={"Autenticação"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         description="Dados para alteração de senha",
+     *         @OA\JsonContent(
+     *             required={"current_password", "password", "password_confirmation"},
+     *             @OA\Property(property="current_password", type="string", format="password", example="senhaAtual123"),
+     *             @OA\Property(property="password", type="string", format="password", example="novaSenha123"),
+     *             @OA\Property(property="password_confirmation", type="string", format="password", example="novaSenha123")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Senha alterada com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Senha alterada com sucesso")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Validação falhou",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="A senha atual está incorreta"),
+     *             @OA\Property(property="errors", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Não autorizado - usuário não autenticado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Não autenticado")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro no servidor",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Erro ao alterar a senha")
+     *         )
+     *     )
+     * )
      */
-    public function showResetForm(Request $request, $token)
-    {
-        // Tipo de notificação para redefinição de senha (ID 3)
-        $tipoNotificacaoId = 3;
-        
-        // Buscar notificações de redefinição de senha criadas nas últimas 24 horas
-        $notificacoes = DB::table('notificacao')
-            ->where('TIpo_notificacaoID_TipoNotificacao', $tipoNotificacaoId)
-            ->where('DataNotificacao', '>=', now()->subHours(24))
-            ->get();
-        
-        $tokenValido = false;
-        $userId = null;
-        
-        // Verificar se alguma das notificações contém o token válido
-        foreach ($notificacoes as $notificacao) {
-            if (Hash::check($token, $notificacao->Mensagem)) {
-                $tokenValido = true;
-                $userId = $notificacao->UtilizadorID_User;
-                break;
-            }
-        }
-        
-        if (!$tokenValido) {
-            return response()->json([
-                'message' => 'Este token de redefinição de senha é inválido ou expirou.'
-            ], 400);
-        }
-        
-        // Buscar o email do utilizador
-        $user = Utilizador::find($userId);
-        
-        return response()->json([
-            'message' => 'Token válido',
-            'email' => $user->Email
-        ]);
-    }
-    
-    /**
-     * Redefinir senha
-     */
-    public function resetPassword(Request $request)
+    public function changePassword(Request $request)
     {
         $request->validate([
-            'token' => 'required',
-            'Password' => 'required|min:8',
-            'Password_confirmation' => 'required|same:Password'
+            'current_password' => 'required|string',
+            'password' => 'required|string|min:8|confirmed',
         ]);
         
-        // Tipo de notificação para redefinição de senha (ID 3)
-        $tipoNotificacaoId = 3;
+        $user = Auth::user();
         
-        // Buscar notificações de redefinição de senha criadas nas últimas 24 horas
-        $notificacoes = DB::table('notificacao')
-            ->where('TIpo_notificacaoID_TipoNotificacao', $tipoNotificacaoId)
-            ->where('DataNotificacao', '>=', now()->subHours(24))
-            ->get();
-        
-        $tokenValido = false;
-        $userId = null;
-        $notificacaoId = null;
-        
-        // Verificar se alguma das notificações contém o token válido
-        foreach ($notificacoes as $notificacao) {
-            if (Hash::check($request->token, $notificacao->Mensagem)) {
-                $tokenValido = true;
-                $userId = $notificacao->UtilizadorID_User;
-                $notificacaoId = $notificacao->ID_Notificacao;
-                break;
-            }
-        }
-        
-        if (!$tokenValido) {
+        // Verificar senha atual
+        if (!Hash::check($request->current_password, $user->Password)) {
             return response()->json([
-                'message' => 'Este token de redefinição de senha é inválido ou expirou.'
+                'message' => 'A senha atual está incorreta'
             ], 400);
-        }
-        
-        // Buscar o utilizador
-        $user = Utilizador::find($userId);
-        
-        if (!$user) {
-            return response()->json([
-                'message' => 'Não foi possível encontrar o utilizador.'
-            ], 404);
         }
         
         // Atualizar senha
-        $user->Password = Hash::make($request->Password);
+        $user->Password = Hash::make($request->password);
         $user->save();
         
-        // Remover a notificação do token usado
-        DB::table('notificacao')
-            ->where('ID_Notificacao', $notificacaoId)
-            ->delete();
-        
         return response()->json([
-            'message' => 'Senha redefinida com sucesso.'
+            'message' => 'Senha alterada com sucesso'
         ]);
     }
 }

@@ -104,8 +104,8 @@ class ReclamacaoController extends Controller
         }
     }
 
-    /**
-     * Listar reclamações (com base no papel do usuário)
+    /** 
+     * Li   star reclamações (com base no papel do usuário)
      */
     public function index()
     {
@@ -131,6 +131,35 @@ class ReclamacaoController extends Controller
         }
 
         return response()->json($reclamacoes);
+    }
+
+    /**
+     * Listar todas as reclamações (apenas para administradores)
+     */
+    public function indexAdmin()
+    {
+        $user = Auth::user();
+        
+        // Verificar se o usuário é administrador
+        if ($user->TipoUserID_TipoUser !== 1) {
+            return response()->json([
+                'message' => 'Acesso negado. Apenas administradores podem visualizar todas as reclamações.'
+            ], 403);
+        }
+        
+        // Obter todas as reclamações com os relacionamentos
+        $reclamacoes = Reclamacao::with([
+            'aprovacao',
+            'status',
+            'compras.anuncio.utilizador',
+            'compras.utilizador'
+        ])->orderBy('DataReclamacao', 'desc')->get();
+        
+        return response()->json([
+            'message' => 'Reclamações recuperadas com sucesso',
+            'total' => $reclamacoes->count(),
+            'reclamacoes' => $reclamacoes
+        ]);
     }
 
     /**
@@ -245,11 +274,41 @@ class ReclamacaoController extends Controller
                 return response()->json(['message' => 'Reclamação não encontrada'], 404);
             }
 
-            $reclamacao->Status_ReclamacaoID_Status_Reclamacao = $request->status_id;
+            $compra = $reclamacao->compras->first();
+            $statusAnterior = $reclamacao->Status_ReclamacaoID_Status_Reclamacao;
+            $novoStatus = $request->status_id;
+
+            // Atualizar o status da reclamação
+            $reclamacao->Status_ReclamacaoID_Status_Reclamacao = $novoStatus;
             $reclamacao->save();
 
+            // Processar consequências com base no novo status
+            if ($novoStatus == 3) { // Reclamação Resolvida/Aceita
+                // Adicionar um comentário ao registro de aprovação
+                $aprovacao = $reclamacao->aprovacao;
+                $aprovacao->Comentario = ($aprovacao->Comentario ? $aprovacao->Comentario . "\n" : '') . 
+                                       now()->format('Y-m-d H:i:s') . " - SISTEMA: Reclamação foi aceita pelo administrador. A compra foi marcada como problemática.";
+                $aprovacao->Data_Aprovacao = now();
+                $aprovacao->UtilizadorID_Admin = Auth::id();
+                $aprovacao->Status_AprovacaoID_Status_Aprovacao = 2; // Aprovado
+                $aprovacao->save();
+
+                // TODO: Marcar a compra como problemática (adicione esta funcionalidade se existir um campo para isso)
+                // $compra->Status_CompraID_Status_Compra = 5; // Status problemático/devolvido
+                // $compra->save();
+            } 
+            else if ($novoStatus == 4) { // Reclamação Rejeitada
+                // Adicionar um comentário ao registro de aprovação
+                $aprovacao = $reclamacao->aprovacao;
+                $aprovacao->Comentario = ($aprovacao->Comentario ? $aprovacao->Comentario . "\n" : '') . 
+                                       now()->format('Y-m-d H:i:s') . " - SISTEMA: Reclamação foi rejeitada pelo administrador. A compra continua válida.";
+                $aprovacao->Data_Aprovacao = now();
+                $aprovacao->UtilizadorID_Admin = Auth::id();
+                $aprovacao->Status_AprovacaoID_Status_Aprovacao = 3; // Rejeitado
+                $aprovacao->save();
+            }
+
             // Notificar comprador e vendedor
-            $compra = $reclamacao->compras->first();
             $participantes = [
                 $compra->UtilizadorID_User,
                 $compra->anuncio->UtilizadorID_User
@@ -257,12 +316,13 @@ class ReclamacaoController extends Controller
 
             foreach ($participantes as $userId) {
                 $notificacao = new Notificacao();
-                $notificacao->Mensagem = "O status da reclamação #" . $reclamacao->ID_Reclamacao . " foi atualizado";
+                $notificacao->Mensagem = "O status da reclamação #" . $reclamacao->ID_Reclamacao . " foi atualizado para " . 
+                                        ($novoStatus == 3 ? "ACEITA" : ($novoStatus == 4 ? "REJEITADA" : "atualizado"));
                 $notificacao->DataNotificacao = now();
                 $notificacao->ReferenciaID = $reclamacao->ID_Reclamacao;
                 $notificacao->UtilizadorID_User = $userId;
                 $notificacao->ReferenciaTipoID_ReferenciaTipo = 4; // Tipo Reclamação
-                $notificacao->TIpo_notificacaoID_TipoNotificacao = 5; // Usando tipo Mensagem temporariamente
+                $notificacao->TIpo_notificacaoID_TipoNotificacao = 5; // Atualização de Status
                 $notificacao->save();
             }
 
@@ -270,7 +330,9 @@ class ReclamacaoController extends Controller
 
             return response()->json([
                 'message' => 'Status da reclamação atualizado com sucesso',
-                'reclamacao' => $reclamacao
+                'reclamacao' => $reclamacao,
+                'processamento' => $novoStatus == 3 ? 'Reclamação aceita. Compra marcada como problemática.' :
+                                  ($novoStatus == 4 ? 'Reclamação rejeitada. Compra continua válida.' : 'Status atualizado.')
             ]);
 
         } catch (\Exception $e) {
@@ -372,6 +434,67 @@ class ReclamacaoController extends Controller
             
             return response()->json([
                 'message' => 'Erro ao buscar mensagens da reclamação',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get participants of a complaint
+     */
+    public function getParticipantes($id)
+    {
+        try {
+            $reclamacao = Reclamacao::with(['compras.anuncio.utilizador', 'compras.utilizador'])->find($id);
+            
+            if (!$reclamacao) {
+                return response()->json(['message' => 'Reclamação não encontrada'], 404);
+            }
+
+            $user = Auth::user();
+            $compra = $reclamacao->compras->first();
+
+            // Check if user has permission
+            $isAdmin = $user->TipoUserID_TipoUser === 1;
+            $isComprador = $compra->UtilizadorID_User === $user->ID_User;
+            $isVendedor = $compra->anuncio->UtilizadorID_User === $user->ID_User;
+
+            if (!$isAdmin && !$isComprador && !$isVendedor) {
+                return response()->json([
+                    'message' => 'Você não tem permissão para ver os participantes desta reclamação'
+                ], 403);
+            }
+
+            // Get participants info
+            $participantes = [
+                'admin' => [
+                    'tipo' => 'admin',
+                    'nome' => 'Administrador'
+                ],
+                'comprador' => [
+                    'tipo' => 'comprador',
+                    'nome' => $compra->utilizador->Name,
+                    'id' => $compra->utilizador->ID_User
+                ],
+                'vendedor' => [
+                    'tipo' => 'vendedor',
+                    'nome' => $compra->anuncio->utilizador->Name,
+                    'id' => $compra->anuncio->utilizador->ID_User
+                ]
+            ];
+
+            return response()->json($participantes);
+
+        } catch (\Exception $e) {
+            \Log::error('Erro ao buscar participantes da reclamação: ' . $e->getMessage(), [
+                'user_id' => auth()->id(),
+                'reclamacao_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'message' => 'Erro ao buscar participantes da reclamação',
                 'error' => $e->getMessage()
             ], 500);
         }

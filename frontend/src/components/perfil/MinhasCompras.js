@@ -121,7 +121,7 @@ const MinhasCompras = () => {
                                     </Card.Text>
                                     
                                     <div className="mt-3">
-                                        {!compra.Reclamacao && (
+                                        {!(compra.Reclamacao || compra.reclamacao || (compra.reclamacoes && compra.reclamacoes.length > 0)) && (
                                             <Button 
                                                 variant="danger" 
                                                 onClick={() => handleAbrirReclamacao(compra)}
@@ -131,10 +131,10 @@ const MinhasCompras = () => {
                                             </Button>
                                         )}
                                         
-                                        {compra.Reclamacao && (
+                                        {(compra.Reclamacao || compra.reclamacao || (compra.reclamacoes && compra.reclamacoes.length > 0)) && (
                                             <Button 
                                                 variant="primary"
-                                                onClick={() => navigate(`/reclamacoes/${compra.Reclamacao.ID_Reclamacao}`)}
+                                                onClick={() => navigate(`/reclamacoes/${(compra.Reclamacao?.ID_Reclamacao || compra.reclamacao?.ID_Reclamacao || compra.reclamacoes?.[0]?.ID_Reclamacao)}`)}
                                             >
                                                 Ver Reclamação
                                             </Button>

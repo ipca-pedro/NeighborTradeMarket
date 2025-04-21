@@ -43,6 +43,7 @@ import Security from './components/legal/Security';
 import MinhasReclamacoes from './components/perfil/MinhasReclamacoes';
 import GestaoReclamacoes from './components/admin/GestaoReclamacoes';
 import DetalhesReclamacao from './components/reclamacao/DetalhesReclamacao';
+import AdminReclamacaoDetail from './components/admin/AdminReclamacaoDetail';
 
 // Componente para rotas protegidas que requerem autenticação
 const ProtectedRoute = ({ children }) => {
@@ -125,6 +126,7 @@ function App() {
               <Route path="/admin/users" element={<AdminRoute><AllUsers /></AdminRoute>} />
               <Route path="/admin/anuncios" element={<AdminRoute><AllAnuncios /></AdminRoute>} />
               <Route path="/admin/reclamacoes" element={<AdminRoute><GestaoReclamacoes /></AdminRoute>} />
+              <Route path="/admin/reclamacoes/:id" element={<AdminRoute><AdminReclamacaoDetail /></AdminRoute>} />
               
               {/* Rota para URLs não encontrados */}
               <Route path="*" element={<Navigate to="/" />} />

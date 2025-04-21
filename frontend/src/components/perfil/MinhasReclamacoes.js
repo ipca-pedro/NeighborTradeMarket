@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Badge, Button, Modal, Form, Alert, Spinner } from 'react-bootstrap';
-import { buscarMinhasReclamacoes, enviarMensagem, buscarMensagens } from '../../services/reclamacaoService';
+import { Container, Card, Badge, Alert, Spinner, Row, Col } from 'react-bootstrap';
+import { buscarMinhasReclamacoes } from '../../services/reclamacaoService';
 import { formatarData } from '../../utils/dataUtils';
+import { useLocation } from 'react-router-dom';
+import Header from '../layout/Header';
 import './MinhasReclamacoes.css';
 
 const MinhasReclamacoes = () => {
+    const location = useLocation();
+    const isStandalone = location.pathname === '/minhas-reclamacoes';
     const [reclamacoes, setReclamacoes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [showMensagens, setShowMensagens] = useState(false);
-    const [mensagens, setMensagens] = useState([]);
-    const [reclamacaoSelecionada, setReclamacaoSelecionada] = useState(null);
-    const [novaMensagem, setNovaMensagem] = useState('');
 
     useEffect(() => {
         carregarReclamacoes();
@@ -23,7 +23,7 @@ const MinhasReclamacoes = () => {
             setError(null);
             const data = await buscarMinhasReclamacoes();
             console.log('Reclamações carregadas:', data);
-            setReclamacoes(data);
+            setReclamacoes(Array.isArray(data) ? data : []);
         } catch (err) {
             console.error('Erro ao carregar reclamações:', err);
             setError(err.response?.data?.message || 'Erro ao carregar reclamações. Por favor, tente novamente.');
@@ -32,163 +32,103 @@ const MinhasReclamacoes = () => {
         }
     };
 
-    const handleVerMensagens = async (reclamacao) => {
-        setReclamacaoSelecionada(reclamacao);
-        try {
-            const mensagensData = await buscarMensagens(reclamacao.ID_Reclamacao);
-            console.log('Mensagens recebidas:', mensagensData);
-            // Extract messages from the response
-            const mensagensArray = mensagensData.mensagens || [];
-            console.log('Array de mensagens:', mensagensArray);
-            setMensagens(mensagensArray);
-            setShowMensagens(true);
-        } catch (err) {
-            console.error('Erro ao carregar mensagens:', err);
-            setError('Erro ao carregar mensagens');
-        }
-    };
-
-    const handleEnviarMensagem = async () => {
-        if (!novaMensagem.trim()) return;
-
-        try {
-            await enviarMensagem(reclamacaoSelecionada.ID_Reclamacao, novaMensagem);
-            const mensagensData = await buscarMensagens(reclamacaoSelecionada.ID_Reclamacao);
-            console.log('Mensagens após envio:', mensagensData);
-            // Extract messages from the response
-            const mensagensArray = mensagensData.mensagens || [];
-            console.log('Array de mensagens após envio:', mensagensArray);
-            setMensagens(mensagensArray);
-            setNovaMensagem('');
-        } catch (err) {
-            console.error('Erro ao enviar mensagem:', err);
-            setError('Erro ao enviar mensagem');
-        }
-    };
-
     const getStatusBadgeVariant = (status) => {
-        // Handle numeric status IDs
         switch (status) {
-            case 1:
-                return 'warning';  // Pendente
-            case 2:
-                return 'info';     // Em análise
-            case 3:
-                return 'success';  // Resolvida
-            case 4:
-                return 'danger';   // Rejeitada
-            default:
-                return 'secondary';
+            case 1: return 'warning';  // Pendente
+            case 2: return 'info';     // Em análise
+            case 3: return 'success';  // Resolvida
+            case 4: return 'danger';   // Rejeitada
+            default: return 'secondary';
         }
     };
 
-    if (loading) {
+    const getStatusText = (status) => {
+        switch (status) {
+            case 1: return 'Pendente';
+            case 2: return 'Em Análise';
+            case 3: return 'Resolvida';
+            case 4: return 'Rejeitada';
+            default: return status?.Descricao_status_reclamacao || 'Desconhecido';
+        }
+    };
+
+    // Renderiza o conteúdo principal
+    if (loading && reclamacoes.length === 0) {
         return (
-            <div className="text-center py-5">
-                <Spinner animation="border" role="status">
-                    <span className="visually-hidden">Carregando...</span>
-                </Spinner>
-            </div>
+            <>
+                {isStandalone && <Header />}
+                <Container className={isStandalone ? "py-4" : ""}>
+                    <div className="text-center py-5">
+                        <Spinner animation="border" variant="primary" />
+                        <p className="mt-3">Carregando suas reclamações...</p>
+                    </div>
+                </Container>
+            </>
         );
     }
 
-    if (error) {
+    if (error && reclamacoes.length === 0) {
         return (
-            <Alert variant="danger" className="my-3">
-                <Alert.Heading>Erro ao carregar reclamações</Alert.Heading>
-                <p>{error}</p>
-                <div className="d-flex justify-content-end">
-                    <Button variant="outline-danger" onClick={carregarReclamacoes}>
-                        Tentar Novamente
-                    </Button>
-                </div>
-            </Alert>
+            <>
+                {isStandalone && <Header />}
+                <Container className={isStandalone ? "py-4" : ""}>
+                    <Alert variant="danger" className="mb-4">
+                        <Alert.Heading>Ocorreu um erro</Alert.Heading>
+                        <p>{error}</p>
+                    </Alert>
+                </Container>
+            </>
         );
     }
 
     return (
-        <div className="minhas-reclamacoes">
-            <h2 className="mb-4">Minhas Reclamações</h2>
-            {reclamacoes.length === 0 ? (
-                <p>Você não possui reclamações registradas.</p>
-            ) : (
-                reclamacoes.map((reclamacao) => (
-                    <Card key={reclamacao.ID_Reclamacao} className="mb-3">
-                        <Card.Body>
-                            <div className="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <Card.Title>
-                                        Reclamação #{reclamacao.ID_Reclamacao}
-                                        <Badge 
-                                            bg={getStatusBadgeVariant(reclamacao.Status_ReclamacaoID_Status_Reclamacao)} 
-                                            className="ms-2"
-                                        >
-                                            {reclamacao.status?.Descricao_status_reclamacao || 'Pendente'}
-                                        </Badge>
-                                    </Card.Title>
-                                    <Card.Subtitle className="mb-2 text-muted">
-                                        {formatarData(reclamacao.DataReclamacao)}
-                                    </Card.Subtitle>
-                                </div>
-                            </div>
-                            <Card.Text>{reclamacao.Descricao}</Card.Text>
-                            <Button 
-                                variant="outline-primary" 
-                                onClick={() => handleVerMensagens(reclamacao)}
-                            >
-                                Ver Mensagens
-                            </Button>
-                        </Card.Body>
-                    </Card>
-                ))
-            )}
-
-            <Modal show={showMensagens} onHide={() => setShowMensagens(false)} size="lg">
-                <Modal.Header closeButton>
-                    <Modal.Title>
-                        Mensagens da Reclamação #{reclamacaoSelecionada?.ID_Reclamacao}
-                    </Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <div className="mensagens-container mb-3">
-                        {mensagens.length === 0 ? (
-                            <p>Nenhuma mensagem encontrada.</p>
-                        ) : (
-                            mensagens.map((mensagem, index) => (
-                                <div 
-                                    key={index} 
-                                    className={`mensagem ${mensagem.usuario === 'admin' ? 'admin' : 'user'}`}
-                                >
-                                    <div className="mensagem-content">
-                                        <p>{mensagem.mensagem}</p>
-                                        <small className="text-muted">
-                                            {formatarData(mensagem.data)}
-                                        </small>
-                                    </div>
-                                </div>
-                            ))
-                        )}
-                    </div>
-                    <Form.Group>
-                        <Form.Control
-                            as="textarea"
-                            rows={3}
-                            value={novaMensagem}
-                            onChange={(e) => setNovaMensagem(e.target.value)}
-                            placeholder="Digite sua mensagem..."
-                        />
-                    </Form.Group>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowMensagens(false)}>
-                        Fechar
-                    </Button>
-                    <Button variant="primary" onClick={handleEnviarMensagem}>
-                        Enviar Mensagem
-                    </Button>
-                </Modal.Footer>
-            </Modal>
-        </div>
+        <>
+            {isStandalone && <Header />}
+            <Container className={isStandalone ? "py-4" : ""}>
+                <div className="reclamacoes-simples">
+                    <h4 className="mb-4">Minhas Reclamações</h4>
+                    
+                    {reclamacoes.length === 0 ? (
+                        <div className="empty-state py-4 text-center">
+                            <p className="text-muted mb-0">
+                                Você não possui reclamações registradas.
+                                <br/>
+                                Para fazer uma reclamação, acesse a seção "Minhas Compras".
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="reclamacoes-lista">
+                            {reclamacoes.map((reclamacao) => (
+                                <Card key={reclamacao.ID_Reclamacao} className="mb-3 reclamacao-card-simples">
+                                    <Card.Body>
+                                        <div className="d-flex justify-content-between align-items-center mb-3">
+                                            <h5 className="mb-0">Produto: {reclamacao.compras?.[0]?.anuncio?.Titulo || 'N/A'}</h5>
+                                            <Badge 
+                                                bg={getStatusBadgeVariant(reclamacao.Status_ReclamacaoID_Status_Reclamacao)}
+                                                className="status-badge"
+                                            >
+                                                {getStatusText(reclamacao.Status_ReclamacaoID_Status_Reclamacao)}
+                                            </Badge>
+                                        </div>
+                                        
+                                        <Row>
+                                            <Col>
+                                                <p className="text-muted small mb-2">
+                                                    <strong>Data:</strong> {formatarData(reclamacao.DataReclamacao)}
+                                                </p>
+                                                <p className="mb-0">
+                                                    <strong>Motivo:</strong> {reclamacao.Descricao}
+                                                </p>
+                                            </Col>
+                                        </Row>
+                                    </Card.Body>
+                                </Card>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </Container>
+        </>
     );
 };
 
