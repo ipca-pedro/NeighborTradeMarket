@@ -659,7 +659,7 @@ class AnuncioController extends Controller
     public function byTipoItem($tipoItemId)
     {
         $anuncios = Anuncio::with(['utilizador', 'categorium', 'tipo_item', 'item_imagems.imagem'])
-            ->where('TipoItemID_TipoItem', $tipoItemId)
+            ->where('Tipo_ItemID_Tipo', $tipoItemId)
             ->where('Status_AnuncioID_Status_Anuncio', StatusAnuncio::STATUS_ATIVO)
             ->where('Status_AnuncioID_Status_Anuncio', '!=', StatusAnuncio::STATUS_REJEITADO)
             ->orderBy('ID_Anuncio', 'desc')
@@ -975,7 +975,7 @@ class AnuncioController extends Controller
             
             // Filtrar por tipo de item se especificado
             if ($tipoItemId) {
-                $query->where('TipoItemID_TipoItem', $tipoItemId);
+                $query->where('Tipo_ItemID_Tipo', $tipoItemId);
             }
             
             // Obter anúncios aleatórios
@@ -1070,6 +1070,14 @@ class AnuncioController extends Controller
                 $query->where('CategoriaID_Categoria', $categoriaId);
             }
 
+            // Filtrar por tipo de item se especificado
+            if ($request->has('tipo')) {
+                $tipoId = $request->tipo;
+                \Log::info('Filtrando por tipo de item', ['tipo_id' => $tipoId]);
+                
+                $query->where('Tipo_ItemID_Tipo', $tipoId);
+            }
+
             // Filtrar por termo de pesquisa se especificado
             if ($request->has('search')) {
                 $search = $request->input('search');
@@ -1080,7 +1088,7 @@ class AnuncioController extends Controller
             }
             
             // Mostrar todos os anúncios disponíveis para debug
-            $allAnuncios = Anuncio::select('ID_Anuncio', 'Titulo', 'Status_AnuncioID_Status_Anuncio', 'CategoriaID_Categoria')->limit(10)->get();
+            $allAnuncios = Anuncio::select('ID_Anuncio', 'Titulo', 'Status_AnuncioID_Status_Anuncio', 'CategoriaID_Categoria', 'Tipo_ItemID_Tipo')->limit(10)->get();
             \Log::info('Amostra de anúncios na BD:', ['anuncios' => $allAnuncios]);
             
             $anuncios = $query->get();

@@ -12,6 +12,7 @@ const ListaProdutos = () => {
     const queryParams = new URLSearchParams(location.search);
     const queryCategoriaId = queryParams.get('categoria');
     const searchTerm = queryParams.get('q') || '';
+    const tipoId = queryParams.get('tipo') || '';
     // Prioriza o parâmetro da query, mas aceita o da rota se não houver
     const categoriaId = queryCategoriaId || routeCategoriaId;
     
@@ -42,7 +43,7 @@ const ListaProdutos = () => {
     useEffect(() => {
         carregarProdutos();
         // eslint-disable-next-line
-    }, [categoriaId, searchTerm]); // Recarregar quando a categoria ou termo mudar
+    }, [categoriaId, searchTerm, tipoId]);
 
     const carregarProdutos = async () => {
         try {
@@ -50,8 +51,11 @@ const ListaProdutos = () => {
             let produtosFiltrados = [];
             if (categoriaId) {
                 produtosFiltrados = await getAnunciosPorCategoria(categoriaId);
-            } else if (searchTerm) {
-                produtosFiltrados = await getAnuncios({ search: searchTerm });
+            } else if (searchTerm || tipoId) {
+                produtosFiltrados = await getAnuncios({ 
+                    search: searchTerm,
+                    tipo: tipoId
+                });
             } else {
                 produtosFiltrados = await getAnuncios();
             }

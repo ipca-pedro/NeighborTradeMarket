@@ -188,7 +188,7 @@ const HomePage = () => {
                 <Container>
                     <div className="d-flex justify-content-between align-items-center mb-4">
                         <h2 className="section-title mb-0">Produtos em Destaque</h2>
-                        <Link to="/anuncios" className="btn btn-outline-primary">Ver Todos <i className="fas fa-arrow-right ms-1"></i></Link>
+                        <Link to="/anuncios?tipo=1" className="btn btn-outline-primary">Ver Todos <i className="fas fa-arrow-right ms-1"></i></Link>
                     </div>
                     
                     {loading ? (
@@ -210,7 +210,7 @@ const HomePage = () => {
                 <Container>
                     <div className="d-flex justify-content-between align-items-center mb-4">
                         <h2 className="section-title mb-0">Serviços em Destaque</h2>
-                        <Link to="/anuncios?tipo=servico" className="btn btn-outline-primary">Ver Todos <i className="fas fa-arrow-right ms-1"></i></Link>
+                        <Link to="/anuncios?tipo=2" className="btn btn-outline-primary">Ver Todos <i className="fas fa-arrow-right ms-1"></i></Link>
                     </div>
                     
                     {loading ? (

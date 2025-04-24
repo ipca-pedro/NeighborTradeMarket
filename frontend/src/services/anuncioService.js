@@ -41,6 +41,7 @@ const getAnunciosAleatorios = async (quantidade = 10, tipoItem = null) => {
         const query = new URLSearchParams();
         if (params.search) query.append('search', params.search);
         if (params.categoria) query.append('categoria', params.categoria);
+        if (params.tipo) query.append('tipo', params.tipo);
         // Adiciona outros filtros se necessário
 
         const response = await axios.get(`${API_URL}/anuncios/publicos?${query.toString()}`);
