@@ -10,6 +10,7 @@ import IniciarCompra from '../Compras/IniciarCompra';
 
 const DetalhesProduto = () => {
     const [showUserChat, setShowUserChat] = useState(false);
+    const [showTrocaModal, setShowTrocaModal] = useState(false);
     const { id } = useParams();
     const navigate = useNavigate();
     const { currentUser, isAuthenticated } = useAuth();
@@ -18,6 +19,8 @@ const DetalhesProduto = () => {
     const [error, setError] = useState('');
     const [imagemPrincipal, setImagemPrincipal] = useState(0);
     const [showImgModal, setShowImgModal] = useState(false);
+    const [meusAnuncios, setMeusAnuncios] = useState([]);
+    const [loadingMeusAnuncios, setLoadingMeusAnuncios] = useState(false);
 
     useEffect(() => {
         carregarAnuncio();
@@ -53,6 +56,46 @@ const DetalhesProduto = () => {
         // Garante que o caminho não tem 'public/' e monta o URL absoluto
         const caminho = item.imagem.Caminho.replace(/^public\//, '');
         return `http://localhost:8000/storage/${caminho}`;
+    };
+
+    const carregarMeusAnuncios = async () => {
+        try {
+            setLoadingMeusAnuncios(true);
+            const response = await anuncioService.getMeusAnuncios();
+            console.log('Resposta getMeusAnuncios:', response);
+            
+            // Filtra apenas anúncios ativos e exclui o anúncio atual
+            const anunciosAtivos = response.filter(anuncio => 
+                anuncio.Status_AnuncioID_Status_Anuncio === 1 && 
+                anuncio.ID_Anuncio !== parseInt(id)
+            );
+            console.log('Anúncios filtrados:', anunciosAtivos);
+            setMeusAnuncios(anunciosAtivos);
+        } catch (error) {
+            console.error('Erro ao carregar anúncios:', error);
+            toast.error('Erro ao carregar seus anúncios');
+        } finally {
+            setLoadingMeusAnuncios(false);
+        }
+    };
+
+    // Carregar anúncios quando o modal for aberto
+    useEffect(() => {
+        if (showTrocaModal) {
+            carregarMeusAnuncios();
+        }
+    }, [showTrocaModal]);
+
+    const handleProporTroca = async (meuAnuncioId) => {
+        try {
+            // TODO: Implementar chamada à API para propor troca
+            // await trocaService.proporTroca(id, meuAnuncioId);
+            toast.success('Proposta de troca enviada com sucesso!');
+            setShowTrocaModal(false);
+        } catch (error) {
+            console.error('Erro ao propor troca:', error);
+            toast.error('Erro ao enviar proposta de troca');
+        }
     };
 
     return (
@@ -186,7 +229,6 @@ const DetalhesProduto = () => {
                                                     preco={anuncio.Preco}
                                                     onSuccess={(compra) => {
                                                         toast.success('Compra iniciada com sucesso!');
-                                                        // Atualizar o status do anúncio para vendido
                                                         setAnuncio(prev => ({
                                                             ...prev,
                                                             Status_AnuncioID_Status_Anuncio: 3
@@ -197,6 +239,13 @@ const DetalhesProduto = () => {
                                                         console.log('Compra cancelada');
                                                     }}
                                                 />
+                                                <Button 
+                                                    variant="success" 
+                                                    size="lg" 
+                                                    onClick={() => setShowTrocaModal(true)}
+                                                >
+                                                    <i className="fas fa-exchange-alt me-2"></i> Trocar
+                                                </Button>
                                                 <Button 
                                                     variant="outline-primary" 
                                                     size="lg" 
@@ -303,6 +352,61 @@ const DetalhesProduto = () => {
                     vendedorNome={anuncio.utilizador?.Name}
                 />
             )}
+            {/* Modal de Troca */}
+            <Modal show={showTrocaModal} onHide={() => setShowTrocaModal(false)} size="lg">
+                <Modal.Header closeButton>
+                    <Modal.Title>Propor Troca</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <h5 className="mb-3">Selecione um dos seus anúncios para trocar</h5>
+                    {loadingMeusAnuncios ? (
+                        <div className="text-center py-4">
+                            <Spinner animation="border" variant="primary" />
+                            <p className="mt-2">Carregando seus anúncios...</p>
+                        </div>
+                    ) : meusAnuncios.length === 0 ? (
+                        <Alert variant="info">
+                            Você não possui anúncios ativos para propor uma troca.
+                            <br />
+                            <Link to="/anuncios/criar" className="alert-link">Criar um anúncio</Link>
+                        </Alert>
+                    ) : (
+                        <Row xs={1} md={2} className="g-4">
+                            {meusAnuncios.map((meuAnuncio) => (
+                                <Col key={meuAnuncio.ID_Anuncio}>
+                                    <Card>
+                                        <Card.Img 
+                                            variant="top" 
+                                            src={meuAnuncio.item_imagems?.[0]?.Caminho 
+                                                ? `http://localhost:8000/storage/${meuAnuncio.item_imagems[0].Caminho.replace(/^public\//, '')}`
+                                                : '/images/no-image.jpg'} 
+                                            style={{ height: '200px', objectFit: 'cover' }}
+                                        />
+                                        <Card.Body>
+                                            <Card.Title>{meuAnuncio.Titulo}</Card.Title>
+                                            <Card.Text>
+                                                <Badge bg="secondary" className="me-2">
+                                                    {meuAnuncio.categorium?.Descricao_Categoria || 'Categoria N/A'}
+                                                </Badge>
+                                                <Badge bg="info">
+                                                    €{meuAnuncio.Preco?.toFixed(2) || '0.00'}
+                                                </Badge>
+                                            </Card.Text>
+                                            <Button 
+                                                variant="primary" 
+                                                className="w-100"
+                                                onClick={() => handleProporTroca(meuAnuncio.ID_Anuncio)}
+                                            >
+                                                Propor Troca
+                                            </Button>
+                                        </Card.Body>
+                                    </Card>
+                                </Col>
+                            ))}
+                        </Row>
+                    )}
+                </Modal.Body>
+            </Modal>
         </>
     );
 };
