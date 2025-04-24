@@ -296,9 +296,11 @@ export const adminService = {
     },
     
     // Rejeitar um anúncio
-    rejeitarAnuncio: async (anuncioId, comentario) => {
+    rejeitarAnuncio: async (anuncioId, motivo) => {
         try {
-            const response = await api.post(`/admin/anuncios/${anuncioId}/rejeitar`, { comentario });
+            console.log('Tentando rejeitar anúncio:', { anuncioId, motivo });
+            const response = await api.post(`/admin/anuncios/${anuncioId}/rejeitar`, { motivo });
+            console.log('Resposta da rejeição:', response.data);
             return response.data;
         } catch (error) {
             console.error(`Erro ao rejeitar anúncio ${anuncioId}:`, error);

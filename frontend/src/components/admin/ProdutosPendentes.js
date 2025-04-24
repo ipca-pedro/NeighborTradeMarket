@@ -89,16 +89,19 @@ const ProdutosPendentes = () => {
         setError('');
         setIsSubmitting(true);
         try {
-             console.log('Rejeitar anúncio ID:', selectedAnuncio.ID_Anuncio, 'Motivo:', rejectionReason);
-            // Ensure adminService.rejeitarAnuncio exists and takes (id, reason)
-            await adminService.rejeitarAnuncio(selectedAnuncio.ID_Anuncio, rejectionReason);
+             console.log('DEBUG REJEITAR: ID:', selectedAnuncio.ID_Anuncio, 'Motivo:', rejectionReason);
+            const res = await adminService.rejeitarAnuncio(selectedAnuncio.ID_Anuncio, rejectionReason);
             setMessage('Anúncio rejeitado com sucesso!');
             setProdutos(produtos.filter(p => p.ID_Anuncio !== selectedAnuncio.ID_Anuncio));
             closeDetailsModal();
         } catch (err) {
             console.error('Erro ao rejeitar anúncio:', err);
-            setError(err.response?.data?.message || 'Erro ao rejeitar anúncio. Por favor, tente novamente.');
-             // Keep modal open on error?
+            if (err.response) {
+                console.error('Resposta completa da API:', err.response);
+                setError(`Erro API: ${err.response.status} - ${JSON.stringify(err.response.data)}`);
+            } else {
+                setError(err.message || 'Erro ao rejeitar anúncio. Por favor, tente novamente.');
+            }
         } finally {
             setIsSubmitting(false);
         }
@@ -304,13 +307,7 @@ const ProdutosPendentes = () => {
                     >
                         {isSubmitting ? <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true"/> : 'Rejeitar'}
                     </Button>
-                    <Button 
-                        variant="success" 
-                        onClick={handleApprove} 
-                        disabled={isSubmitting}
-                    >
-                         {isSubmitting ? <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true"/> : 'Aprovar'}
-                    </Button>
+
                 </Modal.Footer>
             </Modal>
 

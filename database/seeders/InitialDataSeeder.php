@@ -46,7 +46,8 @@ class InitialDataSeeder extends Seeder
                 ['ID_Status_Anuncio' => 1, 'Descricao_status_anuncio' => 'Ativo'],
                 ['ID_Status_Anuncio' => 2, 'Descricao_status_anuncio' => 'Inativo'],
                 ['ID_Status_Anuncio' => 3, 'Descricao_status_anuncio' => 'Vendido'],
-                ['ID_Status_Anuncio' => 4, 'Descricao_status_anuncio' => 'Pendente']
+                ['ID_Status_Anuncio' => 4, 'Descricao_status_anuncio' => 'Pendente'],
+                ['ID_Status_Anuncio' => 7, 'Descricao_status_anuncio' => 'Rejeitado']
             ]);
         }
 
@@ -113,11 +114,17 @@ class InitialDataSeeder extends Seeder
         }
 
         // Tipos de Item
-        if (DB::table('Tipo_Item')->count() == 0) {
-            DB::table('Tipo_Item')->insert([
-                ['ID_Tipo' => 1, 'Descricao_TipoItem' => 'Produto'],
-                ['ID_Tipo' => 2, 'Descricao_TipoItem' => 'Serviço']
-            ]);
+        $tipos = [
+            ['ID_Tipo' => 1, 'Descricao_TipoItem' => 'Produto'],
+            ['ID_Tipo' => 2, 'Descricao_TipoItem' => 'Serviço'],
+            ['ID_Tipo' => 3, 'Descricao_TipoItem' => 'Doação']
+        ];
+        
+        foreach ($tipos as $tipo) {
+            DB::table('Tipo_Item')->updateOrInsert(
+                ['Descricao_TipoItem' => $tipo['Descricao_TipoItem']],
+                ['ID_Tipo' => $tipo['ID_Tipo'], 'Descricao_TipoItem' => $tipo['Descricao_TipoItem']]
+            );
         }
 
         // Categorias

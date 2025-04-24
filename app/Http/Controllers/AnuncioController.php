@@ -412,7 +412,7 @@ class AnuncioController extends Controller
     {
         if (!Auth::check() || Auth::user()->TipoUserID_TipoUser !== 1) { // Assumindo que ID 1 é para administradores
             return response()->json([
-                'message' => 'Acesso não autorizado'
+                'message' => 'Acesso não autorizado - Apenas administradores podem rejeitar anúncios'
             ], 403);
         }
 
@@ -444,9 +444,9 @@ class AnuncioController extends Controller
             $aprovacao = Aprovacao::find($anuncio->AprovacaoID_aprovacao);
 
             if ($aprovacao) {
-                $aprovacao->Status_AprovacaoID_Status_Aprovacao = 3;
+                $aprovacao->Status_AprovacaoID_Status_Aprovacao = 3; // Status rejeitado
                 $aprovacao->Data_Aprovacao = now();
-                $aprovacao->UtilizadorID_Admin = Auth::id();
+                $aprovacao->UtilizadorID_Admin = Auth::id(); // Usando o ID do usuário autenticado
                 $aprovacao->motivo_rejeicao = $request->motivo;
                 $aprovacao->save();
             }
@@ -459,6 +459,13 @@ class AnuncioController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
+            \Log::error('Erro ao rejeitar anúncio:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'user_id' => Auth::id(),
+                'user_type' => Auth::user()->TipoUserID_TipoUser,
+                'anuncio_id' => $id
+            ]);
             return response()->json([
                 'message' => 'Erro ao rejeitar anúncio: ' . $e->getMessage()
             ], 500);
@@ -572,7 +579,7 @@ class AnuncioController extends Controller
             
             $anuncio->UtilizadorID_User = $userId;
             $anuncio->AprovacaoID_aprovacao = $aprovacao->ID_aprovacao;
-            $anuncio->Status_AnuncioID_Status_Anuncio = 1; // Pendente
+            $anuncio->Status_AnuncioID_Status_Anuncio = StatusAnuncio::STATUS_PENDENTE; // Pendente
             $anuncio->save();
 
             // Processar imagens
@@ -888,6 +895,13 @@ class AnuncioController extends Controller
      */
     public function rejeitar(Request $request, $id)
     {
+        // Verificar se o usuário está autenticado e é admin
+        if (!Auth::check() || Auth::user()->TipoUserID_TipoUser !== 1) {
+            return response()->json([
+                'message' => 'Acesso não autorizado'
+            ], 403);
+        }
+
         $request->validate([
             'Comentario' => 'required|string'
         ]);
@@ -902,17 +916,17 @@ class AnuncioController extends Controller
         
         try {
             // Atualizar aprovação
-            $anuncio->aprovacao->update([
-                'Data_Aprovacao' => now(),
-                'Comentario' => $request->Comentario,
-                'UtilizadorID_Admin' => Auth::id(),
-                'Status_AprovacaoID_Status_Aprovacao' => 3 // Status rejeitado
-            ]);
+            if ($anuncio->aprovacao) {
+                $anuncio->aprovacao->Data_Aprovacao = now();
+                $anuncio->aprovacao->Comentario = $request->Comentario;
+                $anuncio->aprovacao->UtilizadorID_Admin = Auth::id(); // Usando Auth::id() para obter o ID do usuário
+                $anuncio->aprovacao->Status_AprovacaoID_Status_Aprovacao = 3; // Status rejeitado
+                $anuncio->aprovacao->save();
+            }
             
             // Atualizar status do anúncio
-            $anuncio->update([
-                'Status_AnuncioID_Status_Anuncio' => 3 // Status rejeitado
-            ]);
+            $anuncio->Status_AnuncioID_Status_Anuncio = 3; // Status rejeitado
+            $anuncio->save();
             
             DB::commit();
             

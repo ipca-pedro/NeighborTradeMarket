@@ -11,17 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tipo_item', function (Blueprint $table) {
-            $table->id();
+        Schema::create('Tipo_Item', function (Blueprint $table) {
+            $table->id('ID_Tipo');
+            $table->string('Descricao_TipoItem')->unique();
             $table->timestamps();
         });
     }
-
-    /**
-     * Reverse the migrations.
-     */
+    
     public function down(): void
     {
-        Schema::dropIfExists('tipo_item');
+        Schema::dropIfExists('Tipo_Item');
     }
-};
