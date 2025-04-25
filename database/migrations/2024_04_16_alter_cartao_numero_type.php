@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::table('cartao', function (Blueprint $table) {
             $table->string('Numero', 16)->change();
+            $table->string('CVC', 3)->change();
         });
     }
 
@@ -23,6 +24,7 @@ return new class extends Migration
     {
         Schema::table('cartao', function (Blueprint $table) {
             $table->integer('Numero')->change();
+            $table->integer('CVC')->change();
         });
     }
 }; 

@@ -15,8 +15,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * Class Cartao
  * 
  * @property int $ID_Cartao
- * @property int $Numero
- * @property int $CVC
+ * @property string $Numero
+ * @property string $CVC
  * @property Carbon $Data
  * 
  * @property Collection|Utilizador[] $utilizadors
@@ -32,8 +32,8 @@ class Cartao extends Model
 	public $timestamps = false;
 
 	protected $casts = [
-		'Numero' => 'int',
-		'CVC' => 'int',
+		'Numero' => 'string',
+		'CVC' => 'string',
 		'Data' => 'date'
 	];
 

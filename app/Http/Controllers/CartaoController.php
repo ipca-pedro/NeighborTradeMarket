@@ -37,13 +37,22 @@ class CartaoController extends Controller
      */
     public function store(Request $request)
     {
+        \Log::info('Requisição para adicionar cartão:', [
+            'payload' => $request->all(),
+            'user_id' => Auth::id()
+        ]);
+        
         $validator = Validator::make($request->all(), [
-            'Numero' => 'required|numeric|digits:16',
-            'CVC' => 'required|numeric|digits:3',
+            'Numero' => 'required|string|size:16',
+            'CVC' => 'required|string|size:3',
             'Data' => 'required|date|after:today'
         ]);
 
         if ($validator->fails()) {
+            \Log::error('Validação falhou ao adicionar cartão:', [
+                'errors' => $validator->errors()->toArray()
+            ]);
+            
             return response()->json([
                 'message' => 'Dados inválidos',
                 'errors' => $validator->errors()
@@ -54,6 +63,13 @@ class CartaoController extends Controller
 
         try {
             $user = Auth::user();
+            if (!$user) {
+                throw new \Exception('Usuário não autenticado');
+            }
+            
+            \Log::info('Usuário autenticado:', [
+                'user_id' => $user->ID_User
+            ]);
 
             // Criar novo cartão
             $cartao = new Cartao([
@@ -61,11 +77,24 @@ class CartaoController extends Controller
                 'CVC' => $request->CVC,
                 'Data' => $request->Data
             ]);
+            
+            \Log::info('Novo cartão criado:', [
+                'numero' => $cartao->Numero,
+                'cvc' => $cartao->CVC,
+                'data' => $cartao->Data
+            ]);
+            
             $cartao->save();
+            
+            \Log::info('Cartão salvo no banco:', [
+                'id_cartao' => $cartao->ID_Cartao
+            ]);
 
             // Associar cartão ao utilizador
             $user->cartaoID_Cartao = $cartao->ID_Cartao;
             $user->save();
+            
+            \Log::info('Cartão associado ao usuário');
 
             DB::commit();
 
@@ -75,7 +104,10 @@ class CartaoController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Erro ao adicionar cartão: ' . $e->getMessage());
+            \Log::error('Erro ao adicionar cartão: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return response()->json([
                 'message' => 'Erro ao adicionar cartão',
                 'error' => config('app.debug') ? $e->getMessage() : null
