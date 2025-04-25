@@ -9,8 +9,8 @@ const Footer = () => {
     return (
         <footer className="bg-dark text-white pt-5 pb-4">
             <Container>
-                <Row className="mb-4">
-                    <Col md={3} className="mb-4 mb-md-0">
+                <Row className="mb-4 justify-content-center">
+                    <Col md={3} className="mb-4 mb-md-0 mx-md-4">
                         <div className="mb-3">
                             <Link to="/" className="text-white text-decoration-none">
                                 <img 
@@ -29,7 +29,7 @@ const Footer = () => {
                         {/* Removidos os links para redes sociais */}
                     </Col>
                     
-                    <Col md={3} className="mb-4 mb-md-0">
+                    <Col md={3} className="mb-4 mb-md-0 mx-md-4">
                         <h5 className="mb-4">CATEGORIAS PRINCIPAIS</h5>
                         <ListGroup variant="flush" className="footer-links">
                             <ListGroup.Item className="bg-transparent border-0 p-0 mb-2">
@@ -56,7 +56,7 @@ const Footer = () => {
                         </ListGroup>
                     </Col>
                     
-                    <Col md={3} className="mb-4 mb-md-0">
+                    <Col md={3} className="mb-4 mb-md-0 mx-md-4">
                         <h5 className="mb-4">LINKS RÁPIDOS</h5>
                         <ListGroup variant="flush" className="footer-links">
                             <ListGroup.Item className="bg-transparent border-0 p-0 mb-2">
@@ -81,25 +81,6 @@ const Footer = () => {
                                 <Link to="#" onClick={(e) => { e.preventDefault(); setShowHelpModal(true); }} className="text-white text-decoration-none">Contactos</Link>
                             </ListGroup.Item>
                         </ListGroup>
-                    </Col>
-                    
-                    <Col md={3}>
-                        <h5 className="mb-4">ETIQUETAS POPULARES</h5>
-                        <div className="d-flex flex-wrap">
-                            <Link to="/anuncios/tag/game" className="badge bg-secondary text-white text-decoration-none me-2 mb-2 p-2">Game</Link>
-                            <Link to="/anuncios/tag/iphone" className="badge bg-secondary text-white text-decoration-none me-2 mb-2 p-2">iPhone</Link>
-                            <Link to="/anuncios/tag/tv" className="badge bg-secondary text-white text-decoration-none me-2 mb-2 p-2">TV</Link>
-                            <Link to="/anuncios/tag/asus" className="badge bg-secondary text-white text-decoration-none me-2 mb-2 p-2">Asus Laptop</Link>
-                            <Link to="/anuncios/tag/macbook" className="badge bg-secondary text-white text-decoration-none me-2 mb-2 p-2">Macbook</Link>
-                            <Link to="/anuncios/tag/ssd" className="badge bg-secondary text-white text-decoration-none me-2 mb-2 p-2">SSD</Link>
-                            <Link to="/anuncios/tag/graphics" className="badge bg-secondary text-white text-decoration-none me-2 mb-2 p-2">Placa Gráfica</Link>
-                            <Link to="/anuncios/tag/power" className="badge bg-secondary text-white text-decoration-none me-2 mb-2 p-2">Power Bank</Link>
-                            <Link to="/anuncios/tag/smart-tv" className="badge bg-secondary text-white text-decoration-none me-2 mb-2 p-2">Smart TV</Link>
-                            <Link to="/anuncios/tag/speaker" className="badge bg-secondary text-white text-decoration-none me-2 mb-2 p-2">Colunas</Link>
-                            <Link to="/anuncios/tag/tablet" className="badge bg-secondary text-white text-decoration-none me-2 mb-2 p-2">Tablet</Link>
-                            <Link to="/anuncios/tag/microwave" className="badge bg-secondary text-white text-decoration-none me-2 mb-2 p-2">Microondas</Link>
-                            <Link to="/anuncios/tag/samsung" className="badge bg-secondary text-white text-decoration-none me-2 mb-2 p-2">Samsung</Link>
-                        </div>
                     </Col>
                 </Row>
                 
