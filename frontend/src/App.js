@@ -44,6 +44,7 @@ import MinhasReclamacoes from './components/perfil/MinhasReclamacoes';
 import GestaoReclamacoes from './components/admin/GestaoReclamacoes';
 import DetalhesReclamacao from './components/reclamacao/DetalhesReclamacao';
 import AdminReclamacaoDetail from './components/admin/AdminReclamacaoDetail';
+import PropostasTroca from './components/perfil/PropostasTroca';
 
 // Componente para rotas protegidas que requerem autenticação
 const ProtectedRoute = ({ children }) => {
@@ -115,9 +116,11 @@ function App() {
               {/* Rotas Protegidas (requerem login) */}
               <Route path="/perfil" element={<ProtectedRoute><PerfilUtilizador /></ProtectedRoute>} />
               <Route path="/anuncios/novo" element={<ProtectedRoute><CriarProduto /></ProtectedRoute>} />
+              <Route path="/anuncios/:id/editar" element={<ProtectedRoute><CriarProduto /></ProtectedRoute>} />
               <Route path="/meus-anuncios" element={<ProtectedRoute><MeusAnuncios /></ProtectedRoute>} />
               <Route path="/minhas-reclamacoes" element={<ProtectedRoute><MinhasReclamacoes /></ProtectedRoute>} />
               <Route path="/reclamacoes/:id" element={<ProtectedRoute><DetalhesReclamacao /></ProtectedRoute>} />
+              <Route path="/minhas-propostas" element={<ProtectedRoute><PropostasTroca /></ProtectedRoute>} />
               
               {/* Rotas de Admin */}
               <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />

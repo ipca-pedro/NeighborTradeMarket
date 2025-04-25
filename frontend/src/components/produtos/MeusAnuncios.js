@@ -179,6 +179,16 @@ const MeusAnuncios = () => {
                                             </Button>
                                             
                                             <div>
+                                                <Button 
+                                                    as={Link} 
+                                                    to={`/anuncios/${anuncio.ID_Anuncio}/editar`} 
+                                                    variant="outline-success" 
+                                                    size="sm"
+                                                    className="me-2"
+                                                >
+                                                    Editar
+                                                </Button>
+                                                
                                                 {anuncio.Status_AnuncioID_Status_Anuncio === 2 && (
                                                     <Button 
                                                         variant="outline-info" 

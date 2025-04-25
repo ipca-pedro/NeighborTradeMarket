@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Form, Alert, Nav, Image } from 'react-bootstrap';
 import { useAuth } from '../../contexts/AuthContext';
 import { authService } from '../../services/api';
-import { FaUser, FaTags, FaStore, FaShoppingBag, FaCreditCard, FaEnvelope, FaExclamationCircle } from 'react-icons/fa';
+import { FaUser, FaTags, FaStore, FaShoppingBag, FaCreditCard, FaEnvelope, FaExclamationCircle, FaExchangeAlt } from 'react-icons/fa';
 import Header from '../layout/Header';
 import MeusAnuncios from './MeusAnuncios';
 import MinhasVendas from './MinhasVendas';
@@ -10,6 +10,7 @@ import MinhasCompras from './MinhasCompras';
 import Cartoes from './Cartoes';
 import Mensagens from '../Mensagens/Mensagens';
 import MinhasReclamacoes from './MinhasReclamacoes';
+import PropostasTroca from './PropostasTroca';
 import './PerfilUsuario.css';
 
 // Fallback image as base64 - light gray placeholder with user icon
@@ -226,6 +227,8 @@ const PerfilUtilizador = () => {
                 return <Cartoes />;
             case 'mensagens':
                 return <Mensagens />;
+            case 'propostas':
+                return <PropostasTroca />;
             case 'reclamacoes':
                 return <MinhasReclamacoes />;
             default:
@@ -293,6 +296,12 @@ const PerfilUtilizador = () => {
                                         onClick={() => setActiveTab('mensagens')}
                                     >
                                         <FaEnvelope className="me-2" /> Mensagens
+                                    </Nav.Link>
+                                    <Nav.Link 
+                                        className={`d-flex align-items-center p-3 ${activeTab === 'propostas' ? 'active' : ''}`}
+                                        onClick={() => setActiveTab('propostas')}
+                                    >
+                                        <FaExchangeAlt className="me-2" /> Minhas Propostas
                                     </Nav.Link>
                                     <Nav.Link 
                                         className={`d-flex align-items-center p-3 ${activeTab === 'reclamacoes' ? 'active' : ''}`}

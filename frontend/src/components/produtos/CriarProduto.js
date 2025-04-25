@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Form, Button, Alert, Row, Col, Card } from 'react-bootstrap';
-import { useNavigate, Navigate } from 'react-router-dom';
+import { Container, Form, Button, Alert, Row, Col, Card, Spinner } from 'react-bootstrap';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { anuncioService } from '../../services/api';
 import Header from '../layout/Header';
@@ -8,50 +8,95 @@ import Footer from '../layout/Footer';
 
 const CriarProduto = () => {
     const navigate = useNavigate();
+    const { id } = useParams(); // Obter o ID do anúncio se estiver editando
     const { currentUser, isAuthenticated, loading: authLoading } = useAuth();
+    const [loading, setLoading] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
+    const [isEditMode, setIsEditMode] = useState(false);
     const [categorias, setCategorias] = useState([]);
     const [tiposItem, setTiposItem] = useState([]);
+    
     const [formData, setFormData] = useState({
         Titulo: '',
         Descricao: '',
         Preco: '',
         CategoriaID_Categoria: '',
-        Tipo_ItemID_Tipo: '1' // 1 para produto, 2 para serviço
+        Tipo_ItemID_Tipo: '1'
     });
+    
     const [imagens, setImagens] = useState([]);
     const [imagemPreview, setImagemPreview] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
+    const [imagensExistentes, setImagensExistentes] = useState([]);
 
     useEffect(() => {
-        // Carregar categorias e tipos de item ao montar o componente
-        const fetchData = async () => {
+        const carregarDados = async () => {
+            setLoading(true);
             try {
-                // Carregar categorias
-                console.log('A tentar carregar categorias...');
-                const categorias = await anuncioService.getCategories();
-                setCategorias(categorias);
-                console.log('Categorias carregadas:', categorias);
+                // Carregar categorias e tipos de item
+                const categoriasData = await anuncioService.getCategorias();
+                const tiposItemData = await anuncioService.getTiposItem();
                 
-                // Carregar tipos de item
-                console.log('A tentar carregar tipos de item...');
-                const tipos = await anuncioService.getItemTypes();
-                setTiposItem(tipos);
-                console.log('Tipos de item carregados:', tipos);
+                setCategorias(categoriasData);
+                setTiposItem(tiposItemData);
+                
+                // Verificar se está em modo de edição
+                if (id) {
+                    setIsEditMode(true);
+                    
+                    // Carregar dados do anúncio
+                    const anuncio = await anuncioService.getAnuncio(id);
+                    console.log("Anúncio carregado:", anuncio);
+                    
+                    // Preencher o formulário com os dados do anúncio
+                    setFormData({
+                        Titulo: anuncio.Titulo || '',
+                        Descricao: anuncio.Descricao || '',
+                        Preco: anuncio.Preco || '',
+                        CategoriaID_Categoria: anuncio.CategoriaID_Categoria || '',
+                        Tipo_ItemID_Tipo: anuncio.Tipo_ItemID_Tipo || '1'
+                    });
+                    
+                    // Carregar imagens existentes
+                    if (anuncio.imagens && anuncio.imagens.length > 0) {
+                        setImagensExistentes(anuncio.imagens);
+                    } else if (anuncio.item_imagems && anuncio.item_imagems.length > 0) {
+                        // Lidar com o caso onde as imagens estão em item_imagems
+                        setImagensExistentes(anuncio.item_imagems.map(item => item.imagem));
+                    }
+                }
             } catch (err) {
                 console.error('Erro ao carregar dados:', err);
-                console.error('Detalhes do erro:', err.response?.data || err.message);
-                setError(`Erro ao carregar dados: ${err.response?.data?.message || err.message}`);
+                setError('Erro ao carregar dados. Por favor, tente novamente.');
+            } finally {
+                setLoading(false);
             }
         };
-
-        fetchData();
-    }, []);
+        
+        carregarDados();
+    }, [id]);
     
     // Redirecionar para a página de login se o usuário não estiver autenticado
+    useEffect(() => {
+        if (!isAuthenticated) {
+            navigate('/login', { 
+                replace: true, 
+                state: { 
+                    from: '/criar-anuncio', 
+                    message: 'É necessário fazer login para criar um anúncio' 
+                } 
+            });
+        }
+    }, [isAuthenticated, navigate]);
+    
+    // Se está redirecionando, mostrar um spinner
     if (!isAuthenticated) {
-        return <Navigate to="/login" replace state={{ from: '/criar-anuncio', message: 'É necessário fazer login para criar um anúncio' }} />;
+        return <div className="d-flex justify-content-center align-items-center min-vh-100">
+            <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Redirecionando para login...</span>
+            </div>
+        </div>;
     }
 
     // Se o usuário está autenticado mas não tem currentUser, tentar obter novamente
@@ -135,67 +180,47 @@ const CriarProduto = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
-        setError('');
-        setSuccess('');
-
-        if (!currentUser) {
-            setError('É necessário estar autenticado para criar um anúncio');
-            setLoading(false);
-            return;
-        }
-
-        // Validar e formatar dados
-        const preco = parseFloat(formData.Preco);
-        if (isNaN(preco) || preco <= 0 || preco > 9999.99) {
-            setError('Por favor, insira um preço válido (entre 0.01 e 9999.99)');
-            setLoading(false);
-            return;
-        }
-
-        // Validar título
-        const titulo = formData.Titulo?.trim();
-        if (!titulo || titulo.length > 100) {
-            setError('Por favor, insira um título válido (máximo 100 caracteres)');
-            setLoading(false);
-            return;
-        }
-
-        // Validar descrição
-        const descricao = formData.Descricao?.trim();
-        if (!descricao) {
-            setError('Por favor, insira uma descrição para o anúncio');
-            setLoading(false);
-            return;
-        }
-
-        // Validar categoria e tipo
-        const categoriaId = parseInt(formData.CategoriaID_Categoria);
-        const tipoId = parseInt(formData.Tipo_ItemID_Tipo);
-        if (isNaN(categoriaId) || isNaN(tipoId)) {
-            setError('Por favor, selecione uma categoria e um tipo válidos');
-            setLoading(false);
-            return;
-        }
-
+        
         try {
+            setSubmitting(true);
+            setError('');
+            
+            // Validar campos
+            if (!formData.Titulo || formData.Titulo.trim() === '') {
+                throw new Error('O título é obrigatório');
+            }
+            
+            if (!formData.Descricao || formData.Descricao.trim() === '') {
+                throw new Error('A descrição é obrigatória');
+            }
+            
+            if (!formData.Preco || formData.Preco <= 0) {
+                throw new Error('O preço deve ser maior que zero');
+            }
+            
+            if (!formData.CategoriaID_Categoria) {
+                throw new Error('A categoria é obrigatória');
+            }
+            
+            if (!formData.Tipo_ItemID_Tipo) {
+                throw new Error('O tipo de item é obrigatório');
+            }
+            
             const formDataObj = new FormData();
             
-            // Debug: Verificar o ID do Utilizador
-            console.log('currentUser:', currentUser);
-            console.log('currentUser.ID_User:', currentUser.ID_User);
-            console.log('typeof currentUser.ID_User:', typeof currentUser.ID_User);
+            // Adicionar dados do formulário ao FormData
+            for (const key in formData) {
+                formDataObj.append(key, formData[key]);
+            }
             
-            // Adicionar dados do produto
-            formDataObj.append('Titulo', titulo);
-            formDataObj.append('Descricao', descricao);
-            formDataObj.append('Preco', preco.toFixed(2)); // Enviar como string com 2 casas decimais
-            formDataObj.append('CategoriaID_Categoria', categoriaId);
-            formDataObj.append('Tipo_ItemID_Tipo', tipoId);
+            // Obter ID do usuário do localStorage
+            const userStr = localStorage.getItem('user');
+            if (!userStr) {
+                throw new Error('Usuário não autenticado');
+            }
             
-            // Garantir que o ID do usuário seja um número
-            const userId = parseInt(currentUser.ID_User);
-            console.log('userId após parseInt:', userId);
+            const user = JSON.parse(userStr);
+            const userId = user.ID_User;
             
             if (isNaN(userId)) {
                 throw new Error('ID do usuário inválido');
@@ -203,48 +228,76 @@ const CriarProduto = () => {
             
             formDataObj.append('UtilizadorID_User', userId);
             formDataObj.append('Status_AnuncioID_Status_Anuncio', 1); // 1 para status pendente
-
+            
             // Adicionar imagens
             imagens.forEach((imagem, index) => {
                 if (imagem) {
                     formDataObj.append(`imagens[${index}]`, imagem);
                 }
             });
-
-            await anuncioService.criarAnuncio(formDataObj);
-
-            setSuccess('Anúncio criado com sucesso! Aguardando aprovação.');
             
-            // Limpar formulário
-            setFormData({
-                Titulo: '',
-                Descricao: '',
-                Preco: '',
-                CategoriaID_Categoria: '',
-                Tipo_ItemID_Tipo: '1'
+            // Identificar quais imagens existentes devem ser mantidas
+            if (isEditMode && imagensExistentes.length > 0) {
+                const imagensIds = imagensExistentes
+                    .filter(img => img && img.ID_Imagem)
+                    .map(img => img.ID_Imagem);
+                
+                console.log("IDs das imagens a manter:", imagensIds);
+                
+                if (imagensIds.length > 0) {
+                    formDataObj.append('manter_imagens', JSON.stringify(imagensIds));
+                }
+            }
+            
+            // Debug
+            console.log("Formulário a enviar:", {
+                isEditMode,
+                id: id || 'novo',
+                formData: Object.fromEntries(formDataObj.entries()),
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'User-ID': userId
+                }
             });
-            setImagens([]);
-            setImagemPreview([]);
+            
+            if (isEditMode) {
+                await anuncioService.atualizarAnuncio(id, formDataObj);
+                setSuccess('Anúncio atualizado com sucesso! Aguardando aprovação.');
+            } else {
+                await anuncioService.criarAnuncio(formDataObj);
+                setSuccess('Anúncio criado com sucesso! Aguardando aprovação.');
+                
+                // Limpar formulário apenas em modo de criação
+                setFormData({
+                    Titulo: '',
+                    Descricao: '',
+                    Preco: '',
+                    CategoriaID_Categoria: '',
+                    Tipo_ItemID_Tipo: '1'
+                });
+                setImagens([]);
+                setImagemPreview([]);
+            }
             
             // Redirecionar após 2 segundos
             setTimeout(() => {
-                navigate('/anuncios');
+                navigate('/meus-anuncios');
             }, 2000);
         } catch (err) {
-            console.error('Erro ao criar anúncio:', err);
+            console.error('Erro ao processar anúncio:', err);
             
             // Mostrar erros específicos do backend
             if (err.response?.data?.errors) {
-                let errorMessage = 'Erro ao criar anúncio:\n';
+                let errorMessage = 'Erro ao processar anúncio:\n';
                 Object.entries(err.response.data.errors).forEach(([field, messages]) => {
                     errorMessage += `-${field}: ${messages.join(', ')}\n`;
                 });
                 setError(errorMessage);
             } else {
-                setError(err.response?.data?.message || 'Erro ao criar anúncio. Por favor, tente novamente.');
+                setError(err.response?.data?.message || err.message || 'Erro ao processar anúncio. Por favor, tente novamente.');
             }
         } finally {
-            setLoading(false);
+            setSubmitting(false);
         }
     };
 
@@ -256,154 +309,188 @@ const CriarProduto = () => {
                     <Col md={8}>
                         <Card className="shadow-sm">
                             <Card.Header className="bg-primary text-white">
-                                <h2 className="mb-0">Criar Novo Anúncio</h2>
+                                <h2 className="mb-0">{isEditMode ? 'Editar Anúncio' : 'Criar Novo Anúncio'}</h2>
                             </Card.Header>
                             <Card.Body>
-                                {error && <Alert variant="danger">{error}</Alert>}
-                                {success && <Alert variant="success">{success}</Alert>}
-
-                                <Form onSubmit={handleSubmit}>
-                                    <Row>
-                                        <Col md={12}>
-                                            <Form.Group className="mb-3">
-                                                <Form.Label>Título do Anúncio</Form.Label>
-                                                <Form.Control
-                                                    type="text"
-                                                    name="Titulo"
-                                                    value={formData.Titulo}
-                                                    onChange={handleChange}
-                                                    required
-                                                    placeholder="Ex: iPhone 13 Pro Max 256GB"
-                                                />
-                                            </Form.Group>
-                                        </Col>
-                                    </Row>
-
-                                    <Row>
-                                        <Col md={6}>
-                                            <Form.Group className="mb-4">
-                                                <Form.Label>Categoria</Form.Label>
-                                                <Form.Select 
-                                                    name="CategoriaID_Categoria" 
-                                                    value={formData.CategoriaID_Categoria}
-                                                    onChange={handleChange}
-                                                    required
-                                                >
-                                                    <option value="">Selecione uma categoria</option>
-                                                    {categorias.map(categoria => (
-                                                        <option key={categoria.ID_Categoria} value={categoria.ID_Categoria}>
-                                                            {categoria.Descricao_Categoria}
-                                                        </option>
-                                                    ))}
-                                                </Form.Select>
-                                            </Form.Group>
-                                        </Col>
-                                        <Col md={6}>
-                                            <Form.Group className="mb-4">
-                                                <Form.Label>Tipo</Form.Label>
-                                                <Form.Select 
-                                                    name="Tipo_ItemID_Tipo" 
-                                                    value={formData.Tipo_ItemID_Tipo}
-                                                    onChange={handleChange}
-                                                    required
-                                                >
-                                                    <option value="">Selecione um tipo</option>
-                                                    {tiposItem.map(tipo => (
-                                                        <option key={tipo.ID_Tipo} value={tipo.ID_Tipo}>
-                                                            {tipo.Descricao_TipoItem}
-                                                        </option>
-                                                    ))}
-                                                </Form.Select>
-                                            </Form.Group>
-                                        </Col>
-                                    </Row>
-
-                                    <Row>
-                                        <Col md={6}>
-                                            <Form.Group className="mb-3">
-                                                <Form.Label>Preço (€)</Form.Label>
-                                                <Form.Control
-                                                    type="number"
-                                                    step="0.01"
-                                                    min="0"
-                                                    max="9999.99"
-                                                    name="Preco"
-                                                    value={formData.Preco}
-                                                    onChange={handleChange}
-                                                    required
-                                                    placeholder="0.00"
-                                                />
-                                                <Form.Text className="text-muted">
-                                                    Valor máximo permitido: 9999.99€
-                                                </Form.Text>
-                                            </Form.Group>
-                                        </Col>
-                                        <Col md={6}>
-        
-                                        </Col>
-                                    </Row>
-
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Descrição</Form.Label>
-                                        <Form.Control
-                                            as="textarea"
-                                            rows={5}
-                                            name="Descricao"
-                                            value={formData.Descricao}
-                                            onChange={handleChange}
-                                            required
-                                            placeholder="Descreva o seu produto ou serviço com detalhes..."
-                                        />
-                                    </Form.Group>
-
-                                    <Form.Group className="mb-4">
-                                        <Form.Label>Imagens</Form.Label>
-                                        <Form.Control
-                                            type="file"
-                                            multiple
-                                            accept="image/*"
-                                            onChange={handleImagemChange}
-                                            className="mb-3"
-                                        />
-                                        <Form.Text className="text-muted mb-3 d-block">
-                                            Pode selecionar múltiplas imagens (opcional). A primeira será a imagem principal.
-                                        </Form.Text>
-                                        
-                                        {imagemPreview.length > 0 && (
-                                            <div className="image-preview-container d-flex flex-wrap">
-                                                {imagemPreview.map((preview, index) => (
-                                                    <div key={index} className="image-preview me-2 mb-2">
-                                                        <img 
-                                                            src={preview} 
-                                                            alt={`Preview ${index}`} 
-                                                            style={{ width: '100px', height: '100px', objectFit: 'cover' }}
-                                                            className="rounded"
-                                                        />
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </Form.Group>
-
-                                    <div className="d-grid gap-2">
-                                        <Button 
-                                            variant="primary" 
-                                            type="submit"
-                                            disabled={loading}
-                                            size="lg"
-                                            style={{ backgroundColor: '#F97316', borderColor: '#F97316' }}
-                                        >
-                                            {loading ? (
-                                                <>
-                                                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                                    A criar anúncio...
-                                                </>
-                                            ) : (
-                                                <>Publicar Anúncio</>
-                                            )}
-                                        </Button>
+                                {loading ? (
+                                    <div className="text-center py-5">
+                                        <Spinner animation="border" role="status" variant="primary">
+                                            <span className="visually-hidden">Carregando...</span>
+                                        </Spinner>
+                                        <p className="mt-3">Carregando dados...</p>
                                     </div>
-                                </Form>
+                                ) : (
+                                    <>
+                                        {error && <Alert variant="danger">{error}</Alert>}
+                                        {success && <Alert variant="success">{success}</Alert>}
+                                        
+                                        <Form onSubmit={handleSubmit}>
+                                            <Row>
+                                                <Col md={12}>
+                                                    <Form.Group className="mb-3">
+                                                        <Form.Label>Título do Anúncio</Form.Label>
+                                                        <Form.Control
+                                                            type="text"
+                                                            name="Titulo"
+                                                            value={formData.Titulo}
+                                                            onChange={handleChange}
+                                                            required
+                                                            placeholder="Ex: iPhone 13 Pro Max 256GB"
+                                                        />
+                                                    </Form.Group>
+                                                </Col>
+                                            </Row>
+
+                                            <Row>
+                                                <Col md={6}>
+                                                    <Form.Group className="mb-4">
+                                                        <Form.Label>Categoria</Form.Label>
+                                                        <Form.Select 
+                                                            name="CategoriaID_Categoria" 
+                                                            value={formData.CategoriaID_Categoria}
+                                                            onChange={handleChange}
+                                                            required
+                                                        >
+                                                            <option value="">Selecione uma categoria</option>
+                                                            {categorias.map(categoria => (
+                                                                <option key={categoria.ID_Categoria} value={categoria.ID_Categoria}>
+                                                                    {categoria.Descricao_Categoria}
+                                                                </option>
+                                                            ))}
+                                                        </Form.Select>
+                                                    </Form.Group>
+                                                </Col>
+                                                <Col md={6}>
+                                                    <Form.Group className="mb-4">
+                                                        <Form.Label>Tipo</Form.Label>
+                                                        <Form.Select 
+                                                            name="Tipo_ItemID_Tipo" 
+                                                            value={formData.Tipo_ItemID_Tipo}
+                                                            onChange={handleChange}
+                                                            required
+                                                        >
+                                                            <option value="">Selecione um tipo</option>
+                                                            {tiposItem.map(tipo => (
+                                                                <option key={tipo.ID_Tipo} value={tipo.ID_Tipo}>
+                                                                    {tipo.Descricao_TipoItem}
+                                                                </option>
+                                                            ))}
+                                                        </Form.Select>
+                                                    </Form.Group>
+                                                </Col>
+                                            </Row>
+
+                                            <Row>
+                                                <Col md={6}>
+                                                    <Form.Group className="mb-3">
+                                                        <Form.Label>Preço (€)</Form.Label>
+                                                        <Form.Control
+                                                            type="number"
+                                                            step="0.01"
+                                                            min="0"
+                                                            max="9999.99"
+                                                            name="Preco"
+                                                            value={formData.Preco}
+                                                            onChange={handleChange}
+                                                            required
+                                                            placeholder="0.00"
+                                                        />
+                                                        <Form.Text className="text-muted">
+                                                            Valor máximo permitido: 9999.99€
+                                                        </Form.Text>
+                                                    </Form.Group>
+                                                </Col>
+                                                <Col md={6}>
+        
+                                                </Col>
+                                            </Row>
+
+                                            <Form.Group className="mb-3">
+                                                <Form.Label>Descrição</Form.Label>
+                                                <Form.Control
+                                                    as="textarea"
+                                                    rows={5}
+                                                    name="Descricao"
+                                                    value={formData.Descricao}
+                                                    onChange={handleChange}
+                                                    required
+                                                    placeholder="Descreva o seu produto ou serviço com detalhes..."
+                                                />
+                                            </Form.Group>
+
+                                            <Form.Group className="mb-4">
+                                                <Form.Label>Imagens</Form.Label>
+                                                <Form.Control
+                                                    type="file"
+                                                    multiple
+                                                    accept="image/*"
+                                                    onChange={handleImagemChange}
+                                                    className="mb-3"
+                                                />
+                                                <Form.Text className="text-muted mb-3 d-block">
+                                                    Pode selecionar múltiplas imagens (opcional). A primeira será a imagem principal.
+                                                </Form.Text>
+                                                
+                                                {/* Exibir imagens existentes */}
+                                                {isEditMode && imagensExistentes.length > 0 && (
+                                                    <div className="mb-3">
+                                                        <p>Imagens atuais:</p>
+                                                        <div className="image-preview-container d-flex flex-wrap">
+                                                            {imagensExistentes.map((img, index) => (
+                                                                <div key={index} className="image-preview me-2 mb-2">
+                                                                    <img 
+                                                                        src={`/storage/${img.Caminho.replace('public/', '')}`} 
+                                                                        alt={`Imagem ${index}`} 
+                                                                        style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+                                                                        className="rounded"
+                                                                    />
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                
+                                                {/* Exibir previews de novas imagens */}
+                                                {imagemPreview.length > 0 && (
+                                                    <div className="mb-3">
+                                                        {isEditMode && <p>Novas imagens:</p>}
+                                                        <div className="image-preview-container d-flex flex-wrap">
+                                                            {imagemPreview.map((preview, index) => (
+                                                                <div key={index} className="image-preview me-2 mb-2">
+                                                                    <img 
+                                                                        src={preview} 
+                                                                        alt={`Preview ${index}`} 
+                                                                        style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+                                                                        className="rounded"
+                                                                    />
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </Form.Group>
+                                            
+                                            <div className="d-grid gap-2">
+                                                <Button 
+                                                    variant="primary" 
+                                                    type="submit"
+                                                    disabled={submitting}
+                                                    size="lg"
+                                                    style={{ backgroundColor: '#F97316', borderColor: '#F97316' }}
+                                                >
+                                                    {submitting ? (
+                                                        <>
+                                                            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                                            {isEditMode ? 'Atualizando anúncio...' : 'Criando anúncio...'}
+                                                        </>
+                                                    ) : (
+                                                        isEditMode ? 'Atualizar Anúncio' : 'Criar Anúncio'
+                                                    )}
+                                                </Button>
+                                            </div>
+                                        </Form>
+                                    </>
+                                )}
                             </Card.Body>
                         </Card>
                     </Col>

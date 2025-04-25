@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Button, Modal, Form } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Modal, Form, Alert } from 'react-bootstrap';
 import trocaService from '../../services/trocaService';
 import { toast } from 'react-toastify';
 
@@ -34,7 +34,7 @@ const PropostasTroca = () => {
 
     const handleAceitar = async (trocaId) => {
         try {
-            await trocaService.aceitarTroca(trocaId);
+            await trocaService.aceitarProposta(trocaId);
             toast.success('Proposta de troca aceita com sucesso!');
             carregarPropostas();
         } catch (error) {
@@ -45,7 +45,7 @@ const PropostasTroca = () => {
 
     const handleRejeitar = async () => {
         try {
-            await trocaService.rejeitarTroca(selectedTrocaId, motivoRejeicao);
+            await trocaService.rejeitarProposta(selectedTrocaId, motivoRejeicao);
             toast.success('Proposta de troca rejeitada com sucesso!');
             setShowRejeitarModal(false);
             setMotivoRejeicao('');
@@ -58,7 +58,7 @@ const PropostasTroca = () => {
 
     const handleCancelar = async (trocaId) => {
         try {
-            await trocaService.cancelarTroca(trocaId);
+            await trocaService.cancelarProposta(trocaId);
             toast.success('Proposta de troca cancelada com sucesso!');
             carregarPropostas();
         } catch (error) {
@@ -73,20 +73,20 @@ const PropostasTroca = () => {
     };
 
     return (
-        <Container className="mt-4">
-            <h2>Propostas de Troca</h2>
+        <Container className="py-4">
+            <h2 className="mb-4">Propostas de Troca</h2>
             
-            <h3 className="mt-4">Propostas Recebidas</h3>
-            <Row>
+            <h3 className="mb-3">Propostas Recebidas</h3>
+            <Row className="g-4 mb-5">
                 {propostasRecebidas.map((proposta) => (
-                    <Col md={4} key={proposta.id} className="mb-3">
-                        <Card>
+                    <Col md={4} key={proposta.id}>
+                        <Card className="h-100 shadow-sm">
                             <Card.Body>
                                 <Card.Title>Troca Proposta</Card.Title>
                                 <Card.Text>
-                                    <strong>Anúncio Desejado:</strong> {proposta.anuncio_desejado.titulo}<br/>
-                                    <strong>Em troca de:</strong> {proposta.meu_anuncio.titulo}<br/>
-                                    <strong>Proposto por:</strong> {proposta.usuario_proponente.nome}<br/>
+                                    <strong>Anúncio Desejado:</strong> {proposta.anuncio_desejado.Titulo}<br/>
+                                    <strong>Em troca de:</strong> {proposta.meu_anuncio.Titulo}<br/>
+                                    <strong>Proposto por:</strong> {proposta.usuario_proponente.Name}<br/>
                                     <strong>Status:</strong> {proposta.status}
                                 </Card.Text>
                                 {proposta.status === 'PENDENTE' && (
@@ -103,18 +103,25 @@ const PropostasTroca = () => {
                         </Card>
                     </Col>
                 ))}
+                {propostasRecebidas.length === 0 && (
+                    <Col>
+                        <Alert variant="info">
+                            Você não tem propostas de troca recebidas.
+                        </Alert>
+                    </Col>
+                )}
             </Row>
 
-            <h3 className="mt-4">Propostas Enviadas</h3>
-            <Row>
+            <h3 className="mb-3">Propostas Enviadas</h3>
+            <Row className="g-4">
                 {propostasEnviadas.map((proposta) => (
-                    <Col md={4} key={proposta.id} className="mb-3">
-                        <Card>
+                    <Col md={4} key={proposta.id}>
+                        <Card className="h-100 shadow-sm">
                             <Card.Body>
                                 <Card.Title>Troca Proposta</Card.Title>
                                 <Card.Text>
-                                    <strong>Anúncio Desejado:</strong> {proposta.anuncio_desejado.titulo}<br/>
-                                    <strong>Oferecendo:</strong> {proposta.meu_anuncio.titulo}<br/>
+                                    <strong>Anúncio Desejado:</strong> {proposta.anuncio_desejado.Titulo}<br/>
+                                    <strong>Oferecendo:</strong> {proposta.meu_anuncio.Titulo}<br/>
                                     <strong>Status:</strong> {proposta.status}
                                     {proposta.motivo_rejeicao && (
                                         <><br/><strong>Motivo da rejeição:</strong> {proposta.motivo_rejeicao}</>
@@ -129,6 +136,13 @@ const PropostasTroca = () => {
                         </Card>
                     </Col>
                 ))}
+                {propostasEnviadas.length === 0 && (
+                    <Col>
+                        <Alert variant="info">
+                            Você não enviou nenhuma proposta de troca.
+                        </Alert>
+                    </Col>
+                )}
             </Row>
 
             <Modal show={showRejeitarModal} onHide={() => setShowRejeitarModal(false)}>

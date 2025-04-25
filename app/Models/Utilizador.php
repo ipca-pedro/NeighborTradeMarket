@@ -169,4 +169,27 @@ class Utilizador extends Authenticatable
     {
         return 'remember_token';
     }
+    
+    /**
+     * Verifica se o usuário tem um determinado papel
+     *
+     * @param string $role Nome do papel a ser verificado (ex: 'admin')
+     * @return bool
+     */
+    public function hasRole($role)
+    {
+        // Caso específico para 'admin'
+        if ($role === 'admin') {
+            return $this->TipoUserID_TipoUser === 1;
+        }
+        
+        // Caso necessário adicionar mais papéis no futuro
+        $roles = [
+            'admin' => 1,
+            'user' => 2
+            // Adicionar outros papéis conforme necessário
+        ];
+        
+        return isset($roles[$role]) && $this->TipoUserID_TipoUser === $roles[$role];
+    }
 }

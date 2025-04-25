@@ -68,7 +68,7 @@ export const authService = {
                     // Garantir que o ID do utilizador seja um número
                     const userData = {
                         ...response.data.user,
-                        ID_User: parseInt(response.data.user.ID_User)
+                        ID_User: parseInt(response.data.user.ID_User || response.data.user.id || 0)
                     };
                     
                     console.log('Dados do utilizador após conversão:', userData);
@@ -85,10 +85,16 @@ export const authService = {
                 const response = await api.post('/login', { Email: email, Password: password });
                 console.log('Resposta de /login:', response.data);
                 if (response.data.token) {
+                    // Também garantir consistência no formato dos dados aqui
+                    const userData = {
+                        ...response.data.user,
+                        ID_User: parseInt(response.data.user.ID_User || response.data.user.id || 0)
+                    };
+                    
                     localStorage.setItem('token', response.data.token);
-                    localStorage.setItem('user', JSON.stringify(response.data.user));
-                    console.log('Utilizador guardado no localStorage:', response.data.user);
-                    console.log('TipoUserID_TipoUser:', response.data.user.TipoUserID_TipoUser);
+                    localStorage.setItem('user', JSON.stringify(userData));
+                    console.log('Utilizador guardado no localStorage:', userData);
+                    console.log('TipoUserID_TipoUser:', userData.TipoUserID_TipoUser);
                 }
                 return response.data;
             }
@@ -372,13 +378,13 @@ export const anuncioService = {
     getMeusAnuncios: async () => {
         try {
             // Tentar obter o ID do utilizador do localStorage
-            const userData = localStorage.getItem('user');
+            const userStr = localStorage.getItem('user');
             let userId = null;
             
-            if (userData) {
+            if (userStr) {
                 try {
-                    const user = JSON.parse(userData);
-                    userId = user.id || user.ID_Utilizador;
+                    const user = JSON.parse(userStr);
+                    userId = user.ID_User;
                     console.log('ID do utilizador obtido do localStorage:', userId);
                 } catch (e) {
                     console.error('Erro ao analisar dados do utilizador:', e);
@@ -428,15 +434,61 @@ export const anuncioService = {
     // Atualizar um anúncio existente
     atualizarAnuncio: async (id, anuncioData) => {
         try {
-            const config = {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
+            // Diagnóstico completo do estado de autenticação
+            console.log('==== DIAGNÓSTICO DE AUTENTICAÇÃO ====');
+            console.log('localStorage.token:', localStorage.getItem('token'));
+            console.log('localStorage.user (raw):', localStorage.getItem('user'));
+            
+            // Obter token e ID do usuário
+            const token = localStorage.getItem('token');
+            const userStr = localStorage.getItem('user');
+            const user = userStr ? JSON.parse(userStr) : {};
+            
+            // Verificar o ID correto do usuário
+            console.log('Dados completos do usuário:', user);
+            const userId = user.ID_User;
+            
+            console.log('ID do usuário extraído:', userId);
+            console.log('Tipo do ID:', typeof userId);
+            
+            if (!token) {
+                throw new Error('Usuário não autenticado');
+            }
+            
+            console.log(`Atualizando anúncio ${id} para o usuário ${userId}`);
+            
+            // Criar uma cópia para debug
+            const formEntries = {};
+            for (let [key, value] of anuncioData.entries()) {
+                if (key !== 'imagens') { // Não mostrar as imagens completas no log
+                    formEntries[key] = value;
                 }
-            };
-            const response = await api.put(`/anuncios/${id}`, anuncioData, config);
+            }
+            console.log('Dados do formulário:', formEntries);
+            
+            // Adicionar o ID do usuário, se necessário
+            if (!anuncioData.has('UtilizadorID_User')) {
+                anuncioData.append('UtilizadorID_User', userId);
+            }
+            console.log('UtilizadorID_User definido para:', anuncioData.get('UtilizadorID_User'));
+            
+            // Usar axios diretamente para ter mais controle
+            const response = await axios({
+                method: 'post',
+                url: `http://localhost:8000/api/anuncios/${id}?_method=PUT`,
+                data: anuncioData,
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            console.log('Resposta da atualização:', response.data);
             return response.data;
         } catch (error) {
             console.error(`Erro ao atualizar anúncio ${id}:`, error);
+            console.error('Detalhes do erro:', error.response?.data || error.message);
             throw error.response?.data || error.message;
         }
     },

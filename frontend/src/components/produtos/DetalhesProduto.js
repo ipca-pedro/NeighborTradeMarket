@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Image, Badge, Button, Alert, Card, Spinner, Modal } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { anuncioService } from '../../services/api';
+import trocaService from '../../services/trocaService';
 import { useAuth } from '../../contexts/AuthContext';
 import { toast } from 'react-toastify';
 import Header from '../layout/Header';
@@ -88,13 +89,14 @@ const DetalhesProduto = () => {
 
     const handleProporTroca = async (meuAnuncioId) => {
         try {
-            // TODO: Implementar chamada à API para propor troca
-            // await trocaService.proporTroca(id, meuAnuncioId);
+            await trocaService.proporTroca(id, meuAnuncioId);
             toast.success('Proposta de troca enviada com sucesso!');
             setShowTrocaModal(false);
+            // Navegar para a página de propostas após enviar
+            navigate('/perfil/propostas');
         } catch (error) {
             console.error('Erro ao propor troca:', error);
-            toast.error('Erro ao enviar proposta de troca');
+            toast.error('Erro ao enviar proposta de troca. Por favor, tente novamente.');
         }
     };
 
