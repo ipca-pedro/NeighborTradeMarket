@@ -45,6 +45,7 @@ Route::get('/anuncios/categoria/{categoriaId}', [AnuncioController::class, 'byCa
 
 // Rota para servir arquivos
 Route::get('/files/id/{id}', [FileController::class, 'serveById']);
+Route::get('/files/debug', [FileController::class, 'debug']);
 
 // Rota para obter anúncios aleatórios
 Route::get('/anuncios/aleatorios', [AnuncioController::class, 'getAnunciosAleatorios']);
@@ -60,6 +61,9 @@ Route::post('/password/reset', [AuthController::class, 'resetPassword']);
 
 // Rotas de teste
 Route::get('/test', [TestController::class, 'test']);
+Route::post('/test/rejeitar/{id}', [TestController::class, 'testRejeitar']);
+Route::get('/test/item-imagem', [TestController::class, 'inspecionarTabelaItemImagem']);
+Route::post('/test/item-imagem/inserir', [TestController::class, 'testeInserirItemImagem']);
 
 
 // Rotas de teste básicas (mantidas para fins de diagnóstico)

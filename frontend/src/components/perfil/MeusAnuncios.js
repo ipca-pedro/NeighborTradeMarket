@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Row, Col, Card, Button, Badge, Spinner, Alert, Container } from 'react-bootstrap';
 import { Link, useLocation } from 'react-router-dom';
 import { FaPlus, FaImage, FaCalendarAlt } from 'react-icons/fa';
-import { anuncioService } from '../../services/api';
+import { anuncioService, getImageUrl } from '../../services/api';
 import Header from '../layout/Header';
 import './MeusAnuncios.css';
 
@@ -117,8 +117,9 @@ const MeusAnuncios = () => {
                                             {anuncio.item_imagems && anuncio.item_imagems.length > 0 && anuncio.item_imagems[0]?.imagem ? (
                                                 <Card.Img 
                                                     variant="top" 
-                                                    src={`http://localhost:8000/storage/${anuncio.item_imagems[0].imagem.Caminho}`}
+                                                    src={getImageUrl(anuncio.item_imagems[0])}
                                                     onError={(e) => {
+                                                        console.log('Erro ao carregar imagem:', e);
                                                         e.target.onerror = null;
                                                         e.target.src = fallbackImage;
                                                     }}

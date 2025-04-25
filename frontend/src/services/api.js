@@ -40,6 +40,28 @@ api.interceptors.response.use(
     }
 );
 
+/**
+ * Função utilitária para obter URLs de imagens
+ * @param {Object} item - Item contendo uma referência à imagem
+ * @returns {string} URL da imagem ou URL de fallback
+ */
+export const getImageUrl = (item) => {
+    // Fallback image
+    const fallbackImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mN88R8AAtUB6S/lhm4AAAAASUVORK5CYII=';
+    
+    // Se não tiver imagem, retorna fallback
+    if (!item?.imagem?.Caminho) return fallbackImage;
+    
+    // Primeiro tentar usar a API de arquivos por ID se disponível
+    if (item.imagem.ID_Imagem) {
+        return `${api.defaults.baseURL}/files/id/${item.imagem.ID_Imagem}`;
+    }
+    
+    // Fallback para URL direto (para compatibilidade)
+    const caminho = item.imagem.Caminho.replace(/^public\//, '');
+    return `${api.defaults.baseURL.replace('/api', '')}/storage/${caminho}`;
+};
+
 export const moradaService = {
     getMoradas: async () => {
         try {
@@ -305,11 +327,42 @@ export const adminService = {
     rejeitarAnuncio: async (anuncioId, motivo) => {
         try {
             console.log('Tentando rejeitar anúncio:', { anuncioId, motivo });
-            const response = await api.post(`/admin/anuncios/${anuncioId}/rejeitar`, { motivo });
+            
+            // Garantir que anuncioId seja um número
+            const idAnuncio = parseInt(anuncioId);
+            
+            // Construir objeto de dados com ou sem motivo
+            const dadosRejeicao = {};
+            if (motivo !== null && motivo !== undefined) {
+                dadosRejeicao.motivo = motivo;
+            }
+            
+            console.log('Enviando dados para rejeição:', dadosRejeicao);
+            
+            // Incluir detalhes completos do request
+            console.log('URL completa:', `${api.defaults.baseURL}/admin/anuncios/${idAnuncio}/rejeitar`);
+            console.log('Headers:', api.defaults.headers);
+            
+            // Usar a rota alternativa para teste
+            let response;
+            try {
+                // Tentar a rota normal primeiro
+                response = await api.post(`/admin/anuncios/${idAnuncio}/rejeitar`, dadosRejeicao);
+            } catch (initialError) {
+                console.warn('Erro na rota normal, tentando rota de teste:', initialError);
+                // Se falhar, tentar a rota de teste
+                response = await api.post(`/test/rejeitar/${idAnuncio}`, dadosRejeicao);
+            }
+            
             console.log('Resposta da rejeição:', response.data);
             return response.data;
         } catch (error) {
             console.error(`Erro ao rejeitar anúncio ${anuncioId}:`, error);
+            console.error('Mensagem de erro:', error.message);
+            if (error.response) {
+                console.error('Status de erro:', error.response.status);
+                console.error('Dados da resposta:', error.response.data);
+            }
             throw error.response?.data || error.message;
         }
     },

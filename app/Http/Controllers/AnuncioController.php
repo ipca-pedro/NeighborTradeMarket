@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * @OA\Tag(
@@ -410,29 +411,27 @@ class AnuncioController extends Controller
      */
     public function rejeitarAnuncio(Request $request, $id)
     {
+        \Log::info('Iniciando rejeitarAnuncio', [
+            'anuncio_id' => $id,
+            'request_data' => $request->all(),
+            'user' => Auth::check() ? Auth::id() : 'não autenticado'
+        ]);
+
         if (!Auth::check() || Auth::user()->TipoUserID_TipoUser !== 1) { // Assumindo que ID 1 é para administradores
+            \Log::warning('Acesso não autorizado ao rejeitarAnuncio');
             return response()->json([
                 'message' => 'Acesso não autorizado - Apenas administradores podem rejeitar anúncios'
             ], 403);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'motivo' => 'required|string|max:255'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Dados inválidos',
-                'errors' => $validator->errors()
-            ], 422);
         }
 
         try {
             DB::beginTransaction();
 
             $anuncio = Anuncio::findOrFail($id);
+            \Log::info('Anúncio encontrado', ['anuncio' => $anuncio->toArray()]);
 
             if ($anuncio->Status_AnuncioID_Status_Anuncio != StatusAnuncio::STATUS_PENDENTE) {
+                DB::rollBack();
                 return response()->json([
                     'message' => 'Este anúncio já foi processado'
                 ], 400);
@@ -442,16 +441,24 @@ class AnuncioController extends Controller
             $anuncio->save();
 
             $aprovacao = Aprovacao::find($anuncio->AprovacaoID_aprovacao);
+            \Log::info('Aprovação encontrada', ['aprovacao' => $aprovacao ? $aprovacao->toArray() : 'null']);
 
             if ($aprovacao) {
                 $aprovacao->Status_AprovacaoID_Status_Aprovacao = 3; // Status rejeitado
                 $aprovacao->Data_Aprovacao = now();
                 $aprovacao->UtilizadorID_Admin = Auth::id(); // Usando o ID do usuário autenticado
-                $aprovacao->motivo_rejeicao = $request->motivo;
+                
+                // Se houver motivo, salva na coluna Comentario
+                if ($request->has('motivo')) {
+                    $aprovacao->Comentario = $request->motivo;
+                    \Log::info('Motivo de rejeição definido', ['motivo' => $request->motivo]);
+                }
+                
                 $aprovacao->save();
             }
 
             DB::commit();
+            \Log::info('Anúncio rejeitado com sucesso', ['anuncio_id' => $id]);
 
             return response()->json([
                 'message' => 'Anúncio rejeitado com sucesso'
@@ -464,7 +471,8 @@ class AnuncioController extends Controller
                 'trace' => $e->getTraceAsString(),
                 'user_id' => Auth::id(),
                 'user_type' => Auth::user()->TipoUserID_TipoUser,
-                'anuncio_id' => $id
+                'anuncio_id' => $id,
+                'request_data' => $request->all()
             ]);
             return response()->json([
                 'message' => 'Erro ao rejeitar anúncio: ' . $e->getMessage()
@@ -588,7 +596,15 @@ class AnuncioController extends Controller
                 
                 // Criar diretório se não existir
                 $diretorio = 'anuncios/' . $anuncio->ID_Anuncio;
+                
+                \Log::info('Processando imagens para novo anúncio', [
+                    'anuncio_id' => $anuncio->ID_Anuncio,
+                    'diretorio' => $diretorio,
+                    'qtd_imagens' => count($imagens)
+                ]);
+                
                 if (!Storage::disk('public')->exists($diretorio)) {
+                    \Log::info('Criando diretório para imagens', ['diretorio' => $diretorio]);
                     Storage::disk('public')->makeDirectory($diretorio);
                 }
                 
@@ -596,31 +612,47 @@ class AnuncioController extends Controller
                     try {
                         // Gerar nome único para a imagem
                         $imagemNome = uniqid() . '_' . $key . '.' . $imagemFile->getClientOriginalExtension();
+                        
+                        // Log dos detalhes do arquivo
+                        \Log::info('Processando arquivo de imagem', [
+                            'nome_original' => $imagemFile->getClientOriginalName(),
+                            'extensao' => $imagemFile->getClientOriginalExtension(),
+                            'tamanho' => $imagemFile->getSize(),
+                            'mime_type' => $imagemFile->getMimeType(),
+                            'nome_destino' => $imagemNome
+                        ]);
+                        
                         $imagemPath = $imagemFile->storeAs($diretorio, $imagemNome, 'public');
+                        
+                        \Log::info('Imagem armazenada com sucesso', [
+                            'caminho_completo' => $imagemPath,
+                            'caminho_relativo' => $diretorio . '/' . $imagemNome
+                        ]);
                         
                         // Salvar informações da imagem no banco
                         $imagem = new Imagem();
                         $imagem->Caminho = $imagemPath;
                         $imagem->save();
                         
-                        // Criar relação na tabela Item_Imagem
-                        DB::table('item_imagem')->insert([
-                            'ItemID_Item' => $anuncio->ID_Anuncio,
-                            'ImagemID_Imagem' => $imagem->ID_Imagem
+                        \Log::info('Registro de imagem criado', [
+                            'imagem_id' => $imagem->ID_Imagem,
+                            'caminho_salvo' => $imagem->Caminho
                         ]);
                         
-                        \Log::info('Imagem salva com sucesso:', [
-                            'anuncio_id' => $anuncio->ID_Anuncio,
-                            'imagem_id' => $imagem->ID_Imagem,
-                            'path' => $imagemPath
-                        ]);
+                        // Criar relação entre anúncio e imagem
+                        $this->criarRelacaoItemImagem(
+                            $anuncio->ID_Anuncio,
+                            $imagem->ID_Imagem,
+                            ($key == 0 && !$anuncio->item_imagems()->exists()) ? 1 : 0
+                        );
                     } catch (\Exception $e) {
                         \Log::error('Erro ao salvar imagem:', [
                             'error' => $e->getMessage(),
+                            'trace' => $e->getTraceAsString(),
                             'anuncio_id' => $anuncio->ID_Anuncio,
                             'file' => $imagemFile->getClientOriginalName()
                         ]);
-                        throw $e;
+                        // Continue processando as outras imagens
                     }
                 }
             }
@@ -829,12 +861,27 @@ class AnuncioController extends Controller
             if ($request->hasFile('imagens')) {
                 $imagens = $request->file('imagens');
                 
+                // Criar diretório se não existir
+                $diretorio = 'anuncios/' . $anuncio->ID_Anuncio;
+                
+                \Log::info('Processando imagens para anúncio', [
+                    'anuncio_id' => $anuncio->ID_Anuncio,
+                    'diretorio' => $diretorio,
+                    'qtd_imagens' => count($imagens)
+                ]);
+                
+                if (!Storage::disk('public')->exists($diretorio)) {
+                    \Log::info('Criando diretório para imagens', ['diretorio' => $diretorio]);
+                    Storage::disk('public')->makeDirectory($diretorio);
+                }
+                
                 // Remover imagens antigas se solicitado
                 if ($request->has('remover_imagens_antigas') && $request->remover_imagens_antigas) {
+                    \Log::info('Removendo imagens antigas do anúncio', ['anuncio_id' => $anuncio->ID_Anuncio]);
                     foreach ($anuncio->item_imagems as $item_imagem) {
                         // Remover arquivo físico
-                        if ($item_imagem->imagem && Storage::exists('public/' . $item_imagem->imagem->Caminho)) {
-                            Storage::delete('public/' . $item_imagem->imagem->Caminho);
+                        if ($item_imagem->imagem && Storage::disk('public')->exists($item_imagem->imagem->Caminho)) {
+                            Storage::disk('public')->delete($item_imagem->imagem->Caminho);
                         }
                         
                         // Remover registro na tabela item_imagem
@@ -848,23 +895,52 @@ class AnuncioController extends Controller
                 }
                 
                 foreach ($imagens as $key => $imagemFile) {
-                    // Gerar nome único para o arquivo
-                    $imagemNome = time() . '_' . $key . '.' . $imagemFile->getClientOriginalExtension();
-                    
-                    // Salvar arquivo no storage
-                    $imagemPath = $imagemFile->storeAs('anuncios/' . $anuncio->ID_Anuncio, $imagemNome, 'public');
-                    
-                    // Criar registro de imagem
-                    $imagem = new Imagem();
-                    $imagem->Caminho = $imagemPath;
-                    $imagem->save();
-                    
-                    // Criar relação entre anúncio e imagem
-                    $itemImagem = new ItemImagem();
-                    $itemImagem->AnuncioID_Anuncio = $anuncio->ID_Anuncio;
-                    $itemImagem->ImagemID_Imagem = $imagem->ID_Imagem;
-                    $itemImagem->Principal = ($key == 0 && !$anuncio->item_imagems()->exists()) ? 1 : 0; // Primeira imagem é a principal se não houver outras
-                    $itemImagem->save();
+                    try {
+                        // Gerar nome único para o arquivo
+                        $imagemNome = time() . '_' . $key . '.' . $imagemFile->getClientOriginalExtension();
+                        
+                        // Log dos detalhes do arquivo
+                        \Log::info('Processando arquivo de imagem', [
+                            'nome_original' => $imagemFile->getClientOriginalName(),
+                            'extensao' => $imagemFile->getClientOriginalExtension(),
+                            'tamanho' => $imagemFile->getSize(),
+                            'mime_type' => $imagemFile->getMimeType(),
+                            'nome_destino' => $imagemNome
+                        ]);
+                        
+                        // Salvar arquivo no storage
+                        $imagemPath = $imagemFile->storeAs($diretorio, $imagemNome, 'public');
+                        
+                        \Log::info('Imagem armazenada com sucesso', [
+                            'caminho_completo' => $imagemPath,
+                            'caminho_relativo' => $diretorio . '/' . $imagemNome
+                        ]);
+                        
+                        // Criar registro de imagem
+                        $imagem = new Imagem();
+                        $imagem->Caminho = $imagemPath;
+                        $imagem->save();
+                        
+                        \Log::info('Registro de imagem criado', [
+                            'imagem_id' => $imagem->ID_Imagem,
+                            'caminho_salvo' => $imagem->Caminho
+                        ]);
+                        
+                        // Criar relação entre anúncio e imagem
+                        $this->criarRelacaoItemImagem(
+                            $anuncio->ID_Anuncio,
+                            $imagem->ID_Imagem,
+                            ($key == 0 && !$anuncio->item_imagems()->exists()) ? 1 : 0
+                        );
+                    } catch (\Exception $e) {
+                        \Log::error('Erro ao processar imagem:', [
+                            'error' => $e->getMessage(),
+                            'trace' => $e->getTraceAsString(),
+                            'anuncio_id' => $anuncio->ID_Anuncio,
+                            'arquivo' => $imagemFile->getClientOriginalName()
+                        ]);
+                        // Continue processando as outras imagens
+                    }
                 }
             }
             
@@ -1155,6 +1231,55 @@ class AnuncioController extends Controller
             return response()->json([
                 'message' => 'Erro ao buscar anúncios: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    // Método auxiliar privado para criar relação entre anúncio e imagem
+    private function criarRelacaoItemImagem($itemId, $imagemId, $principal = 0)
+    {
+        try {
+            // Verificar se a coluna Principal existe na tabela
+            $temColunaPrincipal = Schema::hasColumn('item_imagem', 'Principal');
+            
+            \Log::info('Verificando se a tabela item_imagem tem a coluna Principal', [
+                'tem_coluna_principal' => $temColunaPrincipal
+            ]);
+            
+            if ($temColunaPrincipal) {
+                // Se tem a coluna, criar usando Eloquent normalmente
+                $itemImagem = new ItemImagem();
+                $itemImagem->ItemID_Item = $itemId;
+                $itemImagem->ImagemID_Imagem = $imagemId;
+                $itemImagem->Principal = $principal;
+                $itemImagem->save();
+                
+                \Log::info('Relação item_imagem criada com sucesso via Eloquent', [
+                    'item_id' => $itemId,
+                    'imagem_id' => $imagemId,
+                    'principal' => $principal
+                ]);
+            } else {
+                // Se não tem a coluna, usar SQL direto sem o campo Principal
+                DB::statement('INSERT INTO item_imagem (ItemID_Item, ImagemID_Imagem) VALUES (?, ?)', [
+                    $itemId, $imagemId
+                ]);
+                
+                \Log::info('Relação item_imagem criada com sucesso via SQL direto', [
+                    'item_id' => $itemId,
+                    'imagem_id' => $imagemId
+                ]);
+            }
+            
+            return true;
+        } catch (\Exception $e) {
+            \Log::error('Erro ao criar relação item_imagem', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'item_id' => $itemId,
+                'imagem_id' => $imagemId
+            ]);
+            
+            return false;
         }
     }
 }

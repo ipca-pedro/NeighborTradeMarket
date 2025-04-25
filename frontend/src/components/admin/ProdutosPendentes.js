@@ -21,6 +21,7 @@ const ProdutosPendentes = () => {
     const [selectedAnuncio, setSelectedAnuncio] = useState(null);
     const [rejectionReason, setRejectionReason] = useState(''); // Motivo da rejeição
     const [isSubmitting, setIsSubmitting] = useState(false); // Para disable botões durante API call
+    const [showApproveBtnInModal, setShowApproveBtnInModal] = useState(true);
     // --- --- --- --- --- --- ---
 
     useEffect(() => {
@@ -44,9 +45,10 @@ const ProdutosPendentes = () => {
     };
 
     // --- Modal Handling ---
-    const openDetailsModal = (produto) => {
+    const openDetailsModal = (produto, showApproveBtn = true) => {
         setSelectedAnuncio(produto);
         setRejectionReason(''); // Reset reason when opening
+        setShowApproveBtnInModal(showApproveBtn);
         setShowDetailsModal(true);
     };
 
@@ -80,28 +82,45 @@ const ProdutosPendentes = () => {
     };
 
     const handleReject = async () => {
-        if (!selectedAnuncio || !rejectionReason.trim()) {
-             setError('Por favor, introduza um motivo para a rejeição.'); // Give specific feedback
-             setTimeout(() => setError(''), 3000); // Clear feedback after a while
-            return;
-        }
         setMessage('');
         setError('');
         setIsSubmitting(true);
         try {
-             console.log('DEBUG REJEITAR: ID:', selectedAnuncio.ID_Anuncio, 'Motivo:', rejectionReason);
-            const res = await adminService.rejeitarAnuncio(selectedAnuncio.ID_Anuncio, rejectionReason);
+            console.log('Iniciando rejeição de anúncio:', {
+                id: selectedAnuncio.ID_Anuncio,
+                titulo: selectedAnuncio.Titulo,
+                motivo: rejectionReason
+            });
+            
+            // Preparar o motivo (null se estiver vazio)
+            const motivo = rejectionReason.trim() || null;
+            console.log('Motivo para enviar:', motivo);
+            
+            const res = await adminService.rejeitarAnuncio(selectedAnuncio.ID_Anuncio, motivo);
+            console.log('Resposta da API após rejeição:', res);
+            
             setMessage('Anúncio rejeitado com sucesso!');
             setProdutos(produtos.filter(p => p.ID_Anuncio !== selectedAnuncio.ID_Anuncio));
             closeDetailsModal();
         } catch (err) {
             console.error('Erro ao rejeitar anúncio:', err);
+            console.error('Tipo de erro:', typeof err);
+            
+            let errorMessage = 'Erro ao rejeitar anúncio. Por favor, tente novamente.';
+            
             if (err.response) {
-                console.error('Resposta completa da API:', err.response);
-                setError(`Erro API: ${err.response.status} - ${JSON.stringify(err.response.data)}`);
-            } else {
-                setError(err.message || 'Erro ao rejeitar anúncio. Por favor, tente novamente.');
+                console.error('Detalhes da resposta:', {
+                    status: err.response.status,
+                    data: err.response.data
+                });
+                errorMessage = `Erro (${err.response.status}): ${JSON.stringify(err.response.data)}`;
+            } else if (typeof err === 'string') {
+                errorMessage = err;
+            } else if (err.message) {
+                errorMessage = err.message;
             }
+            
+            setError(errorMessage);
         } finally {
             setIsSubmitting(false);
         }
@@ -134,7 +153,7 @@ const ProdutosPendentes = () => {
                         alt="Imagem do produto"
                         className={className}
                         style={{ height: '100%', width: '100%', objectFit: 'contain' }}
-                        onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/300x180?text=Erro' }}
+                        onError={(e) => { e.target.onerror = null; e.target.src = '/img/no-image.png' }}
                     />
                 </div>
             );
@@ -148,7 +167,7 @@ const ProdutosPendentes = () => {
                             src={`${storageBaseUrl}/storage/${img.imagem.Caminho}`}
                             alt={`Imagem ${index + 1}`}
                             style={{ height: '100%', width: '100%', objectFit: 'contain' }}
-                            onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/300x180?text=Erro' }}
+                            onError={(e) => { e.target.onerror = null; e.target.src = '/img/no-image.png' }}
                         />
                     </Carousel.Item>
                 ))}
@@ -232,6 +251,7 @@ const ProdutosPendentes = () => {
         onClick={() => {
             setSelectedAnuncio(produto);
             setShowDetailsModal(true);
+            setShowApproveBtnInModal(false);
         }}
         disabled={isSubmitting}
     >
@@ -267,47 +287,60 @@ const ProdutosPendentes = () => {
                             </Col>
                             <Col md={6}>
                                 <h5>{selectedAnuncio.Titulo}</h5>
-                                <ListGroup variant="flush">
-                                    <ListGroup.Item><strong>Preço:</strong> {formatCurrency(selectedAnuncio.Preco)}</ListGroup.Item>
-                                    <ListGroup.Item><strong>Categoria:</strong> {selectedAnuncio.categorium?.Descricao_Categoria || 'N/A'}</ListGroup.Item>
-                                    <ListGroup.Item><strong>Tipo:</strong> {selectedAnuncio.tipo_item?.Descricao_TipoItem || 'N/A'}</ListGroup.Item>
-                                    <ListGroup.Item><strong>Descrição:</strong><br/><p style={{ maxHeight: '150px', overflowY: 'auto', whiteSpace: 'pre-wrap' }}>{selectedAnuncio.Descricao || 'N/A'}</p></ListGroup.Item>
-                                    <ListGroup.Item>
-                                        <strong>Utilizador:</strong> {selectedAnuncio.utilizador?.Name || 'N/A'} ({selectedAnuncio.utilizador?.Email || 'N/A'})
-                                    </ListGroup.Item>
-                                    <ListGroup.Item>
-                                        <strong>Submetido em:</strong> {selectedAnuncio.aprovacao?.Data_Submissao ? new Date(selectedAnuncio.aprovacao.Data_Submissao).toLocaleString() : 'N/A'}
-                                    </ListGroup.Item>
-                                </ListGroup>
-                                
-                                <Form.Group className="mt-3">
-                                    <Form.Label>Motivo da Rejeição (se aplicável)</Form.Label>
-                                    <Form.Control 
-                                        as="textarea" 
-                                        rows={2} 
-                                        value={rejectionReason}
-                                        onChange={(e) => setRejectionReason(e.target.value)}
-                                        placeholder="Se rejeitar, indique aqui o motivo..."
-                                    />
-                                </Form.Group>
-                                
-                                {error.includes('motivo') && <Alert variant="warning" className="mt-2 py-1 px-2 small">{error}</Alert>}
+                                <p className="text-primary fw-bold">{formatCurrency(selectedAnuncio.Preco)}</p>
+                                <div className="mb-3">
+                                    <Badge bg="info" className="me-2">{selectedAnuncio.categorium?.Descricao_Categoria || 'Sem categoria'}</Badge>
+                                    <Badge bg="secondary">{selectedAnuncio.tipo_item?.Descricao_TipoItem || 'Não especificado'}</Badge>
+                                </div>
+                                <div className="mb-3">
+                                    <strong>Submissor:</strong> {selectedAnuncio.utilizador?.Name || 'N/A'}
+                                </div>
+                                <div className="mb-3">
+                                    <strong>Data de Submissão:</strong> {selectedAnuncio.aprovacao?.Data_Submissao ? new Date(selectedAnuncio.aprovacao?.Data_Submissao).toLocaleString() : 'N/A'}
+                                </div>
+                                <hr />
+                                <div className="overflow-auto" style={{maxHeight: '200px'}}>
+                                    <h6>Descrição:</h6>
+                                    <p>{selectedAnuncio.Descricao}</p>
+                                </div>
+                                <hr />
+                                <Form>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Motivo da Rejeição (opcional)</Form.Label>
+                                        <Form.Control 
+                                            as="textarea" 
+                                            rows={3} 
+                                            value={rejectionReason}
+                                            onChange={(e) => setRejectionReason(e.target.value)}
+                                            placeholder="Se desejar, descreva o motivo da rejeição..."
+                                        />
+                                    </Form.Group>
+                                </Form>
+                                {error && <Alert variant="danger">{error}</Alert>}
                             </Col>
                         </Row>
                     )}
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={closeDetailsModal} disabled={isSubmitting}>
+                    <Button variant="secondary" onClick={closeDetailsModal}>
                         Fechar
                     </Button>
+                    {showApproveBtnInModal && (
+                        <Button 
+                            variant="success" 
+                            onClick={handleApprove}
+                            disabled={isSubmitting}
+                        >
+                            <i className="fas fa-check me-1"></i> Aprovar Anúncio
+                        </Button>
+                    )}
                     <Button 
                         variant="danger" 
-                        onClick={handleReject} 
-                        disabled={isSubmitting || !rejectionReason.trim()}
+                        onClick={handleReject}
+                        disabled={isSubmitting}
                     >
-                        {isSubmitting ? <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true"/> : 'Rejeitar'}
+                        <i className="fas fa-times me-1"></i> Rejeitar Anúncio
                     </Button>
-
                 </Modal.Footer>
             </Modal>
 

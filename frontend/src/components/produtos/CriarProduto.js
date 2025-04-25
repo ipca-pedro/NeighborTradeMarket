@@ -439,10 +439,15 @@ const CriarProduto = () => {
                                                             {imagensExistentes.map((img, index) => (
                                                                 <div key={index} className="image-preview me-2 mb-2">
                                                                     <img 
-                                                                        src={`/storage/${img.Caminho.replace('public/', '')}`} 
+                                                                        src={`http://localhost:8000/storage/${img.Caminho.replace(/^public\//, '')}`} 
                                                                         alt={`Imagem ${index}`} 
                                                                         style={{ width: '100px', height: '100px', objectFit: 'cover' }}
                                                                         className="rounded"
+                                                                        onError={(e) => { 
+                                                                            console.log('Erro ao carregar imagem:', img.Caminho); 
+                                                                            e.target.onerror = null; 
+                                                                            e.target.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNs8A8AAhUBzOKfZTQAAAAASUVORK5CYII='; 
+                                                                        }}
                                                                     />
                                                                 </div>
                                                             ))}

@@ -3,19 +3,29 @@ import {
     Container, Table, Button, Modal, Form, Alert, Card, Badge, Spinner, 
     InputGroup, FormControl, Row, Col, Dropdown, OverlayTrigger, Tooltip, Image, Carousel, ListGroup
 } from 'react-bootstrap';
-import api, { adminService, anuncioService } from '../../services/api'; // Assuming anuncioService exists for categories/types
+import api, { adminService, anuncioService, getImageUrl } from '../../services/api'; // Assuming anuncioService exists for categories/types
 import Header from '../layout/Header';
 import Footer from '../layout/Footer';
+import { FaSearch, FaFilter, FaImage, FaEdit, FaEye, FaCheck, FaTimesCircle, FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
+import './AllAnuncios.css';
 
 // Helper function to get the base URL for storage
 const getStorageBaseUrl = () => {
-    const apiUrl = api.defaults.baseURL || '';
+    const apiUrl = anuncioService.defaults?.baseURL || '';
     return apiUrl.endsWith('/api') ? apiUrl.slice(0, -4) : apiUrl;
 };
 
 // Helper to format currency
 const formatCurrency = (value) => {
     return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(value);
+};
+
+// Helper para obter URL da imagem
+const getImgUrl = (item) => {
+    if (!item?.imagem?.Caminho) return 'https://via.placeholder.com/100x100?text=Sem+Imagem';
+    // Garante que o caminho não tem 'public/' e monta o URL absoluto
+    const caminho = item.imagem.Caminho.replace(/^public\//, '');
+    return `${getStorageBaseUrl()}/storage/${caminho}`;
 };
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -62,6 +72,9 @@ const AllAnuncios = () => {
     const [selectedAnuncio, setSelectedAnuncio] = useState(null);
     const [isUpdatingStatus, setIsUpdatingStatus] = useState(false); // Loading state for status update
     const [message, setMessage] = useState(''); // Added for success message handling
+    const [showRejectModal, setShowRejectModal] = useState(false);
+    const [rejectReason, setRejectReason] = useState('');
+    const [showApproveBtnInModal, setShowApproveBtnInModal] = useState(true);
 
     // --- Load Initial Data (Anuncios, Categories, Types) ---
     useEffect(() => {
@@ -120,8 +133,9 @@ const AllAnuncios = () => {
     // --- --- --- --- --- --- --- --- --- --- ---
 
     // --- Modal Functions & Actions ---
-    const openDetailsModal = (anuncio) => {
-        setSelectedAnuncio(anuncio); // Set the full object
+    const openDetailsModal = (anuncio, showApproveBtn = true) => {
+        setSelectedAnuncio(anuncio);
+        setShowApproveBtnInModal(showApproveBtn);
         setShowDetailsModal(true);
     };
 
@@ -162,7 +176,37 @@ const AllAnuncios = () => {
             setIsUpdatingStatus(false);
         }
     };
-    // --- --- --- --- --- --- --- --- --- --- ---
+
+    const handleReject = async () => {
+        try {
+            console.log(`Rejeitando anúncio #${selectedAnuncio.ID_Anuncio} - ${selectedAnuncio.Titulo}`);
+            console.log(`Motivo: ${rejectReason || 'Nenhum'}`);
+            
+            // Preparar o motivo (null se vazio)
+            const motivo = rejectReason || null;
+            console.log('Motivo a ser enviado:', motivo);
+            
+            await anuncioService.rejeitarAnuncio(selectedAnuncio.ID_Anuncio, motivo);
+            console.log('Resposta da API recebida');
+            
+            setRejectReason('');
+            setShowRejectModal(false);
+            loadData();
+            
+            // Adicionar notificação de sucesso aqui
+        } catch (err) {
+            console.error('Erro ao rejeitar anúncio:', err);
+            
+            if (err.response) {
+                console.error('Detalhes do erro:', err.response.data);
+                setError(`Erro ao rejeitar anúncio: ${err.response.data.message || 'Resposta do servidor inválida'}`);
+            } else if (err.request) {
+                setError('Erro ao rejeitar anúncio: Sem resposta do servidor');
+            } else {
+                setError(`Erro ao rejeitar anúncio: ${err.message}`);
+            }
+        }
+    };
 
     return (
         <>
@@ -239,7 +283,7 @@ const AllAnuncios = () => {
                                                         <td>
                                                             {firstImage ? (
                                                                 <Image 
-                                                                    src={`${getStorageBaseUrl()}/storage/${firstImage.Caminho}`} 
+                                                                    src={getImageUrl(firstImage)} 
                                                                     thumbnail 
                                                                     width="50" 
                                                                     onError={(e) => { e.target.style.display='none'; }}/>
@@ -302,7 +346,7 @@ const AllAnuncios = () => {
                                             <Carousel.Item key={img.ID_Imagem || index}>
                                                 <img
                                                     className="d-block w-100" 
-                                                    src={`${getStorageBaseUrl()}/storage/${img.imagem?.Caminho}`}
+                                                    src={getImageUrl(img)}
                                                     alt={`Imagem ${index + 1}`}
                                                     style={{ height: '400px', objectFit: 'contain' }}
                                                     onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/400x400?text=Erro' }}
@@ -377,6 +421,31 @@ const AllAnuncios = () => {
             </Modal>
             {/* --- End Details Modal --- */}
 
+            {/* --- Reject Modal --- */}
+            <Modal show={showRejectModal} onHide={() => setShowRejectModal(false)} size="lg">
+                <Modal.Header closeButton>
+                    <Modal.Title>Rejeitar Anúncio</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Motivo da Rejeição</Form.Label>
+                        <Form.Control
+                            as="textarea"
+                            rows="3"
+                            value={rejectReason}
+                            onChange={(e) => setRejectReason(e.target.value)}
+                        />
+                    </Form.Group>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowRejectModal(false)}>
+                        Cancelar
+                    </Button>
+                    <Button variant="danger" onClick={handleReject}>
+                        Rejeitar Anúncio
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </>
     );
 };

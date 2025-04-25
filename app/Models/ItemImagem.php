@@ -27,7 +27,14 @@ class ItemImagem extends Model
 
 	protected $casts = [
 		'ItemID_Item' => 'int',
-		'ImagemID_Imagem' => 'int'
+		'ImagemID_Imagem' => 'int',
+		'Principal' => 'int'
+	];
+
+	protected $fillable = [
+		'ItemID_Item',
+		'ImagemID_Imagem',
+		'Principal'
 	];
 
 	public function anuncio()
