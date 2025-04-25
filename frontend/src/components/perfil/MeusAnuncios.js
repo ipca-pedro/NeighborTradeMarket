@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Row, Col, Card, Button, Badge, Spinner, Alert, Container } from 'react-bootstrap';
+import { Row, Col, Card, Button, Badge, Spinner, Alert, Container, Modal } from 'react-bootstrap';
 import { Link, useLocation } from 'react-router-dom';
-import { FaPlus, FaImage, FaCalendarAlt } from 'react-icons/fa';
+import { FaPlus, FaImage, FaCalendarAlt, FaEdit, FaTrashAlt } from 'react-icons/fa';
 import { anuncioService, getImageUrl } from '../../services/api';
 import Header from '../layout/Header';
 import './MeusAnuncios.css';
@@ -15,6 +15,9 @@ const MeusAnuncios = () => {
     const [anuncios, setAnuncios] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [anuncioToDelete, setAnuncioToDelete] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
         carregarMeusAnuncios();
@@ -63,6 +66,48 @@ const MeusAnuncios = () => {
 
         const status = statusConfig[statusId] || { text: 'Desconhecido', bg: 'secondary' };
         return <Badge bg={status.bg}>{status.text}</Badge>;
+    };
+
+    const handleRemoverClick = (anuncio) => {
+        setAnuncioToDelete(anuncio);
+        setShowConfirmModal(true);
+    };
+
+    const confirmarRemocao = async () => {
+        if (!anuncioToDelete) return;
+        
+        try {
+            setIsDeleting(true);
+            setError(''); // Limpa erros anteriores
+            
+            await anuncioService.excluirAnuncio(anuncioToDelete.ID_Anuncio);
+            
+            // Atualizar a lista de anúncios após a remoção
+            setAnuncios(anuncios.filter(a => a.ID_Anuncio !== anuncioToDelete.ID_Anuncio));
+            
+            // Fechar o modal
+            setShowConfirmModal(false);
+            setAnuncioToDelete(null);
+        } catch (err) {
+            console.error('Erro ao remover anúncio:', err);
+            
+            // Exibir a mensagem de erro adequada
+            if (typeof err === 'string') {
+                setError(`Erro ao remover anúncio: ${err}`);
+            } else if (err.message) {
+                setError(`Erro ao remover anúncio: ${err.message}`);
+            } else {
+                setError('Erro ao remover anúncio. Tente novamente ou entre em contato com o suporte.');
+            }
+            
+            // Mantém o modal aberto para mostrar o erro
+            setTimeout(() => {
+                setShowConfirmModal(false);
+                setAnuncioToDelete(null);
+            }, 3000); // Fecha o modal após 3 segundos
+        } finally {
+            setIsDeleting(false);
+        }
     };
 
     if (loading) {
@@ -174,8 +219,16 @@ const MeusAnuncios = () => {
                                                         size="sm"
                                                         as={Link}
                                                         to={`/anuncios/${anuncio.ID_Anuncio}/editar`}
+                                                        className="me-2"
                                                     >
-                                                        Editar
+                                                        <FaEdit className="me-1" /> Editar
+                                                    </Button>
+                                                    <Button 
+                                                        variant="outline-danger" 
+                                                        size="sm"
+                                                        onClick={() => handleRemoverClick(anuncio)}
+                                                    >
+                                                        <FaTrashAlt className="me-1" /> Remover
                                                     </Button>
                                                 </div>
                                             </div>
@@ -187,6 +240,42 @@ const MeusAnuncios = () => {
                     )}
                 </div>
             </Container>
+
+            {/* Modal de Confirmação */}
+            <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirmar Remoção</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {anuncioToDelete && (
+                        <div>
+                            <p>Tem certeza que deseja remover o anúncio <strong>{anuncioToDelete.Titulo}</strong>?</p>
+                            <p className="text-danger">Esta ação não pode ser desfeita.</p>
+                        </div>
+                    )}
+                    
+                    {error && (
+                        <Alert variant="danger" className="mt-3">
+                            {error}
+                        </Alert>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowConfirmModal(false)} disabled={isDeleting}>
+                        Cancelar
+                    </Button>
+                    <Button variant="danger" onClick={confirmarRemocao} disabled={isDeleting}>
+                        {isDeleting ? (
+                            <>
+                                <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="me-2" />
+                                Removendo...
+                            </>
+                        ) : (
+                            'Sim, Remover'
+                        )}
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </>
     );
 };

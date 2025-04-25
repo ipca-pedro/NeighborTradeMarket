@@ -549,11 +549,55 @@ export const anuncioService = {
     // Excluir um anúncio
     excluirAnuncio: async (id) => {
         try {
-            const response = await api.delete(`/anuncios/${id}`);
+            console.log(`Iniciando processo de exclusão do anúncio ${id}`);
+            
+            // Obter token para debug
+            const token = localStorage.getItem('token');
+            console.log('Token disponível:', !!token);
+            
+            // Verificar se o usuário está autenticado
+            const userStr = localStorage.getItem('user');
+            if (!userStr || !token) {
+                console.error('Usuário não está autenticado');
+                throw new Error('Você precisa estar autenticado para realizar esta ação');
+            }
+            
+            const user = JSON.parse(userStr);
+            console.log('ID do usuário:', user.ID_User);
+            console.log('Tipo do usuário:', user.TipoUserID_TipoUser);
+            
+            // Configurar cabeçalhos manualmente para garantir que a autenticação funcione
+            const config = {
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            };
+            
+            console.log('Enviando requisição DELETE para:', `/anuncios/${id}`);
+            const response = await api.delete(`/anuncios/${id}`, config);
+            
+            console.log('Anúncio excluído com sucesso:', response.data);
             return response.data;
         } catch (error) {
+            // Extrair detalhes do erro para facilitar a depuração
+            const statusCode = error.response?.status;
+            const errorData = error.response?.data;
+            
             console.error(`Erro ao excluir anúncio ${id}:`, error);
-            throw error.response?.data || error.message;
+            console.error('Status:', statusCode);
+            console.error('Detalhes do erro:', errorData);
+            
+            // Mensagens específicas baseadas no tipo de erro
+            if (statusCode === 401) {
+                throw new Error('Você precisa estar autenticado para remover este anúncio');
+            } else if (statusCode === 403) {
+                throw new Error('Você não tem permissão para remover este anúncio');
+            } else if (statusCode === 404) {
+                throw new Error('Anúncio não encontrado');
+            } else {
+                throw errorData || error.message;
+            }
         }
     },
     

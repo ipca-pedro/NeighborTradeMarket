@@ -966,25 +966,59 @@ class AnuncioController extends Controller
      */
     public function destroy($id)
     {
-        $anuncio = Anuncio::with(['item_imagems.imagem'])->find($id);
-        
-        if (!$anuncio) {
-            return response()->json(['message' => 'Anúncio não encontrado'], 404);
-        }
-        
-        // Verificar se o usuário é o dono do anúncio
-        if ($anuncio->UtilizadorID_User != Auth::id() && !Auth::user()->hasRole('admin')) {
-            return response()->json(['message' => 'Você não tem permissão para remover este anúncio'], 403);
-        }
-        
-        DB::beginTransaction();
-        
         try {
+            \Log::info('Tentando remover anúncio', [
+                'anuncio_id' => $id,
+                'user_id' => Auth::id(),
+                'is_authenticated' => Auth::check(),
+                'user_type' => Auth::user() ? Auth::user()->TipoUserID_TipoUser : null
+            ]);
+            
+            // Verificar se o usuário está autenticado
+            if (!Auth::check()) {
+                \Log::warning('Tentativa de remover anúncio sem autenticação');
+                return response()->json(['message' => 'Usuário não autenticado'], 401);
+            }
+            
+            $anuncio = Anuncio::with(['item_imagems.imagem'])->find($id);
+            
+            if (!$anuncio) {
+                \Log::warning('Tentativa de remover anúncio inexistente', ['anuncio_id' => $id]);
+                return response()->json(['message' => 'Anúncio não encontrado'], 404);
+            }
+            
+            \Log::info('Anúncio encontrado', [
+                'anuncio_id' => $anuncio->ID_Anuncio,
+                'dono_id' => $anuncio->UtilizadorID_User,
+                'user_id' => Auth::id()
+            ]);
+            
+            // Verificar se o usuário é o dono do anúncio ou é administrador
+            $isAdmin = Auth::user()->TipoUserID_TipoUser === 1;
+            $isOwner = $anuncio->UtilizadorID_User == Auth::id();
+            
+            \Log::info('Verificação de permissão', [
+                'is_admin' => $isAdmin,
+                'is_owner' => $isOwner
+            ]);
+            
+            if (!$isOwner && !$isAdmin) {
+                \Log::warning('Tentativa de remover anúncio sem permissão', [
+                    'anuncio_id' => $id,
+                    'dono_id' => $anuncio->UtilizadorID_User,
+                    'user_id' => Auth::id()
+                ]);
+                return response()->json(['message' => 'Você não tem permissão para remover este anúncio'], 403);
+            }
+            
+            DB::beginTransaction();
+            
             // Remover imagens associadas
             foreach ($anuncio->item_imagems as $item_imagem) {
                 // Remover arquivo físico
-                if ($item_imagem->imagem && Storage::exists('public/' . $item_imagem->imagem->Caminho)) {
-                    Storage::delete('public/' . $item_imagem->imagem->Caminho);
+                if ($item_imagem->imagem && Storage::disk('public')->exists($item_imagem->imagem->Caminho)) {
+                    Storage::disk('public')->delete($item_imagem->imagem->Caminho);
+                    \Log::info('Removendo arquivo de imagem', ['caminho' => $item_imagem->imagem->Caminho]);
                 }
                 
                 // Remover registro na tabela item_imagem
@@ -1001,11 +1035,17 @@ class AnuncioController extends Controller
             
             DB::commit();
             
+            \Log::info('Anúncio removido com sucesso', ['anuncio_id' => $id]);
             return response()->json(['message' => 'Anúncio removido com sucesso']);
             
         } catch (\Exception $e) {
-            \Log::error('Erro ao remover anúncio: ' . $e->getMessage());
             DB::rollBack();
+            \Log::error('Erro ao remover anúncio:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'anuncio_id' => $id,
+                'user_id' => Auth::id()
+            ]);
             return response()->json([
                 'message' => 'Erro ao remover anúncio: ' . $e->getMessage()
             ], 500);
