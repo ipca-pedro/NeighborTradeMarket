@@ -8,6 +8,8 @@ use App\Models\ReferenciaTipo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Log;
 
 /**
  * @OA\Tag(
@@ -56,25 +58,17 @@ class NotificacaoController extends Controller
      */
     public function index()
     {
-        $userId = Auth::id();
-        
-        $notificacoes = DB::table('Notificacao as n')
-            ->join('Tipo_notificacao as tn', 'n.TIpo_notificacaoID_TipoNotificacao', '=', 'tn.ID_TipoNotificacao')
-            ->join('Referencia_tipo as rt', 'n.ReferenciaTipoID_ReferenciaTipo', '=', 'rt.ID_ReferenciaTipo')
-            ->where('n.UtilizadorID_User', $userId)
-            ->select(
-                'n.ID_Notificacao',
-                'n.Mensagem',
-                'n.DataNotificacao',
-                'n.Lida',
-                'n.ReferenciaID',
-                'rt.Descricao_referencia_tipo as TipoReferencia',
-                'tn.Descricao_tipo_notificacao as TipoNotificacao'
-            )
-            ->orderBy('n.DataNotificacao', 'desc')
-            ->get();
-        
-        return response()->json($notificacoes);
+        try {
+            $user = auth()->user();
+            $notificacoes = Notificacao::where('UtilizadorID_User', $user->ID_User)
+                ->orderBy('DataNotificacao', 'desc')
+                ->get();
+
+            return response()->json($notificacoes);
+        } catch (\Exception $e) {
+            Log::error('Erro ao buscar notificações: ' . $e->getMessage());
+            return response()->json(['error' => 'Erro ao buscar notificações'], 500);
+        }
     }
     
     /**
@@ -109,26 +103,18 @@ class NotificacaoController extends Controller
      */
     public function unread()
     {
-        $userId = Auth::id();
-        
-        $notificacoes = DB::table('Notificacao as n')
-            ->join('Tipo_notificacao as tn', 'n.TIpo_notificacaoID_TipoNotificacao', '=', 'tn.ID_TipoNotificacao')
-            ->join('Referencia_tipo as rt', 'n.ReferenciaTipoID_ReferenciaTipo', '=', 'rt.ID_ReferenciaTipo')
-            ->where('n.UtilizadorID_User', $userId)
-            ->where('n.Lida', 0) // Não lida
-            ->select(
-                'n.ID_Notificacao',
-                'n.Mensagem',
-                'n.DataNotificacao',
-                'n.Lida',
-                'n.ReferenciaID',
-                'rt.Descricao_referencia_tipo as TipoReferencia',
-                'tn.Descricao_tipo_notificacao as TipoNotificacao'
-            )
-            ->orderBy('n.DataNotificacao', 'desc')
-            ->get();
-        
-        return response()->json($notificacoes);
+        try {
+            $user = auth()->user();
+            $notificacoes = Notificacao::where('UtilizadorID_User', $user->ID_User)
+                ->where('Lida', false)
+                ->orderBy('DataNotificacao', 'desc')
+                ->get();
+
+            return response()->json($notificacoes);
+        } catch (\Exception $e) {
+            Log::error('Erro ao buscar notificações não lidas: ' . $e->getMessage());
+            return response()->json(['error' => 'Erro ao buscar notificações não lidas'], 500);
+        }
     }
     
     /**
@@ -171,28 +157,21 @@ class NotificacaoController extends Controller
      */
     public function markAsRead($id)
     {
-        $userId = Auth::id();
-        
-        // Verificar se a notificação existe e pertence ao utilizador
-        $notificacao = DB::table('Notificacao')
-            ->where('ID_Notificacao', $id)
-            ->where('UtilizadorID_User', $userId)
-            ->first();
-        
-        if (!$notificacao) {
-            return response()->json([
-                'message' => 'Notificação não encontrada ou não pertence ao utilizador'
-            ], 404);
+        try {
+            $user = auth()->user();
+            $notificacao = Notificacao::where('ID_Notificacao', $id)
+                ->where('UtilizadorID_User', $user->ID_User)
+                ->firstOrFail();
+
+            $notificacao->update(['Lida' => true]);
+
+            return response()->json(['message' => 'Notificação marcada como lida']);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['error' => 'Notificação não encontrada'], 404);
+        } catch (\Exception $e) {
+            Log::error('Erro ao marcar notificação como lida: ' . $e->getMessage());
+            return response()->json(['error' => 'Erro ao marcar notificação como lida'], 500);
         }
-        
-        // Marcar como lida
-        DB::table('Notificacao')
-            ->where('ID_Notificacao', $id)
-            ->update(['Lida' => 1]);
-        
-        return response()->json([
-            'message' => 'Notificação marcada como lida'
-        ]);
     }
     
     /**
@@ -222,18 +201,17 @@ class NotificacaoController extends Controller
      */
     public function markAllAsRead()
     {
-        $userId = Auth::id();
-        
-        // Marcar todas as notificações do utilizador como lidas
-        $count = DB::table('Notificacao')
-            ->where('UtilizadorID_User', $userId)
-            ->where('Lida', 0)
-            ->update(['Lida' => 1]);
-        
-        return response()->json([
-            'message' => 'Todas as notificações foram marcadas como lidas',
-            'count' => $count
-        ]);
+        try {
+            $user = auth()->user();
+            Notificacao::where('UtilizadorID_User', $user->ID_User)
+                ->where('Lida', false)
+                ->update(['Lida' => true]);
+
+            return response()->json(['message' => 'Todas as notificações marcadas como lidas']);
+        } catch (\Exception $e) {
+            Log::error('Erro ao marcar todas notificações como lidas: ' . $e->getMessage());
+            return response()->json(['error' => 'Erro ao marcar todas notificações como lidas'], 500);
+        }
     }
     
     /**

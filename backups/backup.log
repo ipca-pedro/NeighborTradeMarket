@@ -118,3 +118,80 @@ Tabelas incluídas no backup:
 2025-04-24 22:23:26 [INFO] - password_reset_tokens
 2025-04-24 22:23:26 [INFO] - sessions
 2025-04-24 22:23:26 [INFO] - users
+2025-04-26 18:03:59 [INFO] Iniciando backup...
+2025-04-26 18:03:59 [INFO] Comando: "C:\xampp\mysql\bin\mysqldump.exe" --opt --user="root" --host="localhost" --complete-insert --skip-extended-insert --routines --triggers --default-character-set=utf8mb4 "db_nt" > "C:\xampp\htdocs\NT/backups/backup_2025-04-26_18-03-59.sql" 2>&1
+2025-04-26 18:04:02 [INFO] Backup realizado com sucesso: backup_2025-04-26_18-03-59.sql
+2025-04-26 18:04:02 [INFO] Número de INSERTs no backup: 0
+2025-04-26 18:04:02 [INFO] 
+Tabelas incluídas no backup:
+2025-04-26 18:04:02 [INFO] - anuncio
+2025-04-26 18:04:02 [INFO] - aprovacao
+2025-04-26 18:04:02 [INFO] - avaliacao
+2025-04-26 18:04:02 [INFO] - cartao
+2025-04-26 18:04:02 [INFO] - categoria
+2025-04-26 18:04:02 [INFO] - compra
+2025-04-26 18:04:02 [INFO] - compra_reclamacao
+2025-04-26 18:04:02 [INFO] - estado_notificacao
+2025-04-26 18:04:02 [INFO] - imagem
+2025-04-26 18:04:02 [INFO] - item_imagem
+2025-04-26 18:04:02 [INFO] - mensagem
+2025-04-26 18:04:02 [INFO] - mensagem_utilizador
+2025-04-26 18:04:02 [INFO] - morada
+2025-04-26 18:04:02 [INFO] - nota
+2025-04-26 18:04:02 [INFO] - notificacao
+2025-04-26 18:04:02 [INFO] - pagamento
+2025-04-26 18:04:02 [INFO] - reclamacao
+2025-04-26 18:04:02 [INFO] - referenciatipo
+2025-04-26 18:04:02 [INFO] - status_anuncio
+2025-04-26 18:04:02 [INFO] - status_aprovacao
+2025-04-26 18:04:02 [INFO] - status_mensagem
+2025-04-26 18:04:02 [INFO] - status_reclamacao
+2025-04-26 18:04:02 [INFO] - status_troca
+2025-04-26 18:04:02 [INFO] - status_utilizador
+2025-04-26 18:04:02 [INFO] - tipo_item
+2025-04-26 18:04:02 [INFO] - tipo_notificacao
+2025-04-26 18:04:02 [INFO] - tipouser
+2025-04-26 18:04:02 [INFO] - troca
+2025-04-26 18:04:02 [INFO] - utilizador
+2025-04-26 18:04:02 [INFO] Backup antigo removido: backup_2025-04-19_15-56-20.sql
+2025-04-26 18:55:55 [INFO] Iniciando backup...
+2025-04-26 18:55:55 [INFO] Comando: "C:\xampp\mysql\bin\mysqldump.exe" --opt --user="root" --host="localhost" --complete-insert --skip-extended-insert --routines --triggers --default-character-set=utf8mb4 "db_nt" > "C:\xampp\htdocs\NT/backups/backup_2025-04-26_18-55-55.sql" 2>&1
+2025-04-26 18:55:58 [INFO] Backup realizado com sucesso: backup_2025-04-26_18-55-55.sql
+2025-04-26 18:55:58 [INFO] Número de INSERTs no backup: 401
+2025-04-26 18:55:58 [INFO] 
+Tabelas incluídas no backup:
+2025-04-26 18:55:58 [INFO] - anuncio
+2025-04-26 18:55:58 [INFO] - aprovacao
+2025-04-26 18:55:58 [INFO] - avaliacao
+2025-04-26 18:55:58 [INFO] - cache
+2025-04-26 18:55:58 [INFO] - cache_locks
+2025-04-26 18:55:58 [INFO] - cartao
+2025-04-26 18:55:58 [INFO] - categoria
+2025-04-26 18:55:58 [INFO] - compra
+2025-04-26 18:55:58 [INFO] - compra_reclamacao
+2025-04-26 18:55:58 [INFO] - estado_notificacao
+2025-04-26 18:55:58 [INFO] - failed_jobs
+2025-04-26 18:55:58 [INFO] - imagem
+2025-04-26 18:55:58 [INFO] - item_imagem
+2025-04-26 18:55:58 [INFO] - jobs
+2025-04-26 18:55:58 [INFO] - mensagem
+2025-04-26 18:55:58 [INFO] - mensagem_utilizador
+2025-04-26 18:55:58 [INFO] - morada
+2025-04-26 18:55:58 [INFO] - nota
+2025-04-26 18:55:58 [INFO] - notificacao
+2025-04-26 18:55:58 [INFO] - pagamento
+2025-04-26 18:55:58 [INFO] - personal_access_tokens
+2025-04-26 18:55:58 [INFO] - reclamacao
+2025-04-26 18:55:58 [INFO] - referenciatipo
+2025-04-26 18:55:58 [INFO] - sessions
+2025-04-26 18:55:58 [INFO] - status_anuncio
+2025-04-26 18:55:58 [INFO] - status_aprovacao
+2025-04-26 18:55:58 [INFO] - status_mensagem
+2025-04-26 18:55:58 [INFO] - status_reclamacao
+2025-04-26 18:55:58 [INFO] - status_troca
+2025-04-26 18:55:58 [INFO] - status_utilizador
+2025-04-26 18:55:58 [INFO] - tipo_item
+2025-04-26 18:55:58 [INFO] - tipo_notificacao
+2025-04-26 18:55:58 [INFO] - tipouser
+2025-04-26 18:55:58 [INFO] - troca
+2025-04-26 18:55:58 [INFO] - utilizador
