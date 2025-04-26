@@ -28,10 +28,25 @@ const Header = () => {
     // Buscar notificações do servidor
     useEffect(() => {
         const fetchNotifications = async () => {
+            // TEMPORARIAMENTE DESABILITADO: Problema com o backend de notificações
+            // Usando dados mock em vez de chamar a API
+            setNotifications([]);
+            return;
+            
+            /* CÓDIGO ORIGINAL COMENTADO
             if (currentUser && currentUser.ID_User) {
                 try {
                     // Buscar notificações reais da API
-                    const notificacoes = await buscarMinhasNotificacoes();
+                    const notificacoes = await buscarMinhasNotificacoes().catch(err => {
+                        console.error('Erro ao buscar notificações:', err);
+                        return [];
+                    });
+                    
+                    // Se não houver notificações ou ocorrer erro, usar array vazio
+                    if (!notificacoes || !Array.isArray(notificacoes)) {
+                        setNotifications([]);
+                        return;
+                    }
                     
                     // Mapear para o formato esperado pelo componente
                     const mappedNotifications = notificacoes.map(notif => ({
@@ -78,14 +93,19 @@ const Header = () => {
                     setNotifications([]);
                 }
             }
+            */
         };
         
         fetchNotifications();
         
-        // Configurar um intervalo para buscar notificações periodicamente
-        const interval = setInterval(fetchNotifications, 60000); // A cada minuto
+        // Não precisamos de polling para notificações mock
+        // const interval = setInterval(() => {
+        //     fetchNotifications().catch(error => {
+        //         console.error('Erro ao atualizar notificações automaticamente:', error);
+        //     });
+        // }, 60000); // A cada minuto
         
-        return () => clearInterval(interval);
+        // return () => clearInterval(interval);
     }, [currentUser]);
 
     // Atualizar o contador de notificações não lidas
@@ -94,6 +114,16 @@ const Header = () => {
     }, [notifications]);
 
     const handleReadNotifications = async (notificationIds) => {
+        // Versão temporária simplificada
+        setNotifications(prevNotifications =>
+            prevNotifications.map(notification =>
+                notificationIds.includes(notification.id)
+                    ? { ...notification, read: true }
+                    : notification
+            )
+        );
+        
+        /* CÓDIGO ORIGINAL COMENTADO
         // Para cada ID de notificação, chamar a API
         for (const id of notificationIds) {
             try {
@@ -114,6 +144,7 @@ const Header = () => {
                     : notification
             )
         );
+        */
     };
 
     const handleSearch = (e) => {

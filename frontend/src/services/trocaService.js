@@ -3,20 +3,31 @@ import api from './api';
 const trocaService = {
     // Propor uma troca entre dois anúncios
     proporTroca: async (anuncioDesejadoId, meuAnuncioId) => {
-        return await api.post('/trocas/propor', {
-            anuncio_desejado_id: anuncioDesejadoId,
-            anuncio_proposto_id: meuAnuncioId
-        });
+        try {
+            console.log(`Propondo troca: Anúncio desejado ID ${anuncioDesejadoId}, Meu anúncio ID ${meuAnuncioId}`);
+            const response = await api.post('/trocas', {
+                item_oferecido_id: meuAnuncioId,
+                item_solicitado_id: anuncioDesejadoId
+            });
+            console.log('Resposta da API de troca:', response.data);
+            return response;
+        } catch (error) {
+            console.error('Erro na API de troca:', error);
+            if (error.response) {
+                console.error('Erro detalhado:', error.response.data);
+            }
+            throw error;
+        }
     },
 
     // Obter propostas recebidas
     getPropostasRecebidas: async () => {
-        return await api.get('/trocas/recebidas');
+        return await api.get('/trocas/recebidas/pendentes');
     },
 
     // Obter propostas enviadas
     getPropostasEnviadas: async () => {
-        return await api.get('/trocas/enviadas');
+        return await api.get('/trocas/enviadas/pendentes');
     },
 
     // Aceitar uma proposta

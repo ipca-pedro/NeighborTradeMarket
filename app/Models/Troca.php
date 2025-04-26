@@ -8,6 +8,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * Class Troca
@@ -18,14 +19,16 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $ItemID_Solicitado
  * @property int $Status_TrocaID_Status_Troca
  * 
- * @property Anuncio $item_oferecido
- * @property Anuncio $item_solicitado
- * @property StatusTroca $status_troca
+ * @property Anuncio $anuncioOferecido
+ * @property Anuncio $anuncioSolicitado
+ * @property StatusTroca $statusTroca
  *
  * @package App\Models
  */
 class Troca extends Model
 {
+	use HasFactory;
+
 	protected $table = 'troca';
 	protected $primaryKey = 'ID_Troca';
 	public $timestamps = false;
@@ -44,18 +47,27 @@ class Troca extends Model
 		'Status_TrocaID_Status_Troca'
 	];
 
-	public function item_solicitado()
+	/**
+	 * Get the offered item advertisement.
+	 */
+	public function anuncioOferecido()
 	{
-		return $this->belongsTo(Anuncio::class, 'ItemID_Solicitado');
+		return $this->belongsTo(Anuncio::class, 'ItemID_ItemOferecido', 'ID_Anuncio');
 	}
 
-	public function item_oferecido()
+	/**
+	 * Get the requested item advertisement.
+	 */
+	public function anuncioSolicitado()
 	{
-		return $this->belongsTo(Anuncio::class, 'ItemID_ItemOferecido');
+		return $this->belongsTo(Anuncio::class, 'ItemID_Solicitado', 'ID_Anuncio');
 	}
 
-	public function status_troca()
+	/**
+	 * Get the status of this trade.
+	 */
+	public function statusTroca()
 	{
-		return $this->belongsTo(StatusTroca::class, 'Status_TrocaID_Status_Troca');
+		return $this->belongsTo(StatusTroca::class, 'Status_TrocaID_Status_Troca', 'ID_Status_Troca');
 	}
 }

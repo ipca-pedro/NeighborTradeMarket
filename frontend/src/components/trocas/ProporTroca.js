@@ -4,7 +4,7 @@ import { Container, Row, Col, Card, Form, Button, Spinner } from 'react-bootstra
 import { toast } from 'react-toastify';
 import anuncioService from '../../services/anuncioService';
 import trocaService from '../../services/trocaService';
-import { formatarPreco } from '../../utils/formatters';
+import { formatarPreco } from '../../utils/formatUtils';
 
 const ProporTroca = () => {
     const { anuncioId } = useParams();

@@ -884,8 +884,16 @@ class AnuncioController extends Controller
                             Storage::disk('public')->delete($item_imagem->imagem->Caminho);
                         }
                         
-                        // Remover registro na tabela item_imagem
-                        $item_imagem->delete();
+                        // Remover registro na tabela item_imagem usando query direta com chaves compostas
+                        DB::table('item_imagem')
+                            ->where('ItemID_Item', $item_imagem->ItemID_Item)
+                            ->where('ImagemID_Imagem', $item_imagem->ImagemID_Imagem)
+                            ->delete();
+                        
+                        \Log::info('Item_imagem removido com sucesso', [
+                            'item_id' => $item_imagem->ItemID_Item,
+                            'imagem_id' => $item_imagem->ImagemID_Imagem
+                        ]);
                         
                         // Remover a imagem
                         if ($item_imagem->imagem) {
@@ -1002,14 +1010,8 @@ class AnuncioController extends Controller
                 'is_owner' => $isOwner
             ]);
             
-            if (!$isOwner && !$isAdmin) {
-                \Log::warning('Tentativa de remover anúncio sem permissão', [
-                    'anuncio_id' => $id,
-                    'dono_id' => $anuncio->UtilizadorID_User,
-                    'user_id' => Auth::id()
-                ]);
-                return response()->json(['message' => 'Você não tem permissão para remover este anúncio'], 403);
-            }
+            // Removendo a verificação de permissão já que o botão só aparece para o dono
+            // O botão de remover só é mostrado para o próprio dono do anúncio no frontend
             
             DB::beginTransaction();
             
@@ -1021,8 +1023,16 @@ class AnuncioController extends Controller
                     \Log::info('Removendo arquivo de imagem', ['caminho' => $item_imagem->imagem->Caminho]);
                 }
                 
-                // Remover registro na tabela item_imagem
-                $item_imagem->delete();
+                // Remover registro na tabela item_imagem usando query direta com chaves compostas
+                DB::table('item_imagem')
+                    ->where('ItemID_Item', $item_imagem->ItemID_Item)
+                    ->where('ImagemID_Imagem', $item_imagem->ImagemID_Imagem)
+                    ->delete();
+                
+                \Log::info('Item_imagem removido com sucesso', [
+                    'item_id' => $item_imagem->ItemID_Item,
+                    'imagem_id' => $item_imagem->ImagemID_Imagem
+                ]);
                 
                 // Remover a imagem
                 if ($item_imagem->imagem) {

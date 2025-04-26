@@ -8,6 +8,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * Class StatusTroca
@@ -21,6 +22,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class StatusTroca extends Model
 {
+	use HasFactory;
+
 	protected $table = 'status_troca';
 	protected $primaryKey = 'ID_Status_Troca';
 	public $timestamps = false;
@@ -29,8 +32,11 @@ class StatusTroca extends Model
 		'Descricao_status_troca'
 	];
 
+	/**
+	 * Get the trades associated with this status.
+	 */
 	public function trocas()
 	{
-		return $this->hasMany(Troca::class, 'Status_TrocaID_Status_Troca');
+		return $this->hasMany(Troca::class, 'Status_TrocaID_Status_Troca', 'ID_Status_Troca');
 	}
 }

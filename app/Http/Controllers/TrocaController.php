@@ -105,7 +105,7 @@ class TrocaController extends Controller
         }
         
         // Verificar se os itens estão disponíveis para troca
-        if ($itemOferecido->Status_AnuncioID_Status_Anuncio != 2 || $itemSolicitado->Status_AnuncioID_Status_Anuncio != 2) {
+        if ($itemOferecido->Status_AnuncioID_Status_Anuncio != 1 || $itemSolicitado->Status_AnuncioID_Status_Anuncio != 1) {
             return response()->json([
                 'message' => 'Um ou ambos os itens não estão disponíveis para troca'
             ], 400);
@@ -189,7 +189,7 @@ class TrocaController extends Controller
         // Verificar se os itens ainda estão disponíveis
         $itemOferecido = Anuncio::findOrFail($troca->ItemID_ItemOferecido);
         
-        if ($itemOferecido->Status_AnuncioID_Status_Anuncio != 2 || $itemSolicitado->Status_AnuncioID_Status_Anuncio != 2) {
+        if ($itemOferecido->Status_AnuncioID_Status_Anuncio != 1 || $itemSolicitado->Status_AnuncioID_Status_Anuncio != 1) {
             return response()->json([
                 'message' => 'Um ou ambos os itens não estão mais disponíveis'
             ], 400);

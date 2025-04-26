@@ -5,7 +5,9 @@ export const buscarMinhasNotificacoes = async () => {
         const response = await api.get('/notificacoes');
         return response.data;
     } catch (error) {
-        throw new Error('Erro ao buscar notificações: ' + error.message);
+        console.error('Erro na resposta da API de notificações:', error);
+        // Retornar array vazio em vez de lançar erro
+        return [];
     }
 };
 

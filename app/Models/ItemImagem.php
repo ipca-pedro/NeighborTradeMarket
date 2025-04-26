@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Model;
 class ItemImagem extends Model
 {
 	protected $table = 'item_imagem';
+	protected $primaryKey = ['ItemID_Item', 'ImagemID_Imagem'];
 	public $incrementing = false;
 	public $timestamps = false;
 

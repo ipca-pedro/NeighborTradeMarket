@@ -87,14 +87,24 @@ const DetalhesProduto = () => {
 
     const handleProporTroca = async (meuAnuncioId) => {
         try {
-            await trocaService.proporTroca(id, meuAnuncioId);
+            const response = await trocaService.proporTroca(id, meuAnuncioId);
+            console.log('Resposta da proposta de troca:', response);
             toast.success('Proposta de troca enviada com sucesso!');
             setShowTrocaModal(false);
+            
             // Navegar para a página de propostas após enviar
-            navigate('/perfil/propostas');
+            // Verificar se a rota correta é '/perfil/propostas'
+            try {
+                navigate('/perfil/propostas');
+            } catch (navError) {
+                console.error('Erro ao navegar:', navError);
+                // Fallback - tentar navegação alternativa se a primeira falhar
+                window.location.href = '/perfil/propostas';
+            }
         } catch (error) {
             console.error('Erro ao propor troca:', error);
             toast.error('Erro ao enviar proposta de troca. Por favor, tente novamente.');
+            // Manter o modal aberto em caso de erro para permitir nova tentativa
         }
     };
 
