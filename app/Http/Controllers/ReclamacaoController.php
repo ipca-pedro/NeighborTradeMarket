@@ -20,95 +20,211 @@ class ReclamacaoController extends Controller
      */
     public function store(Request $request)
     {
+        // Versão simplificada com diagnóstico
         try {
-            // Validate request
-            $request->validate([
-                'compraId' => 'required|exists:compra,ID_Compra',
-                'descricao' => 'required|string'
-            ]);
-
-            // Get the purchase and check if user is the buyer
-            $compra = Compra::findOrFail($request->compraId);
+            // Debug de autenticação
+            file_put_contents(
+                storage_path('logs/debug_reclamacao.log'), 
+                date('Y-m-d H:i:s') . ' - Auth Debug: ' . 
+                'IsAuthenticated: ' . (Auth::check() ? 'true' : 'false') . 
+                ', UserID: ' . (Auth::id() ?? 'null') . 
+                ', Request User: ' . json_encode($request->user()) . PHP_EOL,
+                FILE_APPEND
+            );
             
-            // Debug info
-            \Log::info('Tentativa de criação de reclamação:', [
-                'auth_id' => auth()->id(),
-                'auth_id_type' => gettype(auth()->id()),
-                'comprador_id' => $compra->UtilizadorID_User,
-                'comprador_id_type' => gettype($compra->UtilizadorID_User),
-            ]);
+            // Log para verificar dados recebidos
+            file_put_contents(
+                storage_path('logs/debug_reclamacao.log'), 
+                date('Y-m-d H:i:s') . ' - Requisição recebida: ' . json_encode($request->all()) . PHP_EOL,
+                FILE_APPEND
+            );
             
-            if ((int)$compra->UtilizadorID_User !== (int)auth()->id()) {
-                return response()->json(['message' => 'Não autorizado a criar reclamação para esta compra'], 403);
+            // Validação básica
+            if (empty($request->compraId) || empty($request->descricao)) {
+                return response()->json([
+                    'message' => 'Campos compraId e descricao são obrigatórios'
+                ], 400);
             }
-
-            // Check if complaint already exists for this purchase
-            if ($compra->reclamacoes()->exists()) {
-                return response()->json(['message' => 'Já existe uma reclamação para esta compra'], 400);
+            
+            // Busca direta pelo ID da compra
+            $compraId = $request->compraId;
+            
+            // Verificar se a compra existe
+            $compraExiste = DB::table('compra')->where('ID_Compra', $compraId)->exists();
+            
+            if (!$compraExiste) {
+                return response()->json([
+                    'message' => 'Compra não encontrada'
+                ], 404);
             }
-
-            DB::beginTransaction();
-
-            // 1. Create approval (pending)
-            $aprovacao = new Aprovacao();
-            $aprovacao->Data_Submissao = now();
-            $aprovacao->Status_AprovacaoID_Status_Aprovacao = 1; // Assuming 1 is "Pendente"
-            $aprovacao->save();
-
-            // 2. Create complaint
-            $reclamacao = new Reclamacao();
-            $reclamacao->Descricao = $request->descricao;
-            $reclamacao->DataReclamacao = now();
-            $reclamacao->AprovacaoID_aprovacao = $aprovacao->ID_aprovacao;
-            $reclamacao->Status_ReclamacaoID_Status_Reclamacao = 1; // Assuming 1 is "Pendente"
-            $reclamacao->save();
-
-            // 3. Link complaint to purchase
-            $compra->reclamacoes()->attach($reclamacao->ID_Reclamacao);
-
-            // 4. Create notifications
-            // For seller
-            $notificacaoVendedor = new Notificacao();
-            $notificacaoVendedor->Mensagem = "Nova reclamação recebida para sua venda";
-            $notificacaoVendedor->DataNotificacao = now();
-            $notificacaoVendedor->ReferenciaID = $reclamacao->ID_Reclamacao;
-            $notificacaoVendedor->UtilizadorID_User = $compra->anuncio->UtilizadorID_User;
-            $notificacaoVendedor->ReferenciaTipoID_ReferenciaTipo = 4; // Assuming 4 is for "Reclamação"
-            $notificacaoVendedor->TIpo_notificacaoID_TipoNotificacao = 1; // Assuming 1 is "Nova Reclamação"
-            $notificacaoVendedor->save();
-
-            // For admins
-            $admins = Utilizador::where('TipoUtilizadorID_TipoUtilizador', 1)->get(); // Assuming 1 is admin type
-            foreach ($admins as $admin) {
-                $notificacaoAdmin = new Notificacao();
-                $notificacaoAdmin->Mensagem = "Nova reclamação necessita moderação";
-                $notificacaoAdmin->DataNotificacao = now();
-                $notificacaoAdmin->ReferenciaID = $reclamacao->ID_Reclamacao;
-                $notificacaoAdmin->UtilizadorID_User = $admin->ID_Utilizador;
-                $notificacaoAdmin->ReferenciaTipoID_ReferenciaTipo = 4; // Assuming 4 is for "Reclamação"
-                $notificacaoAdmin->TIpo_notificacaoID_TipoNotificacao = 1; // Assuming 1 is "Nova Reclamação"
-                $notificacaoAdmin->save();
+            
+            // Verificar se o usuário autenticado é o comprador
+            $compra = DB::table('compra')
+                ->where('ID_Compra', $compraId)
+                ->first();
+                
+            file_put_contents(
+                storage_path('logs/debug_reclamacao.log'), 
+                date('Y-m-d H:i:s') . ' - Verificando permissão: ' . 
+                'UserID: ' . Auth::id() . 
+                ', CompradorID: ' . $compra->UtilizadorID_User . PHP_EOL,
+                FILE_APPEND
+            );
+            
+            if ($compra->UtilizadorID_User != Auth::id()) {
+                return response()->json([
+                    'message' => 'Você não tem permissão para criar uma reclamação para esta compra'
+                ], 403);
             }
+            
+            file_put_contents(
+                storage_path('logs/debug_reclamacao.log'), 
+                date('Y-m-d H:i:s') . ' - Compra encontrada, id: ' . $compraId . PHP_EOL,
+                FILE_APPEND
+            );
+            
+            // Verificar se já existe uma reclamação para esta compra
+            try {
+                $reclamacaoExiste = DB::table('compra_reclamacao')
+                    ->where('CompraID_Compra', $compraId)
+                    ->exists();
+                    
+                file_put_contents(
+                    storage_path('logs/debug_reclamacao.log'), 
+                    date('Y-m-d H:i:s') . ' - Verificação de reclamação existente concluída: ' . ($reclamacaoExiste ? 'Sim' : 'Não') . PHP_EOL,
+                    FILE_APPEND
+                );
+                
+                if ($reclamacaoExiste) {
+                    return response()->json([
+                        'message' => 'Já existe uma reclamação para esta compra'
+                    ], 400);
+                }
+            } catch (\Exception $e) {
+                file_put_contents(
+                    storage_path('logs/debug_reclamacao.log'), 
+                    date('Y-m-d H:i:s') . ' - Erro ao verificar reclamação existente: ' . $e->getMessage() . PHP_EOL,
+                    FILE_APPEND
+                );
+                
+                return response()->json([
+                    'message' => 'Erro ao verificar reclamações existentes',
+                    'erro' => $e->getMessage()
+                ], 500);
+            }
+            
+            // Agora vamos criar a reclamação e suas dependências
+            try {
+                DB::beginTransaction();
+                
+                // 1. Criar aprovação
+                file_put_contents(
+                    storage_path('logs/debug_reclamacao.log'), 
+                    date('Y-m-d H:i:s') . ' - Iniciando criação de aprovação' . PHP_EOL,
+                    FILE_APPEND
+                );
+                
+                $userId = Auth::user()->ID_User;
+                
+                file_put_contents(
+                    storage_path('logs/debug_reclamacao.log'), 
+                    date('Y-m-d H:i:s') . ' - Usando ID do usuário: ' . $userId . PHP_EOL,
+                    FILE_APPEND
+                );
+
+                $aprovacaoId = DB::table('aprovacao')->insertGetId([
+                    'Data_Submissao' => now(),
+                    'Status_AprovacaoID_Status_Aprovacao' => 1,
+                    'UtilizadorID_Admin' => $userId
+                ]);
+                
+                file_put_contents(
+                    storage_path('logs/debug_reclamacao.log'), 
+                    date('Y-m-d H:i:s') . ' - Aprovação criada com ID: ' . $aprovacaoId . PHP_EOL,
+                    FILE_APPEND
+                );
+                
+                // 2. Criar reclamação
+                file_put_contents(
+                    storage_path('logs/debug_reclamacao.log'), 
+                    date('Y-m-d H:i:s') . ' - Iniciando criação de reclamação' . PHP_EOL,
+                    FILE_APPEND
+                );
+                
+                $reclamacaoId = DB::table('reclamacao')->insertGetId([
+                    'Descricao' => $request->descricao,
+                    'DataReclamacao' => now(),
+                    'AprovacaoID_aprovacao' => $aprovacaoId,
+                    'Status_ReclamacaoID_Status_Reclamacao' => 1
+                ]);
+                
+                file_put_contents(
+                    storage_path('logs/debug_reclamacao.log'), 
+                    date('Y-m-d H:i:s') . ' - Reclamação criada com ID: ' . $reclamacaoId . PHP_EOL,
+                    FILE_APPEND
+                );
+                
+                // 3. Criar relação entre compra e reclamação
+                file_put_contents(
+                    storage_path('logs/debug_reclamacao.log'), 
+                    date('Y-m-d H:i:s') . ' - Iniciando criação de relação compra-reclamação' . PHP_EOL,
+                    FILE_APPEND
+                );
+                
+                DB::table('compra_reclamacao')->insert([
+                    'CompraID_Compra' => $compraId,
+                    'ReclamacaoID_Reclamacao' => $reclamacaoId
+                ]);
+                
+                file_put_contents(
+                    storage_path('logs/debug_reclamacao.log'), 
+                    date('Y-m-d H:i:s') . ' - Relação criada com sucesso' . PHP_EOL,
+                    FILE_APPEND
+                );
 
             DB::commit();
+                
+                file_put_contents(
+                    storage_path('logs/debug_reclamacao.log'), 
+                    date('Y-m-d H:i:s') . ' - Transação concluída com sucesso' . PHP_EOL,
+                    FILE_APPEND
+                );
 
             return response()->json([
                 'message' => 'Reclamação criada com sucesso',
-                'reclamacao' => $reclamacao
+                    'reclamacao_id' => $reclamacaoId,
+                    'aprovacao_id' => $aprovacaoId,
+                    'compra_id' => $compraId
             ], 201);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Erro ao criar reclamação: ' . $e->getMessage(), [
-                'user_id' => auth()->id(),
-                'compra_id' => $request->compraId ?? null,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
+                
+                file_put_contents(
+                    storage_path('logs/debug_reclamacao.log'), 
+                    date('Y-m-d H:i:s') . ' - Erro na criação: ' . $e->getMessage() . ' na linha ' . $e->getLine() . PHP_EOL,
+                    FILE_APPEND
+                );
+                
+                return response()->json([
+                    'message' => 'Erro ao criar reclamação',
+                    'erro' => $e->getMessage(),
+                    'linha' => $e->getLine(),
+                    'arquivo' => $e->getFile()
+                ], 500);
+            }
+        } catch (\Exception $e) {
+            file_put_contents(
+                storage_path('logs/debug_reclamacao.log'), 
+                date('Y-m-d H:i:s') . ' - Erro geral: ' . $e->getMessage() . ' na linha ' . $e->getLine() . PHP_EOL,
+                FILE_APPEND
+            );
             
             return response()->json([
-                'message' => 'Erro ao criar reclamação',
-                'error' => $e->getMessage()
+                'message' => 'Erro ao processar reclamação',
+                'erro_detalhado' => $e->getMessage(),
+                'linha' => $e->getLine(),
+                'arquivo' => $e->getFile()
             ], 500);
         }
     }
@@ -259,7 +375,16 @@ class ReclamacaoController extends Controller
      */
     public function updateStatus(Request $request, $id)
     {
-        if (Auth::user()->TipoUserID_TipoUser !== 1) {
+        $user = Auth::user();
+        
+        // Log para debug
+        \Log::info('Requisição de atualização de status recebida:', [
+            'user' => $user,
+            'reclamacao_id' => $id,
+            'request_data' => $request->all()
+        ]);
+
+        if ($user->TipoUserID_TipoUser !== 1) {
             return response()->json(['message' => 'Apenas administradores podem atualizar o status'], 403);
         }
 
@@ -284,68 +409,74 @@ class ReclamacaoController extends Controller
             }
 
             $compra = $reclamacao->compras->first();
+            
+            // Log para debug da reclamação
+            \Log::info('Dados da reclamação:', [
+                'reclamacao' => $reclamacao,
+                'status_atual' => $reclamacao->Status_ReclamacaoID_Status_Reclamacao
+            ]);
+
             $statusAnterior = $reclamacao->Status_ReclamacaoID_Status_Reclamacao;
             $novoStatus = $request->status_id;
+
+            // Log para debug
+            \Log::info('Atualizando reclamação:', [
+                'reclamacao_id' => $id,
+                'status_anterior' => $statusAnterior,
+                'novo_status' => $novoStatus,
+                'admin_id' => $user->ID_User
+            ]);
 
             // Atualizar o status da reclamação
             $reclamacao->Status_ReclamacaoID_Status_Reclamacao = $novoStatus;
             $reclamacao->save();
 
             // Processar consequências com base no novo status
-            if ($novoStatus == 3) { // Reclamação Resolvida/Aceita
+            if ($novoStatus == 3) { // Reclamação Resolvida
                 // Adicionar um comentário ao registro de aprovação
                 $aprovacao = $reclamacao->aprovacao;
                 $aprovacao->Comentario = ($aprovacao->Comentario ? $aprovacao->Comentario . "\n" : '') . 
-                                       now()->format('Y-m-d H:i:s') . " - SISTEMA: Reclamação foi aceita pelo administrador. A compra foi marcada como problemática.";
+                                       now()->format('Y-m-d H:i:s') . " - SISTEMA: Reclamação foi resolvida pelo administrador.";
                 $aprovacao->Data_Aprovacao = now();
-                $aprovacao->UtilizadorID_Admin = Auth::id();
+                $aprovacao->UtilizadorID_Admin = $user->ID_User;
                 $aprovacao->Status_AprovacaoID_Status_Aprovacao = 2; // Aprovado
                 $aprovacao->save();
-
-                // TODO: Marcar a compra como problemática (adicione esta funcionalidade se existir um campo para isso)
-                // $compra->Status_CompraID_Status_Compra = 5; // Status problemático/devolvido
-                // $compra->save();
             } 
             else if ($novoStatus == 4) { // Reclamação Rejeitada
                 // Adicionar um comentário ao registro de aprovação
                 $aprovacao = $reclamacao->aprovacao;
                 $aprovacao->Comentario = ($aprovacao->Comentario ? $aprovacao->Comentario . "\n" : '') . 
-                                       now()->format('Y-m-d H:i:s') . " - SISTEMA: Reclamação foi rejeitada pelo administrador. A compra continua válida.";
+                                       now()->format('Y-m-d H:i:s') . " - SISTEMA: Reclamação foi rejeitada pelo administrador.";
                 $aprovacao->Data_Aprovacao = now();
-                $aprovacao->UtilizadorID_Admin = Auth::id();
+                $aprovacao->UtilizadorID_Admin = $user->ID_User;
                 $aprovacao->Status_AprovacaoID_Status_Aprovacao = 3; // Rejeitado
                 $aprovacao->save();
             }
 
-            // Notificar comprador e vendedor
-            $participantes = [
-                $compra->UtilizadorID_User,
-                $compra->anuncio->UtilizadorID_User
-            ];
-
-            foreach ($participantes as $userId) {
-                $notificacao = new Notificacao();
-                $notificacao->Mensagem = "O status da reclamação #" . $reclamacao->ID_Reclamacao . " foi atualizado para " . 
-                                        ($novoStatus == 3 ? "ACEITA" : ($novoStatus == 4 ? "REJEITADA" : "atualizado"));
-                $notificacao->DataNotificacao = now();
-                $notificacao->ReferenciaID = $reclamacao->ID_Reclamacao;
-                $notificacao->UtilizadorID_User = $userId;
-                $notificacao->ReferenciaTipoID_ReferenciaTipo = 4; // Tipo Reclamação
-                $notificacao->TIpo_notificacaoID_TipoNotificacao = 5; // Atualização de Status
-                $notificacao->save();
-            }
-
             DB::commit();
+
+            // Log do resultado
+            \Log::info('Status atualizado com sucesso:', [
+                'reclamacao_id' => $id,
+                'novo_status' => $novoStatus
+            ]);
 
             return response()->json([
                 'message' => 'Status da reclamação atualizado com sucesso',
-                'reclamacao' => $reclamacao,
-                'processamento' => $novoStatus == 3 ? 'Reclamação aceita. Compra marcada como problemática.' :
-                                  ($novoStatus == 4 ? 'Reclamação rejeitada. Compra continua válida.' : 'Status atualizado.')
+                'reclamacao' => $reclamacao->fresh(['aprovacao', 'compras']),
+                'processamento' => $novoStatus == 3 ? 'Reclamação resolvida.' :
+                                  ($novoStatus == 4 ? 'Reclamação rejeitada.' : 'Status atualizado.')
             ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
+            
+            // Log do erro
+            \Log::error('Erro ao atualizar status da reclamação:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return response()->json([
                 'message' => 'Erro ao atualizar status: ' . $e->getMessage()
             ], 500);

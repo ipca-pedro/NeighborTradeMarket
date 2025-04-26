@@ -30,12 +30,38 @@ api.interceptors.request.use(config => {
 api.interceptors.response.use(
     response => response,
     error => {
-        console.error('Erro na resposta:', error.response); // Debug
-        if (error.response?.status === 403) {
-            console.log('Erro 403 detetado - Verificando token...'); // Debug
-            const token = localStorage.getItem('token');
-            console.log('Token atual:', token); // Debug
+        console.error('Erro na resposta:', {
+            status: error.response?.status,
+            data: error.response?.data,
+            config: {
+                url: error.config?.url,
+                method: error.config?.method,
+                headers: error.config?.headers
+            }
+        });
+
+        // Se for erro 500, vamos logar mais detalhes
+        if (error.response?.status === 500) {
+            console.error('Detalhes do erro 500:', {
+                url: error.config?.url,
+                method: error.config?.method,
+                requestData: error.config?.data,
+                responseData: error.response?.data
+            });
         }
+
+        // Se for erro 403, verificamos a autenticação
+        if (error.response?.status === 403) {
+            console.log('Erro 403 detectado - Verificando autenticação...');
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            console.log('Estado da autenticação:', {
+                hasToken: !!token,
+                hasUser: !!user,
+                userData: user ? JSON.parse(user) : null
+            });
+        }
+
         return Promise.reject(error);
     }
 );

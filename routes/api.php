@@ -198,9 +198,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/reclamacoes', [ReclamacaoController::class, 'store']);
     Route::get('/reclamacoes', [ReclamacaoController::class, 'index']);
     Route::get('/reclamacoes/todas', [ReclamacaoController::class, 'indexAdmin']);
+    Route::patch('/reclamacoes/{id}/status', [ReclamacaoController::class, 'updateStatus']);
     Route::get('/reclamacoes/{id}', [ReclamacaoController::class, 'show']);
     Route::get('/reclamacoes/{id}/mensagens', [ReclamacaoController::class, 'getMensagens']);
-    Route::get('/reclamacoes/{id}/participantes', [ReclamacaoController::class, 'getParticipantes']);
     Route::post('/reclamacoes/{id}/mensagens', [ReclamacaoController::class, 'addMensagem']);
-    Route::patch('/reclamacoes/{id}/status', [ReclamacaoController::class, 'updateStatus']);
+    Route::get('/reclamacoes/{id}/participantes', [ReclamacaoController::class, 'getParticipantes']);
 });

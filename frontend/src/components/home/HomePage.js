@@ -4,7 +4,6 @@ import { Container, Row, Col, Card, Button, Form, Carousel, Spinner, Alert } fro
 import { Link } from 'react-router-dom';
 import Header from '../layout/Header';
 import './HomePage.css';
-import { anuncioService } from '../../services/api';
 
 // Categorias estáticas correspondentes ao banco de dados
 const staticCategories = [
@@ -33,9 +32,9 @@ const HomePage = () => {
                 
                 // Fetch anuncios
                 const [produtosRes, servicosRes, destaqueRes] = await Promise.all([
-                    anuncioService.getAnunciosAleatorios(6, 1), // 6 Produtos
-                    anuncioService.getAnunciosAleatorios(3, 2), // 3 Serviços 
-                    anuncioService.getAnunciosAleatorios(3, 1)  // 3 Produtos para Destaque
+                    getAnunciosAleatorios(6, 1), // 6 Produtos
+                    getAnunciosAleatorios(3, 2), // 3 Serviços 
+                    getAnunciosAleatorios(3, 1)  // 3 Produtos para Destaque
                 ]);
 
                 setProdutos(produtosRes || []);
@@ -199,7 +198,11 @@ const HomePage = () => {
                         </div>
                     ) : (
                         <Row>
-                            {produtos.map(produto => renderAnuncio(produto))}
+                            {produtos.map((produto, index) => (
+                                <React.Fragment key={produto.ID_Item || `produto-${index}`}>
+                                    {renderAnuncio(produto)}
+                                </React.Fragment>
+                            ))}
                         </Row>
                     )}
                 </Container>
@@ -221,7 +224,11 @@ const HomePage = () => {
                         </div>
                     ) : (
                         <Row>
-                            {servicos.map(servico => renderAnuncio(servico))}
+                            {servicos.map((servico, index) => (
+                                <React.Fragment key={servico.ID_Item || `servico-${index}`}>
+                                    {renderAnuncio(servico)}
+                                </React.Fragment>
+                            ))}
                         </Row>
                     )}
                 </Container>

@@ -31,13 +31,43 @@ export const enviarMensagem = async (reclamacaoId, mensagem) => {
 
 export const criarReclamacao = async (data) => {
     try {
+        console.log('Iniciando criação de reclamação:', data); // Debug
+        
+        // Verificar token antes da requisição
+        const token = localStorage.getItem('token');
+        console.log('Token atual:', token ? 'Presente' : 'Ausente');
+        
         const response = await api.post('/reclamacoes', {
             compraId: data.compraId,
             descricao: data.descricao
         });
+        
+        console.log('Resposta da criação:', response.data); // Debug
         return response.data;
     } catch (error) {
-        throw new Error('Erro ao criar reclamação: ' + error.message);
+        console.error('Erro detalhado ao criar reclamação:', {
+            message: error.message,
+            response: error.response?.data,
+            status: error.response?.status,
+            headers: error.response?.headers
+        });
+        
+        // Se for erro de autenticação
+        if (error.response?.status === 401) {
+            throw new Error('Usuário não está autenticado. Por favor, faça login novamente.');
+        }
+        
+        // Se for erro de permissão
+        if (error.response?.status === 403) {
+            throw new Error('Sem permissão para criar reclamação. Verifique se você é o comprador deste item.');
+        }
+        
+        // Se for erro interno do servidor
+        if (error.response?.status === 500) {
+            throw new Error('Erro interno do servidor ao criar reclamação. Por favor, tente novamente.');
+        }
+        
+        throw new Error(error.response?.data?.message || 'Erro ao criar reclamação: ' + error.message);
     }
 };
 
@@ -63,10 +93,19 @@ export const buscarTodasReclamacoes = async () => {
 
 export const atualizarStatus = async (id, status_id) => {
     try {
-        const response = await api.patch(`/reclamacoes/${id}/status`, { status_id });
+        console.log('Atualizando status da reclamação:', { id, status_id });
+        const response = await api.patch(`/reclamacoes/${id}/status`, { 
+            status_id: status_id 
+        });
+        console.log('Resposta da atualização:', response.data);
         return response.data;
     } catch (error) {
-        throw error;
+        console.error('Erro ao atualizar status:', {
+            message: error.message,
+            response: error.response?.data,
+            status: error.response?.status
+        });
+        throw new Error(error.response?.data?.message || 'Erro ao atualizar status da reclamação');
     }
 };
 

@@ -46,29 +46,19 @@ const MinhasCompras = () => {
 
         setSubmittingReclamacao(true);
         try {
-            const reclamacao = await criarReclamacao({
+            await criarReclamacao({
                 compraId: selectedCompra.ID_Compra,
                 descricao: descricaoReclamacao
             });
             
-            // Atualizar a lista de compras localmente
-            setCompras(prevCompras => prevCompras.map(compra => {
-                if (compra.ID_Compra === selectedCompra.ID_Compra) {
-                    return {
-                        ...compra,
-                        reclamacao: reclamacao
-                    };
-                }
-                return compra;
-            }));
-            
             setShowReclamacaoModal(false);
             setDescricaoReclamacao('');
             setSelectedCompra(null);
-            toast.success('Reclamação criada com sucesso!');
+            toast.success('Reclamação enviada com sucesso! Um administrador irá analisar seu caso.');
             
-            // Redirecionar para a página de detalhes da reclamação
-            navigate(`/reclamacoes/${reclamacao.ID_Reclamacao}`);
+            // Recarregar a lista de compras
+            await carregarCompras();
+            
         } catch (err) {
             toast.error(err.message || 'Erro ao criar reclamação');
         } finally {
