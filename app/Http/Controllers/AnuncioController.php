@@ -857,6 +857,78 @@ class AnuncioController extends Controller
             
             $anuncio->save();
             
+            // Processar imagens a serem mantidas ou removidas
+            if ($request->has('manter_imagens')) {
+                try {
+                    \Log::info('Processando manutenção de imagens', [
+                        'anuncio_id' => $anuncio->ID_Anuncio,
+                        'imagens_a_manter' => $request->manter_imagens
+                    ]);
+                    
+                    $imagensParaManter = json_decode($request->manter_imagens, true);
+                    
+                    // Buscar todas as imagens atuais do anúncio
+                    $imagensAtuais = $anuncio->item_imagems;
+                    
+                    \Log::info('Dados para manutenção de imagens', [
+                        'imagens_para_manter' => $imagensParaManter,
+                        'imagens_atuais' => $imagensAtuais->map(function($item) {
+                            return [
+                                'item_id' => $item->ItemID_Item,
+                                'imagem_id' => $item->imagem ? $item->imagem->ID_Imagem : null,
+                                'caminho' => $item->imagem ? $item->imagem->Caminho : null
+                            ];
+                        })
+                    ]);
+                    
+                    // Se imagensParaManter for um array (mesmo que vazio), processar
+                    if (is_array($imagensParaManter)) {
+                        foreach ($imagensAtuais as $itemImagem) {
+                            if (!$itemImagem->imagem) {
+                                \Log::warning('item_imagem sem referência à imagem', [
+                                    'item_id' => $itemImagem->ItemID_Item,
+                                    'imagem_id' => $itemImagem->ImagemID_Imagem
+                                ]);
+                                continue;
+                            }
+                            
+                            $imagemId = $itemImagem->imagem->ID_Imagem;
+                            
+                            // Se a imagem não estiver na lista de imagens a manter, remove
+                            if (!in_array($imagemId, $imagensParaManter)) {
+                                \Log::info('Removendo imagem', [
+                                    'anuncio_id' => $anuncio->ID_Anuncio,
+                                    'imagem_id' => $imagemId
+                                ]);
+                                
+                                // Remover arquivo físico
+                                if ($itemImagem->imagem && Storage::disk('public')->exists($itemImagem->imagem->Caminho)) {
+                                    Storage::disk('public')->delete($itemImagem->imagem->Caminho);
+                                }
+                                
+                                // Remover relação entre item e imagem
+                                DB::table('item_imagem')
+                                    ->where('ItemID_Item', $itemImagem->ItemID_Item)
+                                    ->where('ImagemID_Imagem', $itemImagem->ImagemID_Imagem)
+                                    ->delete();
+                                
+                                // Remover a imagem do banco de dados
+                                if ($itemImagem->imagem) {
+                                    $itemImagem->imagem->delete();
+                                }
+                            }
+                        }
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('Erro ao processar manutenção de imagens:', [
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString(),
+                        'anuncio_id' => $anuncio->ID_Anuncio
+                    ]);
+                    // Continuar com o processamento
+                }
+            }
+            
             // Processar novas imagens (se houver)
             if ($request->hasFile('imagens')) {
                 $imagens = $request->file('imagens');
@@ -873,33 +945,6 @@ class AnuncioController extends Controller
                 if (!Storage::disk('public')->exists($diretorio)) {
                     \Log::info('Criando diretório para imagens', ['diretorio' => $diretorio]);
                     Storage::disk('public')->makeDirectory($diretorio);
-                }
-                
-                // Remover imagens antigas se solicitado
-                if ($request->has('remover_imagens_antigas') && $request->remover_imagens_antigas) {
-                    \Log::info('Removendo imagens antigas do anúncio', ['anuncio_id' => $anuncio->ID_Anuncio]);
-                    foreach ($anuncio->item_imagems as $item_imagem) {
-                        // Remover arquivo físico
-                        if ($item_imagem->imagem && Storage::disk('public')->exists($item_imagem->imagem->Caminho)) {
-                            Storage::disk('public')->delete($item_imagem->imagem->Caminho);
-                        }
-                        
-                        // Remover registro na tabela item_imagem usando query direta com chaves compostas
-                        DB::table('item_imagem')
-                            ->where('ItemID_Item', $item_imagem->ItemID_Item)
-                            ->where('ImagemID_Imagem', $item_imagem->ImagemID_Imagem)
-                            ->delete();
-                        
-                        \Log::info('Item_imagem removido com sucesso', [
-                            'item_id' => $item_imagem->ItemID_Item,
-                            'imagem_id' => $item_imagem->ImagemID_Imagem
-                        ]);
-                        
-                        // Remover a imagem
-                        if ($item_imagem->imagem) {
-                            $item_imagem->imagem->delete();
-                        }
-                    }
                 }
                 
                 foreach ($imagens as $key => $imagemFile) {

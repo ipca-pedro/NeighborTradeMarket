@@ -29,6 +29,7 @@ const CriarProduto = () => {
     const [imagens, setImagens] = useState([]);
     const [imagemPreview, setImagemPreview] = useState([]);
     const [imagensExistentes, setImagensExistentes] = useState([]);
+    const [imagensRemovidas, setImagensRemovidas] = useState([]);
 
     useEffect(() => {
         const carregarDados = async () => {
@@ -178,6 +179,39 @@ const CriarProduto = () => {
         setImagemPreview(previews);
     };
 
+    const handleRemoveImage = (index, isExistingImage = false) => {
+        if (isExistingImage) {
+            // Remover imagem existente
+            const imagemRemovida = imagensExistentes[index];
+            console.log("Tentando remover imagem existente:", imagemRemovida);
+            
+            if (imagemRemovida && imagemRemovida.ID_Imagem) {
+                // Guardar o ID da imagem para remover no servidor
+                setImagensRemovidas(prev => [...prev, imagemRemovida.ID_Imagem]);
+                console.log("ID da imagem removida:", imagemRemovida.ID_Imagem);
+            } else {
+                console.warn("Imagem sem ID válido:", imagemRemovida);
+            }
+            
+            // Atualizar lista de imagens existentes
+            const novasImagens = [...imagensExistentes];
+            novasImagens.splice(index, 1);
+            console.log("Novas imagens após remoção:", novasImagens);
+            setImagensExistentes(novasImagens);
+        } else {
+            // Remover imagem nova (não enviada ainda)
+            const novasImagens = [...imagens];
+            novasImagens.splice(index, 1);
+            setImagens(novasImagens);
+            
+            // Remover preview
+            const novosPreviews = [...imagemPreview];
+            URL.revokeObjectURL(novosPreviews[index]); // Liberar URL do objeto
+            novosPreviews.splice(index, 1);
+            setImagemPreview(novosPreviews);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         
@@ -243,9 +277,27 @@ const CriarProduto = () => {
                     .map(img => img.ID_Imagem);
                 
                 console.log("IDs das imagens a manter:", imagensIds);
+                console.log("Imagens existentes completas:", imagensExistentes);
                 
                 if (imagensIds.length > 0) {
                     formDataObj.append('manter_imagens', JSON.stringify(imagensIds));
+                } else {
+                    // Se não houver imagens para manter, enviar array vazio para remover todas as existentes
+                    formDataObj.append('manter_imagens', JSON.stringify([]));
+                }
+            } else if (isEditMode) {
+                // Se estamos em modo de edição mas não temos imagens para manter
+                console.log("Nenhuma imagem existente para manter");
+                formDataObj.append('manter_imagens', JSON.stringify([]));
+            }
+            
+            // Debug formData completo
+            console.log("FormData completo:");
+            for (let [key, value] of formDataObj.entries()) {
+                if (key === 'imagens') {
+                    console.log(`${key}: [Arquivo]`);
+                } else {
+                    console.log(`${key}: ${value}`);
                 }
             }
             
@@ -261,8 +313,21 @@ const CriarProduto = () => {
             });
             
             if (isEditMode) {
-                await anuncioService.atualizarAnuncio(id, formDataObj);
+                const resultado = await anuncioService.atualizarAnuncio(id, formDataObj);
                 setSuccess('Anúncio atualizado com sucesso! Aguardando aprovação.');
+                
+                // Se a atualização foi bem-sucedida e há imagens atualizadas, atualizar o estado
+                if (resultado && resultado.anuncio) {
+                    const anuncioAtualizado = resultado.anuncio;
+                    
+                    if (anuncioAtualizado.item_imagems && anuncioAtualizado.item_imagems.length > 0) {
+                        // Atualizar o estado de imagens existentes com os dados mais recentes
+                        setImagensExistentes(anuncioAtualizado.item_imagems.map(item => item.imagem));
+                    } else {
+                        // Limpar o estado se não houver mais imagens
+                        setImagensExistentes([]);
+                    }
+                }
             } else {
                 await anuncioService.criarAnuncio(formDataObj);
                 setSuccess('Anúncio criado com sucesso! Aguardando aprovação.');
@@ -437,7 +502,26 @@ const CriarProduto = () => {
                                                         <p>Imagens atuais:</p>
                                                         <div className="image-preview-container d-flex flex-wrap">
                                                             {imagensExistentes.map((img, index) => (
-                                                                <div key={index} className="image-preview me-2 mb-2">
+                                                                <div key={index} className="image-preview me-2 mb-2 position-relative">
+                                                                    <Button 
+                                                                        variant="danger" 
+                                                                        size="sm" 
+                                                                        className="position-absolute" 
+                                                                        style={{ 
+                                                                            top: '5px', 
+                                                                            right: '5px', 
+                                                                            borderRadius: '50%',
+                                                                            width: '20px',
+                                                                            height: '20px',
+                                                                            padding: '0',
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
+                                                                            justifyContent: 'center'
+                                                                        }}
+                                                                        onClick={() => handleRemoveImage(index, true)}
+                                                                    >
+                                                                        <span>&times;</span>
+                                                                    </Button>
                                                                     <img 
                                                                         src={`http://localhost:8000/storage/${img.Caminho.replace(/^public\//, '')}`} 
                                                                         alt={`Imagem ${index}`} 
@@ -461,7 +545,26 @@ const CriarProduto = () => {
                                                         {isEditMode && <p>Novas imagens:</p>}
                                                         <div className="image-preview-container d-flex flex-wrap">
                                                             {imagemPreview.map((preview, index) => (
-                                                                <div key={index} className="image-preview me-2 mb-2">
+                                                                <div key={index} className="image-preview me-2 mb-2 position-relative">
+                                                                    <Button 
+                                                                        variant="danger" 
+                                                                        size="sm" 
+                                                                        className="position-absolute" 
+                                                                        style={{ 
+                                                                            top: '5px', 
+                                                                            right: '5px', 
+                                                                            borderRadius: '50%',
+                                                                            width: '20px',
+                                                                            height: '20px',
+                                                                            padding: '0',
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
+                                                                            justifyContent: 'center'
+                                                                        }}
+                                                                        onClick={() => handleRemoveImage(index, false)}
+                                                                    >
+                                                                        <span>&times;</span>
+                                                                    </Button>
                                                                     <img 
                                                                         src={preview} 
                                                                         alt={`Preview ${index}`} 
