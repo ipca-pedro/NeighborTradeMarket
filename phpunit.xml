@@ -13,6 +13,12 @@
         </testsuite>
         <testsuite name="Basic">
             <file>tests/Unit/ReclamacaoModelTest.php</file>
+            <file>tests/Unit/ReclamacaoControllerTest.php</file>
+            <file>tests/Unit/AnuncioControllerTest.php</file>
+            <file>tests/Unit/CompraControllerTest.php</file>
+            <file>tests/Feature/ReclamacaoApiTest.php</file>
+            <file>tests/Feature/AnuncioApiTest.php</file>
+            <file>tests/Feature/CompraApiTest.php</file>
             <file>tests/Unit/ExampleTest.php</file>
         </testsuite>
     </testsuites>
