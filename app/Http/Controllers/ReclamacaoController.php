@@ -22,6 +22,15 @@ class ReclamacaoController extends Controller
     {
         // Versão simplificada com diagnóstico
         try {
+            // Debug detalhado de autenticação
+            \Log::info('=== Diagnóstico de Autenticação ===', [
+                'IsAuthenticated' => Auth::check(),
+                'UserID' => Auth::id(),
+                'RequestUser' => $request->user(),
+                'AuthHeader' => $request->header('Authorization'),
+                'AllHeaders' => $request->headers->all()
+            ]);
+            
             // Debug de autenticação
             file_put_contents(
                 storage_path('logs/debug_reclamacao.log'), 
@@ -71,7 +80,16 @@ class ReclamacaoController extends Controller
                 FILE_APPEND
             );
             
-            if ($compra->UtilizadorID_User != Auth::id()) {
+            // Obter o ID numérico do usuário autenticado
+            $userId = Auth::user()->ID_User;
+            
+            file_put_contents(
+                storage_path('logs/debug_reclamacao.log'), 
+                date('Y-m-d H:i:s') . ' - Usuário autenticado ID: ' . $userId . PHP_EOL,
+                FILE_APPEND
+            );
+            
+            if ($compra->UtilizadorID_User != $userId) {
                 return response()->json([
                     'message' => 'Você não tem permissão para criar uma reclamação para esta compra'
                 ], 403);
@@ -124,14 +142,6 @@ class ReclamacaoController extends Controller
                     FILE_APPEND
                 );
                 
-                $userId = Auth::user()->ID_User;
-                
-                file_put_contents(
-                    storage_path('logs/debug_reclamacao.log'), 
-                    date('Y-m-d H:i:s') . ' - Usando ID do usuário: ' . $userId . PHP_EOL,
-                    FILE_APPEND
-                );
-
                 $aprovacaoId = DB::table('aprovacao')->insertGetId([
                     'Data_Submissao' => now(),
                     'Status_AprovacaoID_Status_Aprovacao' => 1,
@@ -371,7 +381,7 @@ class ReclamacaoController extends Controller
     }
 
     /**
-     * Atualizar status da reclamação (apenas admin)
+     * Atualizar status da reclamação
      */
     public function updateStatus(Request $request, $id)
     {
@@ -383,10 +393,6 @@ class ReclamacaoController extends Controller
             'reclamacao_id' => $id,
             'request_data' => $request->all()
         ]);
-
-        if ($user->TipoUserID_TipoUser !== 1) {
-            return response()->json(['message' => 'Apenas administradores podem atualizar o status'], 403);
-        }
 
         $validator = Validator::make($request->all(), [
             'status_id' => 'required|exists:status_reclamacao,ID_Status_Reclamacao'
@@ -410,6 +416,24 @@ class ReclamacaoController extends Controller
 
             $compra = $reclamacao->compras->first();
             
+            // Verificar permissão - permitir comprador ou admin
+            $isAdmin = $user->TipoUserID_TipoUser === 1;
+            $isComprador = $compra->UtilizadorID_User === $user->ID_User;
+            
+            \Log::info('Verificando permissões:', [
+                'user_id' => $user->ID_User,
+                'tipo_user' => $user->TipoUserID_TipoUser,
+                'comprador_id' => $compra->UtilizadorID_User,
+                'isAdmin' => $isAdmin,
+                'isComprador' => $isComprador
+            ]);
+            
+            if (!$isAdmin && !$isComprador) {
+                return response()->json([
+                    'message' => 'Você não tem permissão para atualizar esta reclamação'
+                ], 403);
+            }
+            
             // Log para debug da reclamação
             \Log::info('Dados da reclamação:', [
                 'reclamacao' => $reclamacao,
@@ -424,33 +448,68 @@ class ReclamacaoController extends Controller
                 'reclamacao_id' => $id,
                 'status_anterior' => $statusAnterior,
                 'novo_status' => $novoStatus,
-                'admin_id' => $user->ID_User
+                'user_id' => $user->ID_User,
+                'como_admin' => $isAdmin
             ]);
 
             // Atualizar o status da reclamação
             $reclamacao->Status_ReclamacaoID_Status_Reclamacao = $novoStatus;
             $reclamacao->save();
 
-            // Processar consequências com base no novo status
-            if ($novoStatus == 3) { // Reclamação Resolvida
-                // Adicionar um comentário ao registro de aprovação
+            // Comportamento diferente para admin e comprador
+            if ($isAdmin) {
+                // Atualizar aprovação com decisão do admin
                 $aprovacao = $reclamacao->aprovacao;
-                $aprovacao->Comentario = ($aprovacao->Comentario ? $aprovacao->Comentario . "\n" : '') . 
-                                       now()->format('Y-m-d H:i:s') . " - SISTEMA: Reclamação foi resolvida pelo administrador.";
-                $aprovacao->Data_Aprovacao = now();
+                
+                if ($novoStatus == 3) { // Resolvida
+                    $aprovacao->Status_AprovacaoID_Status_Aprovacao = 2; // Aprovada
+                    $aprovacao->Comentario = ($aprovacao->Comentario ? $aprovacao->Comentario . "\n" : '') . 
+                                         now()->format('Y-m-d H:i:s') . " - SISTEMA: Reclamação foi resolvida pelo administrador.";
+                    $aprovacao->Data_Aprovacao = now();
+                } 
+                elseif ($novoStatus == 4) { // Rejeitada
+                    $aprovacao->Status_AprovacaoID_Status_Aprovacao = 3; // Rejeitada
+                    $aprovacao->Comentario = ($aprovacao->Comentario ? $aprovacao->Comentario . "\n" : '') . 
+                                         now()->format('Y-m-d H:i:s') . " - SISTEMA: Reclamação foi rejeitada pelo administrador.";
+                    $aprovacao->Data_Aprovacao = now();
+                }
+                
                 $aprovacao->UtilizadorID_Admin = $user->ID_User;
-                $aprovacao->Status_AprovacaoID_Status_Aprovacao = 2; // Aprovado
                 $aprovacao->save();
+                
+                // Notificar o comprador
+                $notificacao = new Notificacao();
+                $notificacao->Mensagem = "Sua reclamação #" . $reclamacao->ID_Reclamacao . " teve seu status atualizado para: " . 
+                                     StatusReclamacao::find($novoStatus)->Descricao;
+                $notificacao->DataNotificacao = now();
+                $notificacao->ReferenciaID = $reclamacao->ID_Reclamacao;
+                $notificacao->UtilizadorID_User = $compra->UtilizadorID_User;
+                $notificacao->ReferenciaTipoID_ReferenciaTipo = 4; // Tipo Reclamação
+                $notificacao->TIpo_notificacaoID_TipoNotificacao = 3; // Atualizacao
+                $notificacao->save();
             } 
-            else if ($novoStatus == 4) { // Reclamação Rejeitada
-                // Adicionar um comentário ao registro de aprovação
+            else {
+                // Comprador está atualizando - notificar administradores
                 $aprovacao = $reclamacao->aprovacao;
-                $aprovacao->Comentario = ($aprovacao->Comentario ? $aprovacao->Comentario . "\n" : '') . 
-                                       now()->format('Y-m-d H:i:s') . " - SISTEMA: Reclamação foi rejeitada pelo administrador.";
-                $aprovacao->Data_Aprovacao = now();
-                $aprovacao->UtilizadorID_Admin = $user->ID_User;
-                $aprovacao->Status_AprovacaoID_Status_Aprovacao = 3; // Rejeitado
+                $aprovacao->Status_AprovacaoID_Status_Aprovacao = 1; // Pendente
                 $aprovacao->save();
+                
+                // Notificar administradores
+                $admins = DB::table('utilizador')
+                    ->where('TipoUserID_TipoUser', 1)
+                    ->get();
+                
+                foreach ($admins as $admin) {
+                    $notificacao = new Notificacao();
+                    $notificacao->Mensagem = "Reclamação #" . $reclamacao->ID_Reclamacao . " atualizada para: " . 
+                                         StatusReclamacao::find($novoStatus)->Descricao;
+                    $notificacao->DataNotificacao = now();
+                    $notificacao->ReferenciaID = $reclamacao->ID_Reclamacao;
+                    $notificacao->UtilizadorID_User = $admin->ID_User;
+                    $notificacao->ReferenciaTipoID_ReferenciaTipo = 4; // Tipo Reclamação
+                    $notificacao->TIpo_notificacaoID_TipoNotificacao = 3; // Atualizacao
+                    $notificacao->save();
+                }
             }
 
             DB::commit();
@@ -463,9 +522,7 @@ class ReclamacaoController extends Controller
 
             return response()->json([
                 'message' => 'Status da reclamação atualizado com sucesso',
-                'reclamacao' => $reclamacao->fresh(['aprovacao', 'compras']),
-                'processamento' => $novoStatus == 3 ? 'Reclamação resolvida.' :
-                                  ($novoStatus == 4 ? 'Reclamação rejeitada.' : 'Status atualizado.')
+                'reclamacao' => $reclamacao->fresh(['aprovacao', 'compras'])
             ]);
 
         } catch (\Exception $e) {
