@@ -19,11 +19,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property Carbon|null $Data_Resposta
  * @property int $NotaID_Nota
  * @property int $OrdemID_Produto
- * @property int $AprovacaoID_aprovacao
  * 
  * @property Nota $nota
  * @property Compra $compra
- * @property Aprovacao $aprovacao
  *
  * @package App\Models
  */
@@ -37,8 +35,7 @@ class Avaliacao extends Model
 		'Data_Avaliacao' => 'datetime',
 		'Data_Resposta' => 'datetime',
 		'NotaID_Nota' => 'int',
-		'OrdemID_Produto' => 'int',
-		'AprovacaoID_aprovacao' => 'int'
+		'OrdemID_Produto' => 'int'
 	];
 
 	protected $fillable = [
@@ -47,8 +44,7 @@ class Avaliacao extends Model
 		'Data_Avaliacao',
 		'Data_Resposta',
 		'NotaID_Nota',
-		'OrdemID_Produto',
-		'AprovacaoID_aprovacao'
+		'OrdemID_Produto'
 	];
 
 	public function nota()
@@ -59,10 +55,5 @@ class Avaliacao extends Model
 	public function compra()
 	{
 		return $this->belongsTo(Compra::class, 'OrdemID_Produto');
-	}
-
-	public function aprovacao()
-	{
-		return $this->belongsTo(Aprovacao::class, 'AprovacaoID_aprovacao');
 	}
 }

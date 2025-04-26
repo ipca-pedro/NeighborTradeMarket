@@ -463,15 +463,15 @@ class ReclamacaoController extends Controller
                 
                 if ($novoStatus == 3) { // Resolvida
                     $aprovacao->Status_AprovacaoID_Status_Aprovacao = 2; // Aprovada
-                    $aprovacao->Comentario = ($aprovacao->Comentario ? $aprovacao->Comentario . "\n" : '') . 
+                $aprovacao->Comentario = ($aprovacao->Comentario ? $aprovacao->Comentario . "\n" : '') . 
                                          now()->format('Y-m-d H:i:s') . " - SISTEMA: Reclamação foi resolvida pelo administrador.";
-                    $aprovacao->Data_Aprovacao = now();
+                $aprovacao->Data_Aprovacao = now();
                 } 
                 elseif ($novoStatus == 4) { // Rejeitada
                     $aprovacao->Status_AprovacaoID_Status_Aprovacao = 3; // Rejeitada
-                    $aprovacao->Comentario = ($aprovacao->Comentario ? $aprovacao->Comentario . "\n" : '') . 
+                $aprovacao->Comentario = ($aprovacao->Comentario ? $aprovacao->Comentario . "\n" : '') . 
                                          now()->format('Y-m-d H:i:s') . " - SISTEMA: Reclamação foi rejeitada pelo administrador.";
-                    $aprovacao->Data_Aprovacao = now();
+                $aprovacao->Data_Aprovacao = now();
                 }
                 
                 $aprovacao->UtilizadorID_Admin = $user->ID_User;

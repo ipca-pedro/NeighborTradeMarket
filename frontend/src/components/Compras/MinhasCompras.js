@@ -3,11 +3,19 @@ import CompraService from '../../services/CompraService';
 import { criarReclamacao } from '../../services/reclamacaoService';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { toast } from 'react-toastify';
+import AvaliacaoModal from '../avaliacao/AvaliacaoModal';
 
 const MinhasCompras = () => {
     const [compras, setCompras] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [selectedCompra, setSelectedCompra] = useState(null);
+    const [showReclamacaoModal, setShowReclamacaoModal] = useState(false);
+    const [descricaoReclamacao, setDescricaoReclamacao] = useState('');
+    const [submittingReclamacao, setSubmittingReclamacao] = useState(false);
+    const [showAvaliacaoModal, setShowAvaliacaoModal] = useState(false);
+    const [selectedCompraParaAvaliacao, setSelectedCompraParaAvaliacao] = useState(null);
 
     useEffect(() => {
         carregarCompras();
@@ -80,6 +88,28 @@ const MinhasCompras = () => {
         }
     };
 
+    const handleAbrirAvaliacao = (compra) => {
+        // Verificar se a compra está em estado válido para avaliação
+        if (compra.StatusID_Status !== 4) {
+            toast.error('Só é possível avaliar compras concluídas');
+            return;
+        }
+
+        // Verificar se já existe avaliação
+        if (compra.avaliacao) {
+            toast.info('Esta compra já foi avaliada');
+            return;
+        }
+
+        setSelectedCompraParaAvaliacao(compra);
+        setShowAvaliacaoModal(true);
+    };
+
+    const handleAvaliacaoSuccess = async () => {
+        await carregarCompras(); // Recarrega a lista de compras após avaliação
+        toast.success('Avaliação enviada com sucesso!');
+    };
+
     if (loading) return <div>Carregando...</div>;
     if (error) return <div className="error">{error}</div>;
 
@@ -129,6 +159,39 @@ const MinhasCompras = () => {
                                         Confirmar Recebimento
                                     </button>
                                 )}
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    {compra.PodeReclamar && (
+                                        <button
+                                            className="btn-reclamacao"
+                                            onClick={() => {
+                                                const descricao = prompt('Descreva o motivo da reclamação:');
+                                                if (descricao) handleSubmitReclamacao(compra.ID_Compra, descricao);
+                                            }}
+                                        >
+                                            Fazer Reclamação
+                                        </button>
+                                    )}
+
+                                    {/* Botão de avaliação - apenas se não houver avaliação e compra estiver concluída */}
+                                    {!compra.avaliacao && compra.StatusID_Status === 4 && (
+                                        <button
+                                            className="btn-avaliar"
+                                            style={{ backgroundColor: '#ffc107', color: '#222', border: 'none', borderRadius: '4px', padding: '6px 12px', cursor: 'pointer' }}
+                                            onClick={() => handleAbrirAvaliacao(compra)}
+                                        >
+                                            Avaliar Compra
+                                        </button>
+                                    )}
+
+                                    {/* Mostrar nota se já existe avaliação */}
+                                    {compra.avaliacao && (
+                                        <span className="avaliacao-info" style={{ color: '#666', padding: '6px 12px' }}>
+                                            <i className="fas fa-star" style={{ color: '#ffc107', marginRight: '4px' }}></i>
+                                            Avaliado: {compra.avaliacao.nota?.Descricao_nota || 'N/A'}
+                                        </span>
+                                    )}
+                                </div>
+                                
                                 <button
                                     onClick={() => window.location.href = `/compras/${compra.ID_Compra}`}
                                     className="btn-detalhes"
@@ -140,8 +203,19 @@ const MinhasCompras = () => {
                     ))}
                 </div>
             )}
+
+            {/* Modal de Avaliação */}
+            <AvaliacaoModal
+                show={showAvaliacaoModal}
+                onHide={() => {
+                    setShowAvaliacaoModal(false);
+                    setSelectedCompraParaAvaliacao(null);
+                }}
+                compraId={selectedCompraParaAvaliacao?.ID_Compra}
+                onSuccess={handleAvaliacaoSuccess}
+            />
         </div>
     );
 };
 
-export default MinhasCompras; 
+export default MinhasCompras;

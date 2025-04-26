@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { buscarMinhasCompras } from '../../services/CompraService';
 import { criarReclamacao } from '../../services/reclamacaoService';
 import { toast } from 'react-toastify';
+import AvaliacaoModal from '../avaliacao/AvaliacaoModal';
 
 const MinhasCompras = () => {
     const navigate = useNavigate();
@@ -14,6 +15,8 @@ const MinhasCompras = () => {
     const [selectedCompra, setSelectedCompra] = useState(null);
     const [descricaoReclamacao, setDescricaoReclamacao] = useState('');
     const [submittingReclamacao, setSubmittingReclamacao] = useState(false);
+    const [showAvaliacaoModal, setShowAvaliacaoModal] = useState(false);
+    const [selectedCompraParaAvaliacao, setSelectedCompraParaAvaliacao] = useState(null);
 
     useEffect(() => {
         carregarCompras();
@@ -64,6 +67,16 @@ const MinhasCompras = () => {
         } finally {
             setSubmittingReclamacao(false);
         }
+    };
+
+    const handleAbrirAvaliacao = (compra) => {
+        setSelectedCompraParaAvaliacao(compra);
+        setShowAvaliacaoModal(true);
+    };
+
+    const handleAvaliacaoSuccess = async () => {
+        await carregarCompras(); // Recarrega a lista de compras após avaliação
+        toast.success('Avaliação enviada com sucesso!');
     };
 
     const formatarData = (dataString) => {
@@ -125,9 +138,28 @@ const MinhasCompras = () => {
                                             <Button 
                                                 variant="primary"
                                                 onClick={() => navigate(`/reclamacoes/${(compra.Reclamacao?.ID_Reclamacao || compra.reclamacao?.ID_Reclamacao || compra.reclamacoes?.[0]?.ID_Reclamacao)}`)}
+                                                className="me-2"
                                             >
                                                 Ver Reclamação
                                             </Button>
+                                        )}
+
+                                        {/* Botão de Avaliação - só mostra se não houver avaliação */}
+                                        {!compra.avaliacao && (
+                                            <Button 
+                                                variant="success"
+                                                onClick={() => handleAbrirAvaliacao(compra)}
+                                                className="ms-2"
+                                            >
+                                                Avaliar
+                                            </Button>
+                                        )}
+
+                                        {/* Se já existe avaliação, mostrar a nota */}
+                                        {compra.avaliacao && (
+                                            <span className="ms-2 text-muted">
+                                                Avaliado: {compra.avaliacao.nota?.Descricao_nota || 'N/A'}
+                                            </span>
                                         )}
                                     </div>
                                 </Card.Body>
@@ -173,8 +205,15 @@ const MinhasCompras = () => {
                     </Button>
                 </Modal.Footer>
             </Modal>
+
+            <AvaliacaoModal
+                show={showAvaliacaoModal}
+                onHide={() => setShowAvaliacaoModal(false)}
+                compraId={selectedCompraParaAvaliacao?.ID_Compra}
+                onSuccess={handleAvaliacaoSuccess}
+            />
         </div>
     );
 };
 
-export default MinhasCompras; 
+export default MinhasCompras;

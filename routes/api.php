@@ -148,12 +148,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/trocas/enviadas/pendentes', [TrocaController::class, 'pendingSent']);
     
     // Rotas de avaliações
+    Route::get('/avaliacoes/notas', [AvaliacaoController::class, 'getNotas']);
     Route::get('/avaliacoes/recebidas', [AvaliacaoController::class, 'receivedRatings']);
     Route::get('/avaliacoes/enviadas', [AvaliacaoController::class, 'sentRatings']);
     Route::get('/avaliacoes/{id}', [AvaliacaoController::class, 'show']);
     Route::post('/avaliacoes/compra', [AvaliacaoController::class, 'storeForPurchase']);
     Route::post('/avaliacoes/{id}/responder', [AvaliacaoController::class, 'respondToRating']);
-    Route::get('/avaliacoes/notas', [AvaliacaoController::class, 'getNotas']);
     Route::get('/avaliacoes/pendentes', [AvaliacaoController::class, 'getPendingRatings']);
     Route::get('/avaliacoes/estatisticas/{userId?}', [AvaliacaoController::class, 'getUserStats']);
     

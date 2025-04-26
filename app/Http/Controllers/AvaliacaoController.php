@@ -82,8 +82,8 @@ class AvaliacaoController extends Controller
     public function storeForPurchase(Request $request)
     {
         $request->validate([
-            'compra_id' => 'required|exists:Compra,ID_Compra',
-            'nota_id' => 'required|exists:Nota,ID_Nota',
+            'compra_id' => 'required|exists:compra,ID_Compra',
+            'nota_id' => 'required|exists:nota,ID_Nota',
             'comentario' => 'required|string|max:255'
         ]);
         
@@ -111,23 +111,14 @@ class AvaliacaoController extends Controller
         DB::beginTransaction();
         
         try {
-            // Criar aprovação (automática para avaliações)
-            $aprovacao = new Aprovacao([
-                'Data_Submissao' => now(),
-                'Data_Aprovacao' => now(),
-                'UtilizadorID_Admin' => 1, // Administrador padrão
-                'Status_AprovacaoID_Status_Aprovacao' => 2 // Aprovado
-            ]);
-            $aprovacao->save();
-            
             // Criar avaliação
             $avaliacao = new Avaliacao([
                 'Comentario' => $request->comentario,
                 'Data_Avaliacao' => now(),
                 'NotaID_Nota' => $request->nota_id,
-                'OrdemID_Produto' => $compraId,
-                'AprovacaoID_aprovacao' => $aprovacao->ID_aprovacao
+                'OrdemID_Produto' => $compraId
             ]);
+            
             $avaliacao->save();
             
             // Buscar o anúncio e o vendedor para a notificação
@@ -135,13 +126,14 @@ class AvaliacaoController extends Controller
             $vendedor = $anuncio->utilizador;
             
             // Criar notificação para o vendedor
-            DB::table('Notificacao')->insert([
+            DB::table('notificacao')->insert([
                 'Mensagem' => 'Você recebeu uma nova avaliação para o anúncio: ' . $anuncio->Titulo,
                 'DataNotificacao' => now(),
                 'ReferenciaID' => $avaliacao->Id_Avaliacao,
                 'UtilizadorID_User' => $vendedor->ID_User,
-                'ReferenciaTipoID_ReferenciaTipo' => 4, // Avaliações
-                'TIpo_notificacaoID_TipoNotificacao' => 4 // Notificações de avaliação
+                'ReferenciaTipoID_ReferenciaTipo' => 5, // Avaliações
+                'TIpo_notificacaoID_TipoNotificacao' => 7, // Notificações de avaliação
+                'Estado_notificacaoID_estado_notificacao' => 1 // Não lida
             ]);
             
             DB::commit();
@@ -203,7 +195,8 @@ class AvaliacaoController extends Controller
             'ReferenciaID' => $avaliacao->Id_Avaliacao,
             'UtilizadorID_User' => $compra->UtilizadorID_User,
             'ReferenciaTipoID_ReferenciaTipo' => 4, // Avaliações
-            'TIpo_notificacaoID_TipoNotificacao' => 4 // Notificações de avaliação
+            'TIpo_notificacaoID_TipoNotificacao' => 4, // Notificações de avaliação
+            'Estado_notificacaoID_estado_notificacao' => 1 // Não lida
         ]);
         
         return response()->json([
@@ -217,7 +210,7 @@ class AvaliacaoController extends Controller
      */
     public function getNotas()
     {
-        $notas = Nota::all();
+        $notas = DB::table('nota')->select('ID_Nota', 'Descricao_nota')->get();
         return response()->json($notas);
     }
     
