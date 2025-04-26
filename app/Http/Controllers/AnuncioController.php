@@ -547,7 +547,6 @@ class AnuncioController extends Controller
             'Preco' => 'required|numeric|min:0.01|max:9999.99',
             'CategoriaID_Categoria' => 'required|exists:categoria,ID_Categoria',
             'Tipo_ItemID_Tipo' => 'required|exists:tipo_item,ID_Tipo',
-            'UtilizadorID_User' => 'required|integer|exists:utilizador,ID_User',
             'imagens' => 'nullable|array',
             'imagens.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120'
         ]);
@@ -566,7 +565,7 @@ class AnuncioController extends Controller
             $aprovacao = new Aprovacao();
             $aprovacao->Data_Submissao = now();
             $aprovacao->Status_AprovacaoID_Status_Aprovacao = 1;
-            $aprovacao->UtilizadorID_Admin = 1;
+            $aprovacao->UtilizadorID_Admin = Auth::user()->ID_User; // Usar o ID do usuário autenticado
             $aprovacao->save();
 
             // Criar anúncio
@@ -577,15 +576,8 @@ class AnuncioController extends Controller
             $anuncio->CategoriaID_Categoria = $request->CategoriaID_Categoria;
             $anuncio->Tipo_ItemID_Tipo = $request->Tipo_ItemID_Tipo;
             
-            // Usar o ID do usuário enviado pelo frontend
-            $userId = $request->input('UtilizadorID_User');
-            
-            // Validar se o ID do usuário é válido
-            if (!$userId || !is_numeric($userId)) {
-                throw new \Exception('ID do usuário inválido');
-            }
-            
-            $anuncio->UtilizadorID_User = $userId;
+            // Usar o ID do usuário autenticado
+            $anuncio->UtilizadorID_User = Auth::user()->ID_User;
             $anuncio->AprovacaoID_aprovacao = $aprovacao->ID_aprovacao;
             $anuncio->Status_AnuncioID_Status_Anuncio = StatusAnuncio::STATUS_PENDENTE; // Pendente
             $anuncio->save();
