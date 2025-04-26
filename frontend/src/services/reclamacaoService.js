@@ -37,10 +37,25 @@ export const criarReclamacao = async (data) => {
         const token = localStorage.getItem('token');
         console.log('Token atual:', token ? 'Presente' : 'Ausente');
         
+        // Verificar usuário atual
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        console.log('Usuário atual:', user);
+        
+        // Configurar headers específicos para esta requisição
+        const config = {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        };
+        
+        console.log('Headers da requisição:', config.headers);
+        
         const response = await api.post('/reclamacoes', {
             compraId: data.compraId,
             descricao: data.descricao
-        });
+        }, config);
         
         console.log('Resposta da criação:', response.data); // Debug
         return response.data;
@@ -54,11 +69,18 @@ export const criarReclamacao = async (data) => {
         
         // Se for erro de autenticação
         if (error.response?.status === 401) {
+            console.log('Erro 401 - Verificando estado da autenticação:', {
+                token: !!localStorage.getItem('token'),
+                user: !!localStorage.getItem('user')
+            });
             throw new Error('Usuário não está autenticado. Por favor, faça login novamente.');
         }
         
         // Se for erro de permissão
         if (error.response?.status === 403) {
+            console.log('Erro 403 - Verificando permissões:', {
+                user: JSON.parse(localStorage.getItem('user') || '{}')
+            });
             throw new Error('Sem permissão para criar reclamação. Verifique se você é o comprador deste item.');
         }
         
@@ -94,17 +116,57 @@ export const buscarTodasReclamacoes = async () => {
 export const atualizarStatus = async (id, status_id) => {
     try {
         console.log('Atualizando status da reclamação:', { id, status_id });
+        
+        // Verificar token antes da requisição
+        const token = localStorage.getItem('token');
+        console.log('Token atual:', token ? 'Presente' : 'Ausente');
+        
+        // Verificar usuário atual
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        console.log('Usuário atual:', user);
+        
+        // Configurar headers específicos para esta requisição
+        const config = {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        };
+        
+        console.log('Headers da requisição:', config.headers);
+        
         const response = await api.patch(`/reclamacoes/${id}/status`, { 
             status_id: status_id 
-        });
+        }, config);
+        
         console.log('Resposta da atualização:', response.data);
         return response.data;
     } catch (error) {
         console.error('Erro ao atualizar status:', {
             message: error.message,
             response: error.response?.data,
-            status: error.response?.status
+            status: error.response?.status,
+            headers: error.response?.headers
         });
+        
+        // Se for erro de autenticação
+        if (error.response?.status === 401) {
+            console.log('Erro 401 - Verificando estado da autenticação:', {
+                token: !!localStorage.getItem('token'),
+                user: !!localStorage.getItem('user')
+            });
+            throw new Error('Usuário não está autenticado. Por favor, faça login novamente.');
+        }
+        
+        // Se for erro de permissão
+        if (error.response?.status === 403) {
+            console.log('Erro 403 - Verificando permissões:', {
+                user: JSON.parse(localStorage.getItem('user') || '{}')
+            });
+            throw new Error('Sem permissão para atualizar esta reclamação. Apenas o comprador ou administrador podem fazer isso.');
+        }
+        
         throw new Error(error.response?.data?.message || 'Erro ao atualizar status da reclamação');
     }
 };

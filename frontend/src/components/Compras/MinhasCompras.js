@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import CompraService from '../../services/CompraService';
+import { criarReclamacao } from '../../services/reclamacaoService';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -46,6 +47,36 @@ const MinhasCompras = () => {
             } catch (err) {
                 alert('Erro ao confirmar recebimento: ' + err.message);
             }
+        }
+    };
+
+    const handleSubmitReclamacao = async (compraId, descricao) => {
+        try {
+            // Verificar se o usuário está autenticado
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            
+            if (!token || !user.ID_User) {
+                alert('Por favor, faça login para criar uma reclamação.');
+                return;
+            }
+
+            console.log('Iniciando criação de reclamação:', {
+                compraId,
+                descricao,
+                user: user.ID_User
+            });
+
+            const response = await criarReclamacao({
+                compraId,
+                descricao
+            });
+
+            alert('Reclamação criada com sucesso!');
+            await carregarCompras(); // Recarrega a lista
+        } catch (err) {
+            console.error('Erro ao criar reclamação:', err);
+            alert(err.message || 'Erro ao criar reclamação. Por favor, tente novamente.');
         }
     };
 
