@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $UtilizadorID_User
  * @property int $ReferenciaTipoID_ReferenciaTipo
  * @property int $TIpo_notificacaoID_TipoNotificacao
+ * @property bool $Lida
  * 
  * @property Referenciatipo $referenciatipo
  * @property TipoNotificacao $tipo_notificacao
@@ -37,7 +38,8 @@ class Notificacao extends Model
 		'ReferenciaID' => 'int',
 		'UtilizadorID_User' => 'int',
 		'ReferenciaTipoID_ReferenciaTipo' => 'int',
-		'TIpo_notificacaoID_TipoNotificacao' => 'int'
+		'TIpo_notificacaoID_TipoNotificacao' => 'int',
+		'Lida' => 'boolean'
 	];
 
 	protected $fillable = [
@@ -46,7 +48,8 @@ class Notificacao extends Model
 		'ReferenciaID',
 		'UtilizadorID_User',
 		'ReferenciaTipoID_ReferenciaTipo',
-		'TIpo_notificacaoID_TipoNotificacao'
+		'TIpo_notificacaoID_TipoNotificacao',
+		'Lida'
 	];
 
 	public function referenciatipo()

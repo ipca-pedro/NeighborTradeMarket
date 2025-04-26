@@ -160,8 +160,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Rotas de notificações
     Route::get('/notificacoes', [NotificacaoController::class, 'index']);
     Route::get('/notificacoes/nao-lidas', [NotificacaoController::class, 'unread']);
-    Route::post('/notificacoes/{id}/lida', [NotificacaoController::class, 'markAsRead']);
-    Route::post('/notificacoes/todas-lidas', [NotificacaoController::class, 'markAllAsRead']);
+    Route::post('/notificacoes/{id}/marcar-lida', [NotificacaoController::class, 'markAsRead']);
+    Route::post('/notificacoes/marcar-todas-lidas', [NotificacaoController::class, 'markAllAsRead']);
     Route::delete('/notificacoes/{id}', [NotificacaoController::class, 'destroy']);
     Route::delete('/notificacoes/lidas', [NotificacaoController::class, 'deleteAllRead']);
     Route::get('/notificacoes/nao-lidas/contar', [NotificacaoController::class, 'countUnread']);
