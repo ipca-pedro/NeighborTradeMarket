@@ -29,7 +29,16 @@ class ReclamacaoController extends Controller
 
             // Get the purchase and check if user is the buyer
             $compra = Compra::findOrFail($request->compraId);
-            if ($compra->UtilizadorID_Comprador !== auth()->id()) {
+            
+            // Debug info
+            \Log::info('Tentativa de criação de reclamação:', [
+                'auth_id' => auth()->id(),
+                'auth_id_type' => gettype(auth()->id()),
+                'comprador_id' => $compra->UtilizadorID_User,
+                'comprador_id_type' => gettype($compra->UtilizadorID_User),
+            ]);
+            
+            if ((int)$compra->UtilizadorID_User !== (int)auth()->id()) {
                 return response()->json(['message' => 'Não autorizado a criar reclamação para esta compra'], 403);
             }
 
@@ -63,7 +72,7 @@ class ReclamacaoController extends Controller
             $notificacaoVendedor->Mensagem = "Nova reclamação recebida para sua venda";
             $notificacaoVendedor->DataNotificacao = now();
             $notificacaoVendedor->ReferenciaID = $reclamacao->ID_Reclamacao;
-            $notificacaoVendedor->UtilizadorID_User = $compra->UtilizadorID_Vendedor;
+            $notificacaoVendedor->UtilizadorID_User = $compra->anuncio->UtilizadorID_User;
             $notificacaoVendedor->ReferenciaTipoID_ReferenciaTipo = 4; // Assuming 4 is for "Reclamação"
             $notificacaoVendedor->TIpo_notificacaoID_TipoNotificacao = 1; // Assuming 1 is "Nova Reclamação"
             $notificacaoVendedor->save();

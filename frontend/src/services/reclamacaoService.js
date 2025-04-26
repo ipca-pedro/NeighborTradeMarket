@@ -32,7 +32,7 @@ export const enviarMensagem = async (reclamacaoId, mensagem) => {
 export const criarReclamacao = async (data) => {
     try {
         const response = await api.post('/reclamacoes', {
-            compra_id: data.compraId,
+            compraId: data.compraId,
             descricao: data.descricao
         });
         return response.data;
