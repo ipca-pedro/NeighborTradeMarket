@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property Referenciatipo $referenciatipo
  * @property TipoNotificacao $tipo_notificacao
  * @property Utilizador $utilizador
+ * @property EstadoNotificacao $estado_notificacao
  *
  * @package App\Models
  */
@@ -49,7 +50,7 @@ class Notificacao extends Model
 		'UtilizadorID_User',
 		'ReferenciaTipoID_ReferenciaTipo',
 		'TIpo_notificacaoID_TipoNotificacao',
-		'Lida'
+		'Estado_notificacaoID_estado_notificacao'
 	];
 
 	public function referenciatipo()
@@ -65,5 +66,10 @@ class Notificacao extends Model
 	public function utilizador()
 	{
 		return $this->belongsTo(Utilizador::class, 'UtilizadorID_User');
+	}
+
+	public function estado_notificacao()
+	{
+		return $this->belongsTo(EstadoNotificacao::class, 'Estado_notificacaoID_estado_notificacao');
 	}
 }

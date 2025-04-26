@@ -123,41 +123,34 @@ class TrocaController extends Controller
             ], 400);
         }
         
-        DB::beginTransaction();
-        
         try {
-            // Criar a troca
-            $troca = new Troca([
-                'DataTroca' => now(),
-                'ItemID_ItemOferecido' => $itemOferecidoId,
-                'ItemID_Solicitado' => $itemSolicitadoId,
-                'Status_TrocaID_Status_Troca' => 1 // Pendente
-            ]);
-            
+            DB::beginTransaction();
+
+            $troca = new Troca();
+            $troca->fill($request->all());
+            $troca->Data_Troca = now();
+            $troca->Status_TrocaID_Status_Troca = 1; // Pendente
             $troca->save();
-            
-            // Criar notificação para o dono do item solicitado
-            DB::table('Notificacao')->insert([
-                'Mensagem' => 'Nova proposta de troca recebida para seu anúncio: ' . $itemSolicitado->Titulo,
-                'DataNotificacao' => now(),
-                'ReferenciaID' => $troca->ID_Troca,
-                'UtilizadorID_User' => $itemSolicitado->UtilizadorID_User,
-                'ReferenciaTipoID_ReferenciaTipo' => 3, // Assumindo que 3 é para trocas
-                'TIpo_notificacaoID_TipoNotificacao' => 2 // Assumindo que 2 é para propostas de troca
-            ]);
-            
+
+            // Criar notificação para o vendedor do anúncio
+            $anuncio = Anuncio::find($troca->AnuncioID_Anuncio);
+            if ($anuncio) {
+                DB::table('Notificacao')->insert([
+                    'Mensagem' => 'Você recebeu uma nova proposta de troca para seu anúncio "' . $anuncio->Titulo . '".',
+                    'DataNotificacao' => now(),
+                    'ReferenciaID' => $troca->ID_Troca,
+                    'UtilizadorID_User' => $anuncio->UtilizadorID_User,
+                    'ReferenciaTipoID_ReferenciaTipo' => 4, // Trocas
+                    'TIpo_notificacaoID_TipoNotificacao' => 8 // Nova proposta de troca
+                ]);
+            }
+
             DB::commit();
-            
-            return response()->json([
-                'message' => 'Proposta de troca enviada com sucesso',
-                'troca' => $troca
-            ], 201);
-            
+            return response()->json($troca, 201);
+
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json([
-                'message' => 'Erro ao criar proposta de troca: ' . $e->getMessage()
-            ], 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
     
@@ -406,5 +399,53 @@ class TrocaController extends Controller
             ->get();
         
         return response()->json($trocas);
+    }
+
+    public function update(Request $request, $id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $troca = Troca::findOrFail($id);
+            $oldStatus = $troca->Status_TrocaID_Status_Troca;
+            
+            $troca->fill($request->all());
+            $troca->save();
+
+            // Se o status mudou para aceito ou rejeitado
+            if ($oldStatus != $troca->Status_TrocaID_Status_Troca) {
+                $anuncio = Anuncio::find($troca->AnuncioID_Anuncio);
+                if ($anuncio) {
+                    $mensagem = '';
+                    $tipoNotificacao = 0;
+
+                    if ($troca->Status_TrocaID_Status_Troca == 2) { // Aceita
+                        $mensagem = 'Sua proposta de troca para o anúncio "' . $anuncio->Titulo . '" foi aceita!';
+                        $tipoNotificacao = 9; // Troca aceita
+                    } elseif ($troca->Status_TrocaID_Status_Troca == 3) { // Rejeitada
+                        $mensagem = 'Sua proposta de troca para o anúncio "' . $anuncio->Titulo . '" foi rejeitada.';
+                        $tipoNotificacao = 10; // Troca rejeitada
+                    }
+
+                    if ($mensagem && $tipoNotificacao) {
+                        DB::table('Notificacao')->insert([
+                            'Mensagem' => $mensagem,
+                            'DataNotificacao' => now(),
+                            'ReferenciaID' => $troca->ID_Troca,
+                            'UtilizadorID_User' => $troca->UtilizadorID_User,
+                            'ReferenciaTipoID_ReferenciaTipo' => 4, // Trocas
+                            'TIpo_notificacaoID_TipoNotificacao' => $tipoNotificacao
+                        ]);
+                    }
+                }
+            }
+
+            DB::commit();
+            return response()->json($troca);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 }

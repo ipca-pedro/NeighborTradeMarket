@@ -312,97 +312,31 @@ class AnuncioController extends Controller
      *     )
      * )
      */
-    public function aprovarAnuncio($id)
+    public function aprovarAnuncio(Request $request, $id)
     {
         try {
-            // Log do usuário atual
-            \Log::info('Tentativa de aprovação de anúncio', [
-                'anuncio_id' => $id,
-                'user' => Auth::user(),
-                'user_id' => Auth::id(),
-                'is_authenticated' => Auth::check(),
-                'user_type' => Auth::user() ? Auth::user()->TipoUserID_TipoUser : null
-            ]);
-
-            // Verificar se o Utilizador está autenticado
-            if (!Auth::check()) {
-                return response()->json([
-                    'message' => 'Usuário não autenticado'
-                ], 401);
-            }
-
-            // Verificar se o utilizador é administrador
-            if (Auth::user()->TipoUserID_TipoUser != 1) {
-                return response()->json([
-                    'message' => 'Acesso não autorizado - Tipo de usuário inválido'
-                ], 403);
-            }
-            
             DB::beginTransaction();
-            
-            $anuncio = Anuncio::findOrFail($id);
-            
-            // Log do anúncio encontrado
-            \Log::info('Anúncio encontrado', [
-                'anuncio' => $anuncio,
-                'status_atual' => $anuncio->Status_AnuncioID_Status_Anuncio
-            ]);
-            
-            // Verificar se o anúncio já foi processado
-            if ($anuncio->Status_AnuncioID_Status_Anuncio != StatusAnuncio::STATUS_PENDENTE) {
-                DB::rollBack();
-                return response()->json([
-                    'message' => 'Este anúncio já foi processado'
-                ], 400);
-            }
-            
-            // Atualizar status do anúncio
-            $anuncio->Status_AnuncioID_Status_Anuncio = StatusAnuncio::STATUS_ATIVO;
-            $anuncio->save();
-            
-            // Atualizar status da aprovação
-            $aprovacao = Aprovacao::find($anuncio->AprovacaoID_aprovacao);
-            
-            if ($aprovacao) {
-                // Usar ID_User em vez de email
-                $adminId = Auth::user()->ID_User;
-                
-                \Log::info('Atualizando aprovação', [
-                    'admin_id' => $adminId,
-                    'aprovacao_id' => $aprovacao->ID_aprovacao
-                ]);
-                
-                $aprovacao->Status_AprovacaoID_Status_Aprovacao = 2; // Status aprovado
-                $aprovacao->Data_Aprovacao = now();
-                $aprovacao->UtilizadorID_Admin = $adminId; // Usar o ID do administrador
-                $aprovacao->save();
 
-                // Log da aprovação
-                \Log::info('Aprovação atualizada', [
-                    'aprovacao' => $aprovacao
-                ]);
-            } else {
-                \Log::warning('Aprovação não encontrada para o anúncio', [
-                    'anuncio_id' => $id,
-                    'aprovacao_id' => $anuncio->AprovacaoID_aprovacao
-                ]);
-            }
-            
-            DB::commit();
-            
-            return response()->json([
-                'message' => 'Anúncio aprovado com sucesso!'
+            $anuncio = Anuncio::findOrFail($id);
+            $anuncio->Status_AnuncioID_Status_Anuncio = 1; // Status aprovado
+            $anuncio->save();
+
+            // Criar notificação para o vendedor
+            DB::table('Notificacao')->insert([
+                'Mensagem' => 'Seu anúncio "' . $anuncio->Titulo . '" foi aprovado e está agora visível para outros usuários.',
+                'DataNotificacao' => now(),
+                'ReferenciaID' => $anuncio->ID_Anuncio,
+                'UtilizadorID_User' => $anuncio->UtilizadorID_User,
+                'ReferenciaTipoID_ReferenciaTipo' => 1, // Anúncios
+                'TIpo_notificacaoID_TipoNotificacao' => 12 // Anúncio aprovado
             ]);
+
+            DB::commit();
+            return response()->json(['message' => 'Anúncio aprovado com sucesso']);
+
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Erro ao aprovar anúncio:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'anuncio_id' => $id
-            ]);
-            return response()->json([
-                'message' => 'Erro ao aprovar anúncio: ' . $e->getMessage()
-            ], 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
     
@@ -411,72 +345,29 @@ class AnuncioController extends Controller
      */
     public function rejeitarAnuncio(Request $request, $id)
     {
-        \Log::info('Iniciando rejeitarAnuncio', [
-            'anuncio_id' => $id,
-            'request_data' => $request->all(),
-            'user' => Auth::check() ? Auth::id() : 'não autenticado'
-        ]);
-
-        if (!Auth::check() || Auth::user()->TipoUserID_TipoUser !== 1) { // Assumindo que ID 1 é para administradores
-            \Log::warning('Acesso não autorizado ao rejeitarAnuncio');
-            return response()->json([
-                'message' => 'Acesso não autorizado - Apenas administradores podem rejeitar anúncios'
-            ], 403);
-        }
-
         try {
             DB::beginTransaction();
 
             $anuncio = Anuncio::findOrFail($id);
-            \Log::info('Anúncio encontrado', ['anuncio' => $anuncio->toArray()]);
-
-            if ($anuncio->Status_AnuncioID_Status_Anuncio != StatusAnuncio::STATUS_PENDENTE) {
-                DB::rollBack();
-                return response()->json([
-                    'message' => 'Este anúncio já foi processado'
-                ], 400);
-            }
-
-            $anuncio->Status_AnuncioID_Status_Anuncio = StatusAnuncio::STATUS_REJEITADO;
+            $anuncio->Status_AnuncioID_Status_Anuncio = 2; // Status rejeitado
             $anuncio->save();
 
-            $aprovacao = Aprovacao::find($anuncio->AprovacaoID_aprovacao);
-            \Log::info('Aprovação encontrada', ['aprovacao' => $aprovacao ? $aprovacao->toArray() : 'null']);
-
-            if ($aprovacao) {
-                $aprovacao->Status_AprovacaoID_Status_Aprovacao = 3; // Status rejeitado
-                $aprovacao->Data_Aprovacao = now();
-                $aprovacao->UtilizadorID_Admin = Auth::id(); // Usando o ID do usuário autenticado
-                
-                // Se houver motivo, salva na coluna Comentario
-                if ($request->has('motivo')) {
-                    $aprovacao->Comentario = $request->motivo;
-                    \Log::info('Motivo de rejeição definido', ['motivo' => $request->motivo]);
-                }
-                
-                $aprovacao->save();
-            }
+            // Criar notificação para o vendedor
+            DB::table('Notificacao')->insert([
+                'Mensagem' => 'Seu anúncio "' . $anuncio->Titulo . '" foi rejeitado. Por favor, revise as políticas do site.',
+                'DataNotificacao' => now(),
+                'ReferenciaID' => $anuncio->ID_Anuncio,
+                'UtilizadorID_User' => $anuncio->UtilizadorID_User,
+                'ReferenciaTipoID_ReferenciaTipo' => 1, // Anúncios
+                'TIpo_notificacaoID_TipoNotificacao' => 13 // Anúncio rejeitado
+            ]);
 
             DB::commit();
-            \Log::info('Anúncio rejeitado com sucesso', ['anuncio_id' => $id]);
-
-            return response()->json([
-                'message' => 'Anúncio rejeitado com sucesso'
-            ]);
+            return response()->json(['message' => 'Anúncio rejeitado com sucesso']);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Erro ao rejeitar anúncio:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'user_id' => Auth::id(),
-                'user_type' => Auth::user()->TipoUserID_TipoUser,
-                'anuncio_id' => $id,
-                'request_data' => $request->all()
-            ]);
-            return response()->json([
-                'message' => 'Erro ao rejeitar anúncio: ' . $e->getMessage()
-            ], 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
     
@@ -1100,56 +991,6 @@ class AnuncioController extends Controller
     }
     
     /**
-     * Rejeitar um anúncio (apenas admin)
-     */
-    public function rejeitar(Request $request, $id)
-    {
-        // Verificar se o usuário está autenticado e é admin
-        if (!Auth::check() || Auth::user()->TipoUserID_TipoUser !== 1) {
-            return response()->json([
-                'message' => 'Acesso não autorizado'
-            ], 403);
-        }
-
-        $request->validate([
-            'Comentario' => 'required|string'
-        ]);
-        
-        $anuncio = Anuncio::with('aprovacao')->find($id);
-        
-        if (!$anuncio) {
-            return response()->json(['message' => 'Anúncio não encontrado'], 404);
-        }
-        
-        DB::beginTransaction();
-        
-        try {
-            // Atualizar aprovação
-            if ($anuncio->aprovacao) {
-                $anuncio->aprovacao->Data_Aprovacao = now();
-                $anuncio->aprovacao->Comentario = $request->Comentario;
-                $anuncio->aprovacao->UtilizadorID_Admin = Auth::id(); // Usando Auth::id() para obter o ID do usuário
-                $anuncio->aprovacao->Status_AprovacaoID_Status_Aprovacao = 3; // Status rejeitado
-                $anuncio->aprovacao->save();
-            }
-            
-            // Atualizar status do anúncio
-            $anuncio->Status_AnuncioID_Status_Anuncio = 3; // Status rejeitado
-            $anuncio->save();
-            
-            DB::commit();
-            
-            return response()->json(['message' => 'Anúncio rejeitado com sucesso']);
-            
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'message' => 'Erro ao rejeitar anúncio: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-    
-    /**
      * Obter todas as categorias disponíveis
      */
     public function getCategories()
@@ -1367,6 +1208,34 @@ class AnuncioController extends Controller
             ]);
             
             return false;
+        }
+    }
+
+    public function requerRevisao(Request $request, $id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $anuncio = Anuncio::findOrFail($id);
+            $anuncio->Status_AnuncioID_Status_Anuncio = 3; // Status para revisão
+            $anuncio->save();
+
+            // Criar notificação para o vendedor
+            DB::table('Notificacao')->insert([
+                'Mensagem' => 'Seu anúncio "' . $anuncio->Titulo . '" precisa de revisão. Por favor, verifique os detalhes e faça as correções necessárias.',
+                'DataNotificacao' => now(),
+                'ReferenciaID' => $anuncio->ID_Anuncio,
+                'UtilizadorID_User' => $anuncio->UtilizadorID_User,
+                'ReferenciaTipoID_ReferenciaTipo' => 1, // Anúncios
+                'TIpo_notificacaoID_TipoNotificacao' => 11 // Anúncio precisa de revisão
+            ]);
+
+            DB::commit();
+            return response()->json(['message' => 'Anúncio marcado para revisão com sucesso']);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 }

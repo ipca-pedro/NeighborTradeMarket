@@ -7,7 +7,7 @@ import LoginPopup from '../auth/LoginPopup';
 import CategoryMenu from './CategoryMenu';
 import HelpModal from '../help/HelpModal';
 import NotificationDropdown from '../notifications/NotificationDropdown';
-import { buscarMinhasNotificacoes, marcarComoLida } from '../../services/notificacaoService';
+import { notificacaoService } from '../../services/notificacaoService';
 
 const Header = () => {
     const [showLoginPopup, setShowLoginPopup] = useState(false);
@@ -26,125 +26,57 @@ const Header = () => {
     const [searchFocused, setSearchFocused] = useState(false);
     
     // Buscar notificações do servidor
+    const fetchNotifications = async () => {
+        try {
+            const response = await notificacaoService.buscarNotificacoes();
+            const formattedNotifications = response.map(notif => ({
+                id: notif.ID_Notificacao,
+                message: notif.Mensagem,
+                date: new Date(notif.DataNotificacao),
+                read: notif.Lida === 1,
+                referenceId: notif.ReferenciaID,
+                referenceType: notif.ReferenciaTipoID_ReferenciaTipo,
+                type: notif.TIpo_notificacaoID_TipoNotificacao
+            }));
+            setNotifications(formattedNotifications);
+            setUnreadCount(formattedNotifications.filter(n => !n.read).length);
+        } catch (error) {
+            console.error('Erro ao buscar notificações:', error);
+        }
+    };
+
     useEffect(() => {
-        const fetchNotifications = async () => {
-            // TEMPORARIAMENTE DESABILITADO: Problema com o backend de notificações
-            // Usando dados mock em vez de chamar a API
-            setNotifications([]);
-            return;
-            
-            /* CÓDIGO ORIGINAL COMENTADO
-            if (currentUser && currentUser.ID_User) {
-                try {
-                    // Buscar notificações reais da API
-                    const notificacoes = await buscarMinhasNotificacoes().catch(err => {
-                        console.error('Erro ao buscar notificações:', err);
-                        return [];
-                    });
-                    
-                    // Se não houver notificações ou ocorrer erro, usar array vazio
-                    if (!notificacoes || !Array.isArray(notificacoes)) {
-                        setNotifications([]);
-                        return;
-                    }
-                    
-                    // Mapear para o formato esperado pelo componente
-                    const mappedNotifications = notificacoes.map(notif => ({
-                        id: notif.ID_Notificacao,
-                        type: notif.TipoNotificacao,
-                        titulo: notif.TipoReferencia,
-                        message: notif.Mensagem,
-                        read: notif.Lida === 1,
-                        createdAt: notif.DataNotificacao
-                    }));
-                    
-                    // Adicionar notificações administrativas se for admin
-                    if (currentUser.TipoUserID_TipoUser === 1) {
-                        try {
-                            const response = await fetch('http://127.0.0.1:8000/api/admin/pending-users-count', {
-                                headers: {
-                                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                                    'Content-Type': 'application/json'
-                                }
-                            });
-                            
-                            if (response.ok) {
-                                const data = await response.json();
-                                if (data.pending_users > 0) {
-                                    mappedNotifications.push({
-                                        id: 'user-reg-1',
-                                        type: 'USER_REGISTRATION',
-                                        titulo: 'Novos utilizadores',
-                                        message: `${data.pending_users} novos pedidos de registo pendentes`,
-                                        read: false,
-                                        createdAt: new Date().toISOString()
-                                    });
-                                }
-                            }
-                        } catch (error) {
-                            console.error('Erro ao buscar contagem de usuários pendentes:', error);
-                        }
-                    }
-                    
-                    setNotifications(mappedNotifications);
-                } catch (error) {
-                    console.error('Erro ao buscar notificações:', error);
-                    // Em caso de erro, usar lista vazia
-                    setNotifications([]);
-                }
-            }
-            */
-        };
-        
-        fetchNotifications();
-        
-        // Não precisamos de polling para notificações mock
-        // const interval = setInterval(() => {
-        //     fetchNotifications().catch(error => {
-        //         console.error('Erro ao atualizar notificações automaticamente:', error);
-        //     });
-        // }, 60000); // A cada minuto
-        
-        // return () => clearInterval(interval);
+        if (currentUser && currentUser.ID_User) {
+            fetchNotifications();
+            const interval = setInterval(() => {
+                fetchNotifications();
+            }, 30000);
+            return () => clearInterval(interval);
+        }
     }, [currentUser]);
 
-    // Atualizar o contador de notificações não lidas
-    useEffect(() => {
-        setUnreadCount(notifications.filter(n => !n.read).length);
-    }, [notifications]);
-
-    const handleReadNotifications = async (notificationIds) => {
-        // Versão temporária simplificada
-        setNotifications(prevNotifications =>
-            prevNotifications.map(notification =>
-                notificationIds.includes(notification.id)
-                    ? { ...notification, read: true }
-                    : notification
-            )
-        );
-        
-        /* CÓDIGO ORIGINAL COMENTADO
-        // Para cada ID de notificação, chamar a API
-        for (const id of notificationIds) {
-            try {
-                // Ignorar IDs especiais como 'user-reg-1'
-                if (!id.toString().startsWith('user-reg')) {
-                    await marcarComoLida(id);
-                }
-            } catch (error) {
-                console.error(`Erro ao marcar notificação ${id} como lida:`, error);
-            }
+    const handleMarkAsRead = async (notificationId) => {
+        try {
+            await notificacaoService.marcarComoLida(notificationId);
+            setNotifications(notifications.map(notif => 
+                notif.id === notificationId 
+                    ? { ...notif, read: true }
+                    : notif
+            ));
+            setUnreadCount(prev => Math.max(0, prev - 1));
+        } catch (error) {
+            console.error('Erro ao marcar notificação como lida:', error);
         }
-        
-        // Atualizar o estado local independentemente de sucesso na API
-        setNotifications(prevNotifications =>
-            prevNotifications.map(notification =>
-                notificationIds.includes(notification.id)
-                    ? { ...notification, read: true }
-                    : notification
-            )
-        );
-        */
+    };
+
+    const handleMarkAllAsRead = async () => {
+        try {
+            await notificacaoService.marcarTodasComoLidas();
+            setNotifications(notifications.map(notif => ({ ...notif, read: true })));
+            setUnreadCount(0);
+        } catch (error) {
+            console.error('Erro ao marcar todas notificações como lidas:', error);
+        }
     };
 
     const handleSearch = (e) => {
@@ -270,7 +202,7 @@ const Header = () => {
                                 <>
                                     <NotificationDropdown 
                                         notifications={notifications}
-                                        onRead={handleReadNotifications}
+                                        onRead={handleMarkAsRead}
                                     />
                                     <div className="text-center p-2 border-top">
                                         <Link 

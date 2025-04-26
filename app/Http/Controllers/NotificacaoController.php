@@ -106,7 +106,7 @@ class NotificacaoController extends Controller
         try {
             $user = auth()->user();
             $notificacoes = Notificacao::where('UtilizadorID_User', $user->ID_User)
-                ->where('Lida', false)
+                ->where('Estado_notificacaoID_estado_notificacao', 1) // 1 = Não Lida
                 ->orderBy('DataNotificacao', 'desc')
                 ->get();
 
@@ -163,7 +163,7 @@ class NotificacaoController extends Controller
                 ->where('UtilizadorID_User', $user->ID_User)
                 ->firstOrFail();
 
-            $notificacao->update(['Lida' => true]);
+            $notificacao->update(['Estado_notificacaoID_estado_notificacao' => 2]); // ID 2 = Lida
 
             return response()->json(['message' => 'Notificação marcada como lida']);
         } catch (ModelNotFoundException $e) {
@@ -204,8 +204,8 @@ class NotificacaoController extends Controller
         try {
             $user = auth()->user();
             Notificacao::where('UtilizadorID_User', $user->ID_User)
-                ->where('Lida', false)
-                ->update(['Lida' => true]);
+                ->where('Estado_notificacaoID_estado_notificacao', 1) // ID 1 = Não Lida
+                ->update(['Estado_notificacaoID_estado_notificacao' => 2]); // ID 2 = Lida
 
             return response()->json(['message' => 'Todas as notificações marcadas como lidas']);
         } catch (\Exception $e) {
@@ -310,7 +310,7 @@ class NotificacaoController extends Controller
         // Excluir todas as notificações lidas do utilizador
         $count = DB::table('Notificacao')
             ->where('UtilizadorID_User', $userId)
-            ->where('Lida', 1)
+            ->where('Estado_notificacaoID_estado_notificacao', 2) // 2 = Lida
             ->delete();
         
         return response()->json([
@@ -349,7 +349,7 @@ class NotificacaoController extends Controller
         
         $count = DB::table('Notificacao')
             ->where('UtilizadorID_User', $userId)
-            ->where('Lida', 0)
+            ->where('Estado_notificacaoID_estado_notificacao', 1) // 1 = Não Lida
             ->count();
         
         return response()->json([
@@ -430,7 +430,7 @@ class NotificacaoController extends Controller
         // Marcar como lida ao visualizar detalhes
         DB::table('Notificacao')
             ->where('ID_Notificacao', $id)
-            ->update(['Lida' => 1]);
+            ->update(['Estado_notificacaoID_estado_notificacao' => 2]); // 2 = Lida
         
         // Buscar detalhes adicionais com base no tipo de referência
         $detalhes = null;

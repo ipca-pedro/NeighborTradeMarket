@@ -92,7 +92,11 @@ const LoginPopup = ({ onClose }) => {
                         <Link 
                             to="/registar" 
                             className="d-block fw-bold text-decoration-none"
-                            onClick={onClose}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                onClose();
+                                window.location.href = '/registar';
+                            }}
                         >
                             CRIAR CONTA
                         </Link>

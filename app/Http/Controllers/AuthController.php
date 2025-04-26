@@ -355,13 +355,14 @@ class AuthController extends Controller
             // Criar notificação para todos os admins
             $admins = Utilizador::where('TipoUserID_TipoUser', 1)->get();
             foreach ($admins as $admin) {
-                Notificacao::create([
+                DB::table('notificacao')->insert([
                     'Mensagem' => 'Novo pedido de registo pendente: ' . $user->Name,
                     'DataNotificacao' => now(),
                     'ReferenciaID' => $user->ID_User,
                     'UtilizadorID_User' => $admin->ID_User,
                     'ReferenciaTipoID_ReferenciaTipo' => 1, // Utilizador
-                    'TIpo_notificacaoID_TipoNotificacao' => 1 // Registo de Utilizador
+                    'TIpo_notificacaoID_TipoNotificacao' => 1, // Registo de Utilizador
+                    'Estado_notificacaoID_estado_notificacao' => 1 // Não lida
                 ]);
             }
             
