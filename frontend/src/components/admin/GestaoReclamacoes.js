@@ -3,7 +3,6 @@ import { Container, Table, Button, Badge, Spinner, Alert, Card, OverlayTrigger, 
 import { buscarTodasReclamacoes, atualizarStatus } from '../../services/reclamacaoService';
 import { formatarData } from '../../utils/dataUtils';
 import Header from '../layout/Header';
-import Footer from '../layout/Footer';
 
 const GestaoReclamacoes = () => {
     const [reclamacoes, setReclamacoes] = useState([]);
@@ -306,7 +305,6 @@ const GestaoReclamacoes = () => {
                     </Card.Body>
                 </Card>
             </Container>
-            <Footer />
         </>
     );
 };

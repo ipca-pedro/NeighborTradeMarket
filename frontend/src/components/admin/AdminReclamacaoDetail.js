@@ -4,7 +4,6 @@ import { Container, Card, Row, Col, Badge, Button, Alert, Spinner, Modal } from 
 import { buscarReclamacaoPorId, atualizarStatus, buscarMensagens, enviarMensagem } from '../../services/reclamacaoService';
 import { formatarData } from '../../utils/dataUtils';
 import Header from '../layout/Header';
-import Footer from '../layout/Footer';
 
 const AdminReclamacaoDetail = () => {
     const { id } = useParams();
@@ -108,7 +107,6 @@ const AdminReclamacaoDetail = () => {
                     <Spinner animation="border" variant="primary" />
                     <p className="mt-3">Carregando detalhes da reclamação...</p>
                 </Container>
-                <Footer />
             </>
         );
     }
@@ -130,7 +128,6 @@ const AdminReclamacaoDetail = () => {
                         </Button>
                     </Alert>
                 </Container>
-                <Footer />
             </>
         );
     }
@@ -152,7 +149,6 @@ const AdminReclamacaoDetail = () => {
                         </Button>
                     </Alert>
                 </Container>
-                <Footer />
             </>
         );
     }
@@ -314,8 +310,6 @@ const AdminReclamacaoDetail = () => {
                     </Button>
                 </Modal.Footer>
             </Modal>
-            
-            <Footer />
         </>
     );
 };

@@ -4,6 +4,7 @@ import { Container, Row, Col, Card, Button, Form, Carousel, Spinner, Alert } fro
 import { Link } from 'react-router-dom';
 import Header from '../layout/Header';
 import './HomePage.css';
+import { getImageUrl } from '../../services/api';
 
 // Categorias estáticas correspondentes ao banco de dados
 const staticCategories = [
@@ -54,7 +55,7 @@ const HomePage = () => {
 
     // Função para renderizar um anúncio
     const renderAnuncio = (anuncio) => (
-        <Col key={anuncio.ID_Item} xs={12} md={4} lg={3} className="mb-4">
+        <Col key={anuncio.ID_Anuncio} xs={12} md={4} lg={3} className="mb-4">
             <Card className="product-card h-100 shadow-sm">
                 {anuncio.desconto && (
                     <div className="position-absolute top-0 end-0 bg-warning text-white p-2 m-2 rounded-circle">
@@ -64,7 +65,9 @@ const HomePage = () => {
                 <div className="product-image-container">
                     <Card.Img 
                         variant="top" 
-                        src={anuncio.imagens?.[0]?.URL || '/images/no-image.jpg'} 
+                        src={anuncio.item_imagems && anuncio.item_imagems.length > 0 
+                            ? getImageUrl(anuncio.item_imagems[0]) 
+                            : '/images/no-image.jpg'} 
                         alt={anuncio.Titulo}
                         className="product-image"
                     />
@@ -75,11 +78,11 @@ const HomePage = () => {
                         <span className="product-price">{parseFloat(anuncio.Preco).toFixed(2)}€</span>
                     </div>
                     <Card.Text className="product-description text-muted mb-3">
-                        {anuncio.Descricao.substring(0, 80)}...
+                        {anuncio.Descricao?.substring(0, 80)}...
                     </Card.Text>
                     <Button 
                         as={Link} 
-                        to={`/anuncios/${anuncio.ID_Item}`} 
+                        to={`/anuncios/${anuncio.ID_Anuncio}`} 
                         variant="primary"
                         className="mt-auto"
                         style={{ backgroundColor: '#F97316', borderColor: '#F97316' }}
@@ -107,7 +110,7 @@ const HomePage = () => {
                 ) : (
                     <Carousel>
                         {produtosDestaque.map((produto, index) => (
-                            <Carousel.Item key={produto.ID_Item || index}>
+                            <Carousel.Item key={produto.ID_Anuncio || index}>
                                 <div className="d-flex align-items-center" style={{ backgroundColor: '#f0f0f0', height: '500px' }}>
                                     <Container>
                                         <Row className="align-items-center">
@@ -115,7 +118,7 @@ const HomePage = () => {
                                                 <div className="hero-content">
                                                     <h1 className="mb-3">PRODUTO EM DESTAQUE</h1>
                                                     <h2 className="mb-4">{produto.Titulo}</h2>
-                                                    <p className="mb-4">{produto.Descricao.substring(0, 120)}...</p>
+                                                    <p className="mb-4">{produto.Descricao?.substring(0, 120)}...</p>
                                                     <div className="price-container mb-4">
                                                         <span className="product-price" style={{ fontSize: '1.5rem' }}>{parseFloat(produto.Preco).toFixed(2)}€</span>
                                                     </div>
@@ -123,7 +126,7 @@ const HomePage = () => {
                                                         variant="primary" 
                                                         size="lg"
                                                         as={Link}
-                                                        to={`/anuncios/${produto.ID_Item}`}
+                                                        to={`/anuncios/${produto.ID_Anuncio}`}
                                                         className="px-4 py-2"
                                                         style={{ backgroundColor: '#F97316', borderColor: '#F97316' }}
                                                     >
@@ -133,7 +136,9 @@ const HomePage = () => {
                                             </Col>
                                             <Col md={6} className="text-center">
                                                 <img 
-                                                    src={produto.imagens?.[0]?.URL || '/images/no-image.jpg'} 
+                                                    src={produto.item_imagems && produto.item_imagems.length > 0 
+                                                        ? getImageUrl(produto.item_imagems[0]) 
+                                                        : '/images/no-image.jpg'} 
                                                     alt={produto.Titulo} 
                                                     className="img-fluid"
                                                     style={{ maxHeight: '400px', objectFit: 'contain' }}
@@ -199,7 +204,7 @@ const HomePage = () => {
                     ) : (
                         <Row>
                             {produtos.map((produto, index) => (
-                                <React.Fragment key={produto.ID_Item || `produto-${index}`}>
+                                <React.Fragment key={produto.ID_Anuncio || `produto-${index}`}>
                                     {renderAnuncio(produto)}
                                 </React.Fragment>
                             ))}
@@ -225,7 +230,7 @@ const HomePage = () => {
                     ) : (
                         <Row>
                             {servicos.map((servico, index) => (
-                                <React.Fragment key={servico.ID_Item || `servico-${index}`}>
+                                <React.Fragment key={servico.ID_Anuncio || `servico-${index}`}>
                                     {renderAnuncio(servico)}
                                 </React.Fragment>
                             ))}
