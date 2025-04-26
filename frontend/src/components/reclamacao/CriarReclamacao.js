@@ -15,7 +15,10 @@ const CriarReclamacao = ({ compraId, onSuccess, onCancel }) => {
 
         setLoading(true);
         try {
-            await criarReclamacao(compraId, descricao);
+            await criarReclamacao({
+                compraId: compraId,
+                descricao: descricao
+            });
             toast.success('Reclamação criada com sucesso!');
             onSuccess();
         } catch (error) {
