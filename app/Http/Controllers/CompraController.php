@@ -17,9 +17,18 @@ class CompraController extends Controller
      */
     public function index()
     {
-        $user = Auth::user();
-        $compras = Compra::with(['anuncio.status_anuncio', 'utilizador'])
-            ->where('UtilizadorID_User', $user->ID_User)
+        $userId = Auth::user()->ID_User;
+        
+        $compras = Compra::where('UtilizadorID_User', $userId)
+            ->with([
+                'anuncio',
+                'anuncio.utilizador',
+                'avaliacao',
+                'reclamacao',
+                'anuncio.imagens' => function($query) {
+                    $query->orderBy('ID_Imagem', 'asc')->limit(1);
+                }
+            ])
             ->orderBy('Data', 'desc')
             ->get();
 
@@ -390,31 +399,15 @@ class CompraController extends Controller
             $user = Auth::user();
             
             // Buscar todas as compras do usuário com relacionamentos
-            $compras = Compra::with(['anuncio.status_anuncio'])
+            $compras = Compra::with([
+                    'anuncio.status_anuncio',
+                    'anuncio.utilizador',
+                    'avaliacoes',
+                    'reclamacoes'
+                ])
                 ->where('UtilizadorID_User', $user->ID_User)
                 ->orderBy('Data', 'desc')
-                ->get()
-                ->map(function ($compra) {
-                    // Verificar se o anúncio existe
-                    if (!$compra->anuncio) {
-                        return null;
-                    }
-
-                    return [
-                        'ID_Compra' => $compra->ID_Compra,
-                        'Data_compra' => $compra->Data,
-                        'Status' => 'Pendente', // Status padrão por enquanto
-                        'anuncio' => [
-                            'ID_Anuncio' => $compra->anuncio->ID_Anuncio,
-                            'Titulo' => $compra->anuncio->Titulo,
-                            'Preco' => $compra->anuncio->Preco,
-                            'Descricao' => $compra->anuncio->Descricao,
-                            'Status' => $compra->anuncio->status_anuncio->Descricao_status_anuncio
-                        ]
-                    ];
-                })
-                ->filter() // Remove itens nulos
-                ->values(); // Reindexar array
+                ->get();
 
             return response()->json($compras);
             

@@ -606,6 +606,7 @@ class AnuncioController extends Controller
     {
         $anuncio = Anuncio::with([
             'utilizador.morada',
+            'utilizador.avaliacoes_recebidas',
             'categorium',
             'tipo_item',
             'item_imagems.imagem',
@@ -615,6 +616,17 @@ class AnuncioController extends Controller
         
         if (!$anuncio) {
             return response()->json(['message' => 'Anúncio não encontrado'], 404);
+        }
+
+        // Calcular média das avaliações do vendedor
+        if ($anuncio->utilizador) {
+            $avaliacoes = $anuncio->utilizador->avaliacoes_recebidas;
+            if ($avaliacoes->count() > 0) {
+                $media = $avaliacoes->avg('nota.valor');
+                $anuncio->utilizador->media_avaliacoes = round($media, 1);
+            } else {
+                $anuncio->utilizador->media_avaliacoes = 0;
+            }
         }
         
         return response()->json($anuncio);

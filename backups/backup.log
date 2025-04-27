@@ -195,3 +195,45 @@ Tabelas incluídas no backup:
 2025-04-26 18:55:58 [INFO] - tipouser
 2025-04-26 18:55:58 [INFO] - troca
 2025-04-26 18:55:58 [INFO] - utilizador
+2025-04-27 21:09:28 [INFO] Iniciando backup...
+2025-04-27 21:09:28 [INFO] Comando: "C:\xampp\mysql\bin\mysqldump.exe" --opt --user="root" --host="localhost" --complete-insert --skip-extended-insert --routines --triggers --default-character-set=utf8mb4 "db_nt" > "C:\xampp\htdocs\NT/backups/backup_2025-04-27_21-09-28.sql" 2>&1
+2025-04-27 21:09:31 [INFO] Backup realizado com sucesso: backup_2025-04-27_21-09-28.sql
+2025-04-27 21:09:31 [INFO] Número de INSERTs no backup: 428
+2025-04-27 21:09:31 [INFO] 
+Tabelas incluídas no backup:
+2025-04-27 21:09:31 [INFO] - anuncio
+2025-04-27 21:09:31 [INFO] - aprovacao
+2025-04-27 21:09:31 [INFO] - avaliacao
+2025-04-27 21:09:31 [INFO] - cache
+2025-04-27 21:09:31 [INFO] - cache_locks
+2025-04-27 21:09:31 [INFO] - cartao
+2025-04-27 21:09:31 [INFO] - categoria
+2025-04-27 21:09:31 [INFO] - compra
+2025-04-27 21:09:31 [INFO] - compra_reclamacao
+2025-04-27 21:09:31 [INFO] - estado_notificacao
+2025-04-27 21:09:31 [INFO] - failed_jobs
+2025-04-27 21:09:31 [INFO] - imagem
+2025-04-27 21:09:31 [INFO] - item_imagem
+2025-04-27 21:09:31 [INFO] - jobs
+2025-04-27 21:09:31 [INFO] - mensagem
+2025-04-27 21:09:31 [INFO] - mensagem_utilizador
+2025-04-27 21:09:31 [INFO] - morada
+2025-04-27 21:09:31 [INFO] - nota
+2025-04-27 21:09:31 [INFO] - notificacao
+2025-04-27 21:09:31 [INFO] - pagamento
+2025-04-27 21:09:31 [INFO] - personal_access_tokens
+2025-04-27 21:09:31 [INFO] - reclamacao
+2025-04-27 21:09:31 [INFO] - referenciatipo
+2025-04-27 21:09:31 [INFO] - sessions
+2025-04-27 21:09:31 [INFO] - status_anuncio
+2025-04-27 21:09:31 [INFO] - status_aprovacao
+2025-04-27 21:09:31 [INFO] - status_mensagem
+2025-04-27 21:09:31 [INFO] - status_reclamacao
+2025-04-27 21:09:31 [INFO] - status_troca
+2025-04-27 21:09:31 [INFO] - status_utilizador
+2025-04-27 21:09:31 [INFO] - tipo_item
+2025-04-27 21:09:31 [INFO] - tipo_notificacao
+2025-04-27 21:09:31 [INFO] - tipouser
+2025-04-27 21:09:31 [INFO] - troca
+2025-04-27 21:09:31 [INFO] - utilizador
+2025-04-27 21:09:31 [INFO] Backup antigo removido: backup_2025-04-22_15-57-20.sql

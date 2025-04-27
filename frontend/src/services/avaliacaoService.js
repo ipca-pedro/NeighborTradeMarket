@@ -1,60 +1,18 @@
 import api from './api';
 
-export const criarAvaliacao = async (dados) => {
+export const criarAvaliacao = async (data) => {
     try {
-        // Log dos dados enviados
-        console.log('Dados da avaliação sendo enviados:', dados);
-        
-        // Verificar token e usuário
-        const token = localStorage.getItem('token');
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        
-        console.log('Debug avaliação:', {
-            token: !!token,
-            userId: user.ID_User,
-            compraId: dados.compra_id
-        });
-
-        // Verificar se temos o ID do usuário
-        if (!user.ID_User) {
-            throw new Error('ID do usuário não encontrado. Por favor, faça login novamente.');
-        }
-
-        // Log do estado da requisição
-        console.log('Iniciando requisição POST para /avaliacoes/compra');
-        
-        const response = await api.post('/avaliacoes/compra', dados);
-        console.log('Resposta da API:', response);
-        
+        const response = await api.post('/avaliacoes', data);
         return response.data;
     } catch (error) {
-        console.error('Erro detalhado ao criar avaliação:', {
-            message: error.message,
-            response: error.response?.data,
-            status: error.response?.status,
-            headers: error.response?.headers,
-            config: error.config
-        });
-        
-        // Se for erro de validação
-        if (error.response?.status === 422) {
-            const mensagem = error.response.data?.message || 
-                           Object.values(error.response.data?.errors || {}).flat().join(', ');
-            throw new Error(mensagem || 'Dados inválidos para avaliação');
-        }
-        
-        // Se for erro de autorização
-        if (error.response?.status === 403) {
-            throw new Error('Você não tem permissão para avaliar esta compra. Verifique se você é o comprador.');
-        }
-        
         throw new Error(error.response?.data?.message || 'Erro ao criar avaliação');
     }
 };
 
-export const buscarAvaliacoesRecebidas = async () => {
+export const buscarAvaliacoesRecebidas = async (vendedorId) => {
     try {
-        const response = await api.get('/avaliacoes/recebidas');
+        const response = await api.get(`/avaliacoes/recebidas/${vendedorId}`);
+        console.log('Avaliações recebidas:', response.data);
         return response.data;
     } catch (error) {
         console.error('Erro ao buscar avaliações recebidas:', error);
@@ -109,5 +67,23 @@ export const buscarAvaliacoesPendentes = async () => {
     } catch (error) {
         console.error('Erro ao buscar avaliações pendentes:', error);
         throw error.response?.data?.message || 'Erro ao buscar avaliações pendentes';
+    }
+};
+
+export const buscarAvaliacoesVendedor = async (vendedorId) => {
+    try {
+        const response = await api.get(`/avaliacoes/vendedor/${vendedorId}`);
+        return response.data;
+    } catch (error) {
+        throw new Error(error.response?.data?.message || 'Erro ao buscar avaliações do vendedor');
+    }
+};
+
+export const buscarAvaliacaoPorCompra = async (compraId) => {
+    try {
+        const response = await api.get(`/avaliacoes/compra/${compraId}`);
+        return response.data;
+    } catch (error) {
+        throw new Error(error.response?.data?.message || 'Erro ao buscar avaliação');
     }
 };

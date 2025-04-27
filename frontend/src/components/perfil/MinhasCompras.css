@@ -127,4 +127,30 @@ textarea.form-control {
         padding-top: 1rem;
         padding-left: 0 !important;
     }
+}
+
+.minhas-compras .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.minhas-compras .btn-link {
+    text-decoration: none;
+}
+
+.minhas-compras .btn-link:hover {
+    text-decoration: underline;
+}
+
+.avaliacoes-list {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.avaliacoes-list .card {
+    border-left: 4px solid #ffc107;
+}
+
+.avaliacoes-list .text-warning {
+    color: #ffc107 !important;
 } 

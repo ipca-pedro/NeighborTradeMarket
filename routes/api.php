@@ -158,6 +158,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/avaliacoes/{id}/responder', [AvaliacaoController::class, 'respondToRating']);
     Route::get('/avaliacoes/pendentes', [AvaliacaoController::class, 'getPendingRatings']);
     Route::get('/avaliacoes/estatisticas/{userId?}', [AvaliacaoController::class, 'getUserStats']);
+    Route::get('/avaliacoes/vendedor/{vendedorId}', [AvaliacaoController::class, 'avaliacoesVendedor']);
     
     // Rotas de notificações
     Route::get('/notificacoes', [NotificacaoController::class, 'index']);

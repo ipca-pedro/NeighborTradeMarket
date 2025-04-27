@@ -55,12 +55,12 @@ class Compra extends Model
 		return $this->belongsTo(Anuncio::class, 'AnuncioID_Anuncio', 'ID_Anuncio');
 	}
 
-	public function avaliacaos()
+	public function avaliacoes()
 	{
 		return $this->hasMany(Avaliacao::class, 'OrdemID_Produto');
 	}
 
-	public function reclamacaos()
+	public function reclamacoes()
 	{
 		return $this->belongsToMany(Reclamacao::class, 'compra_reclamacao', 'CompraID_Compra', 'ReclamacaoID_Reclamacao');
 	}

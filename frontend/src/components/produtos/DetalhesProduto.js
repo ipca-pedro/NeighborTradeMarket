@@ -8,7 +8,8 @@ import { toast } from 'react-toastify';
 import Header from '../layout/Header';
 import UserToUserChat from '../chat/UserToUserChat';
 import IniciarCompra from '../Compras/IniciarCompra';
-import { FaHeart, FaRegHeart, FaMapMarkerAlt, FaCalendarAlt, FaUser, FaExchangeAlt, FaDollarSign, FaWhatsapp, FaEnvelope, FaImage } from 'react-icons/fa';
+import { FaHeart, FaRegHeart, FaMapMarkerAlt, FaCalendarAlt, FaUser, FaExchangeAlt, FaDollarSign, FaWhatsapp, FaEnvelope, FaImage, FaStar } from 'react-icons/fa';
+import AvaliacoesVendedor from '../avaliacao/AvaliacoesVendedor';
 import './DetalhesProduto.css';
 
 // Fallback image if image loading fails
@@ -28,6 +29,7 @@ const DetalhesProduto = () => {
     const [meusAnuncios, setMeusAnuncios] = useState([]);
     const [loadingMeusAnuncios, setLoadingMeusAnuncios] = useState(false);
     const [selectedImg, setSelectedImg] = useState(0);
+    const [showAvaliacoesModal, setShowAvaliacoesModal] = useState(false);
 
     useEffect(() => {
         carregarAnuncio();
@@ -245,19 +247,26 @@ const DetalhesProduto = () => {
                                         </div>
                                         <div className="mb-4">
                                             <h5 className="mb-1">Vendedor</h5>
-                                            <div className="d-flex align-items-center gap-2">
+                                            <Button 
+                                                variant="link" 
+                                                className="p-0 d-flex align-items-center gap-2"
+                                                onClick={() => setShowAvaliacoesModal(true)}
+                                            >
                                                 <i className="fas fa-user-circle fa-lg text-primary"></i>
                                                 <span style={{fontWeight: 500}}>{anuncio.utilizador?.Name || 'Não disponível'}</span>
-                                                {/* Avaliação em estrelas (placeholder) */}
-                                                <span title="Avaliação do vendedor">
-                                                    <i className="fas fa-star text-warning"></i>
-                                                    <i className="fas fa-star text-warning"></i>
-                                                    <i className="fas fa-star text-warning"></i>
-                                                    <i className="fas fa-star-half-alt text-warning"></i>
-                                                    <i className="far fa-star text-warning"></i>
-                                                    <span className="ms-2 text-muted" style={{fontSize: '0.95rem'}}>(4.5)</span>
-                                                </span>
-                                            </div>
+                                                <div className="d-flex align-items-center ms-2">
+                                                    {[...Array(5)].map((_, index) => (
+                                                        <FaStar
+                                                            key={index}
+                                                            className={index < Math.round(anuncio.utilizador?.media_avaliacoes || 0) ? 'text-warning' : 'text-muted'}
+                                                            size={16}
+                                                        />
+                                                    ))}
+                                                    <span className="ms-1 text-muted">
+                                                        ({anuncio.utilizador?.media_avaliacoes?.toFixed(1) || '0.0'})
+                                                    </span>
+                                                </div>
+                                            </Button>
                                         </div>
                                         {/* Botões de compra e mensagem */}
                                         {!currentUser ? (
@@ -453,6 +462,19 @@ const DetalhesProduto = () => {
                             ))}
                         </Row>
                     )}
+                </Modal.Body>
+            </Modal>
+            {/* Modal de Avaliações do Vendedor */}
+            <Modal 
+                show={showAvaliacoesModal} 
+                onHide={() => setShowAvaliacoesModal(false)}
+                size="lg"
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Avaliações de {anuncio?.utilizador?.Name}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <AvaliacoesVendedor vendedor={anuncio?.utilizador} />
                 </Modal.Body>
             </Modal>
         </>

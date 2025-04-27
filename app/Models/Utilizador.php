@@ -140,6 +140,21 @@ class Utilizador extends Authenticatable
 		return $this->hasMany(Notificacao::class, 'UtilizadorID_User');
 	}
 
+	public function avaliacoes_recebidas()
+	{
+		return $this->hasManyThrough(
+			Avaliacao::class,    // Final model we want to access
+			Compra::class,       // Intermediate model
+			'AnuncioID_Anuncio', // Foreign key on Compra table
+			'Id_Avaliacao',      // Foreign key on Avaliacao table
+			'ID_User',           // Local key on Utilizador table
+			'ID_Compra'          // Local key on intermediate table (Compra)
+		)->join('anuncio', function($join) {
+			$join->on('Compra.AnuncioID_Anuncio', '=', 'anuncio.ID_Anuncio')
+				 ->where('anuncio.UtilizadorID_User', '=', $this->ID_User);
+		})->select('avaliacao.*');
+	}
+
 	/**
      * Get the password for the user.
      *

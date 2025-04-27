@@ -325,4 +325,27 @@ class AvaliacaoController extends Controller
             'distribuicao_notas' => $distribuicaoNotas
         ]);
     }
+    
+    /**
+     * Buscar avaliações de um vendedor específico
+     */
+    public function avaliacoesVendedor($vendedorId)
+    {
+        try {
+            $avaliacoes = Avaliacao::whereHas('compra', function($query) use ($vendedorId) {
+                    $query->whereHas('anuncio', function($q) use ($vendedorId) {
+                        $q->where('UtilizadorID_User', $vendedorId);
+                    });
+                })
+                ->with(['nota', 'compra', 'compra.anuncio', 'compra.utilizador'])
+                ->orderBy('Data_Avaliacao', 'desc')
+                ->get();
+
+            return response()->json($avaliacoes);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erro ao buscar avaliações do vendedor: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }
