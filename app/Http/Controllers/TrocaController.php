@@ -90,7 +90,7 @@ class TrocaController extends Controller
                 'error_code' => 'USER_NOT_AUTHENTICATED'
             ], 401);
         }
-        $userId = $user->ID_User; // Usar ID_User em vez de Auth::id()
+        $userId = $user->ID_User;
 
         $itemOferecidoId = $request->item_oferecido_id;
         $itemSolicitadoId = $request->item_solicitado_id;
@@ -102,7 +102,7 @@ class TrocaController extends Controller
         // Log detalhado para debug
         \Log::info('Tentativa de troca - Detalhes completos:', [
             'user_id' => $userId,
-            'user_email' => $user->Email, // Adicionado para debug
+            'user_email' => $user->Email,
             'item_oferecido' => [
                 'id' => $itemOferecidoId,
                 'dono_id' => $itemOferecido->UtilizadorID_User,
@@ -197,6 +197,7 @@ class TrocaController extends Controller
         try {
             DB::beginTransaction();
 
+            // Criar a troca
             $troca = new Troca();
             $troca->ItemID_ItemOferecido = $itemOferecidoId;
             $troca->ItemID_Solicitado = $itemSolicitadoId;
@@ -204,6 +205,12 @@ class TrocaController extends Controller
             $troca->Status_TrocaID_Status_Troca = 1; // Pendente
             $troca->save();
 
+            // Atualizar status dos anúncios para reservado
+            $itemOferecido->Status_AnuncioID_Status_Anuncio = 8; // Reservado
+            $itemSolicitado->Status_AnuncioID_Status_Anuncio = 8; // Reservado
+            $itemOferecido->save();
+            $itemSolicitado->save();
+            
             // Criar notificação para o dono do item solicitado
             DB::table('Notificacao')->insert([
                 'Mensagem' => 'Você recebeu uma nova proposta de troca para seu anúncio "' . $itemSolicitado->Titulo . '".',
@@ -214,19 +221,19 @@ class TrocaController extends Controller
                 'TIpo_notificacaoID_TipoNotificacao' => 9, // Nova proposta de troca
                 'Estado_notificacaoID_estado_notificacao' => 1 // Não Lida
             ]);
-
+            
             DB::commit();
             
             \Log::info('Troca criada com sucesso:', [
                 'troca_id' => $troca->ID_Troca,
                 'user_id' => $userId
             ]);
-
+            
             return response()->json([
                 'message' => 'Proposta de troca criada com sucesso',
                 'troca' => $troca
             ], 201);
-
+            
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Erro ao criar troca:', [
@@ -245,33 +252,23 @@ class TrocaController extends Controller
      */
     public function accept($id)
     {
-        $userId = Auth::id();
+        $user = auth()->user();
         
-        $troca = Troca::findOrFail($id);
+        $troca = Troca::with(['anuncioOferecido', 'anuncioSolicitado'])
+            ->findOrFail($id);
         
         // Verificar se a troca está pendente
-        if ($troca->Status_TrocaID_Status_Troca != 1) { // Pendente
+        if ($troca->Status_TrocaID_Status_Troca != 1) {
             return response()->json([
                 'message' => 'Esta troca não está pendente'
             ], 400);
         }
         
         // Verificar se o utilizador é o dono do item solicitado
-        $itemSolicitado = Anuncio::findOrFail($troca->ItemID_Solicitado);
-        
-        if ($itemSolicitado->UtilizadorID_User != $userId) {
+        if ($troca->anuncioSolicitado->UtilizadorID_User != $user->ID_User) {
             return response()->json([
                 'message' => 'Você não é o dono do item solicitado'
             ], 403);
-        }
-        
-        // Verificar se os itens ainda estão disponíveis
-        $itemOferecido = Anuncio::findOrFail($troca->ItemID_ItemOferecido);
-        
-        if ($itemOferecido->Status_AnuncioID_Status_Anuncio != 1 || $itemSolicitado->Status_AnuncioID_Status_Anuncio != 1) {
-            return response()->json([
-                'message' => 'Um ou ambos os itens não estão mais disponíveis'
-            ], 400);
         }
         
         DB::beginTransaction();
@@ -281,21 +278,21 @@ class TrocaController extends Controller
             $troca->Status_TrocaID_Status_Troca = 2; // Aceita
             $troca->save();
             
-            // Atualizar status dos anúncios para indisponíveis/trocados
-            $itemOferecido->Status_AnuncioID_Status_Anuncio = 4; // Trocado
-            $itemSolicitado->Status_AnuncioID_Status_Anuncio = 4; // Trocado
+            // Atualizar status dos anúncios para trocados
+            $troca->anuncioOferecido->Status_AnuncioID_Status_Anuncio = 4; // Trocado
+            $troca->anuncioSolicitado->Status_AnuncioID_Status_Anuncio = 4; // Trocado
             
-            $itemOferecido->save();
-            $itemSolicitado->save();
+            $troca->anuncioOferecido->save();
+            $troca->anuncioSolicitado->save();
             
             // Criar notificação para o dono do item oferecido
             DB::table('Notificacao')->insert([
-                'Mensagem' => 'Sua proposta de troca foi aceita para o anúncio: ' . $itemSolicitado->Titulo,
+                'Mensagem' => 'Sua proposta de troca foi aceite para o anúncio: ' . $troca->anuncioSolicitado->Titulo,
                 'DataNotificacao' => now(),
                 'ReferenciaID' => $troca->ID_Troca,
-                'UtilizadorID_User' => $itemOferecido->UtilizadorID_User,
-                'ReferenciaTipoID_ReferenciaTipo' => 3, // Trocas
-                'TIpo_notificacaoID_TipoNotificacao' => 2, // Propostas de troca
+                'UtilizadorID_User' => $troca->anuncioOferecido->UtilizadorID_User,
+                'ReferenciaTipoID_ReferenciaTipo' => 4, // Trocas
+                'TIpo_notificacaoID_TipoNotificacao' => 9, // Nova proposta de troca
                 'Estado_notificacaoID_estado_notificacao' => 1 // Não Lida
             ]);
             
@@ -319,21 +316,20 @@ class TrocaController extends Controller
      */
     public function reject($id)
     {
-        $userId = Auth::id();
+        $user = auth()->user();
         
-        $troca = Troca::findOrFail($id);
+        $troca = Troca::with(['anuncioOferecido', 'anuncioSolicitado'])
+            ->findOrFail($id);
         
         // Verificar se a troca está pendente
-        if ($troca->Status_TrocaID_Status_Troca != 1) { // Pendente
+        if ($troca->Status_TrocaID_Status_Troca != 1) {
             return response()->json([
                 'message' => 'Esta troca não está pendente'
             ], 400);
         }
         
         // Verificar se o utilizador é o dono do item solicitado
-        $itemSolicitado = Anuncio::findOrFail($troca->ItemID_Solicitado);
-        
-        if ($itemSolicitado->UtilizadorID_User != $userId) {
+        if ($troca->anuncioSolicitado->UtilizadorID_User != $user->ID_User) {
             return response()->json([
                 'message' => 'Você não é o dono do item solicitado'
             ], 403);
@@ -346,17 +342,21 @@ class TrocaController extends Controller
             $troca->Status_TrocaID_Status_Troca = 3; // Rejeitada
             $troca->save();
             
-            // Buscar o item oferecido para a notificação
-            $itemOferecido = Anuncio::findOrFail($troca->ItemID_ItemOferecido);
+            // Retornar os anúncios para disponível
+            $troca->anuncioOferecido->Status_AnuncioID_Status_Anuncio = 1; // Disponível
+            $troca->anuncioSolicitado->Status_AnuncioID_Status_Anuncio = 1; // Disponível
+            
+            $troca->anuncioOferecido->save();
+            $troca->anuncioSolicitado->save();
             
             // Criar notificação para o dono do item oferecido
             DB::table('Notificacao')->insert([
-                'Mensagem' => 'Sua proposta de troca foi rejeitada para o anúncio: ' . $itemSolicitado->Titulo,
+                'Mensagem' => 'Sua proposta de troca foi rejeitada para o anúncio: ' . $troca->anuncioSolicitado->Titulo,
                 'DataNotificacao' => now(),
                 'ReferenciaID' => $troca->ID_Troca,
-                'UtilizadorID_User' => $itemOferecido->UtilizadorID_User,
-                'ReferenciaTipoID_ReferenciaTipo' => 3, // Trocas
-                'TIpo_notificacaoID_TipoNotificacao' => 2, // Propostas de troca
+                'UtilizadorID_User' => $troca->anuncioOferecido->UtilizadorID_User,
+                'ReferenciaTipoID_ReferenciaTipo' => 4, // Trocas
+                'TIpo_notificacaoID_TipoNotificacao' => 9, // Nova proposta de troca
                 'Estado_notificacaoID_estado_notificacao' => 1 // Não Lida
             ]);
             
@@ -380,21 +380,20 @@ class TrocaController extends Controller
      */
     public function cancel($id)
     {
-        $userId = Auth::id();
+        $user = auth()->user();
         
-        $troca = Troca::findOrFail($id);
+        $troca = Troca::with(['anuncioOferecido', 'anuncioSolicitado'])
+            ->findOrFail($id);
         
         // Verificar se a troca está pendente
-        if ($troca->Status_TrocaID_Status_Troca != 1) { // Pendente
+        if ($troca->Status_TrocaID_Status_Troca != 1) {
             return response()->json([
                 'message' => 'Esta troca não está pendente'
             ], 400);
         }
         
         // Verificar se o utilizador é o dono do item oferecido (solicitante)
-        $itemOferecido = Anuncio::findOrFail($troca->ItemID_ItemOferecido);
-        
-        if ($itemOferecido->UtilizadorID_User != $userId) {
+        if ($troca->anuncioOferecido->UtilizadorID_User != $user->ID_User) {
             return response()->json([
                 'message' => 'Você não é o solicitante desta troca'
             ], 403);
@@ -407,17 +406,21 @@ class TrocaController extends Controller
             $troca->Status_TrocaID_Status_Troca = 4; // Cancelada
             $troca->save();
             
-            // Buscar o item solicitado para a notificação
-            $itemSolicitado = Anuncio::findOrFail($troca->ItemID_Solicitado);
+            // Retornar os anúncios para disponível
+            $troca->anuncioOferecido->Status_AnuncioID_Status_Anuncio = 1; // Disponível
+            $troca->anuncioSolicitado->Status_AnuncioID_Status_Anuncio = 1; // Disponível
+            
+            $troca->anuncioOferecido->save();
+            $troca->anuncioSolicitado->save();
             
             // Criar notificação para o dono do item solicitado
             DB::table('Notificacao')->insert([
-                'Mensagem' => 'Uma proposta de troca para seu anúncio foi cancelada: ' . $itemSolicitado->Titulo,
+                'Mensagem' => 'Uma proposta de troca para seu anúncio foi cancelada: ' . $troca->anuncioSolicitado->Titulo,
                 'DataNotificacao' => now(),
                 'ReferenciaID' => $troca->ID_Troca,
-                'UtilizadorID_User' => $itemSolicitado->UtilizadorID_User,
-                'ReferenciaTipoID_ReferenciaTipo' => 3, // Trocas
-                'TIpo_notificacaoID_TipoNotificacao' => 2, // Propostas de troca
+                'UtilizadorID_User' => $troca->anuncioSolicitado->UtilizadorID_User,
+                'ReferenciaTipoID_ReferenciaTipo' => 4, // Trocas
+                'TIpo_notificacaoID_TipoNotificacao' => 9, // Nova proposta de troca
                 'Estado_notificacaoID_estado_notificacao' => 1 // Não Lida
             ]);
             
@@ -441,23 +444,13 @@ class TrocaController extends Controller
      */
     public function pendingReceived()
     {
-        $userId = Auth::id();
-        
-        // Buscar anúncios do utilizador
-        $anunciosIds = Anuncio::where('UtilizadorID_User', $userId)
-            ->pluck('ID_Anuncio')
-            ->toArray();
-        
-        // Buscar trocas pendentes onde o utilizador é o dono do item solicitado
-        $trocas = Troca::whereIn('ItemID_Solicitado', $anunciosIds)
-            ->where('Status_TrocaID_Status_Troca', 1) // Pendente
-            ->with([
-                'item_oferecido', 
-                'item_solicitado', 
-                'status_troca',
-                'item_oferecido.utilizador'
-            ])
-            ->orderBy('DataTroca', 'desc')
+        $user = auth()->user();
+        $trocas = Troca::with(['anuncioRecebido.utilizador', 'anuncioEnviado.utilizador', 'status'])
+            ->whereHas('anuncioRecebido', function ($query) use ($user) {
+                $query->where('UtilizadorID_User', $user->ID_User);
+            })
+            ->where('StatusID_Status', 1) // Status pendente
+            ->orderBy('created_at', 'desc')
             ->get();
         
         return response()->json($trocas);
@@ -468,25 +461,15 @@ class TrocaController extends Controller
      */
     public function pendingSent()
     {
-        $userId = Auth::id();
-        
-        // Buscar anúncios do utilizador
-        $anunciosIds = Anuncio::where('UtilizadorID_User', $userId)
-            ->pluck('ID_Anuncio')
-            ->toArray();
-        
-        // Buscar trocas pendentes onde o utilizador é o dono do item oferecido
-        $trocas = Troca::whereIn('ItemID_ItemOferecido', $anunciosIds)
-            ->where('Status_TrocaID_Status_Troca', 1) // Pendente
-            ->with([
-                'item_oferecido', 
-                'item_solicitado', 
-                'status_troca',
-                'item_solicitado.utilizador'
-            ])
-            ->orderBy('DataTroca', 'desc')
+        $user = auth()->user();
+        $trocas = Troca::with(['anuncioRecebido.utilizador', 'anuncioEnviado.utilizador', 'status'])
+            ->whereHas('anuncioEnviado', function ($query) use ($user) {
+                $query->where('UtilizadorID_User', $user->ID_User);
+            })
+            ->where('StatusID_Status', 1) // Status pendente
+            ->orderBy('created_at', 'desc')
             ->get();
-        
+
         return response()->json($trocas);
     }
 
@@ -537,5 +520,37 @@ class TrocaController extends Controller
             DB::rollBack();
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    /**
+     * Listar todas as propostas recebidas (independente do status)
+     */
+    public function allReceived()
+    {
+        $user = auth()->user();
+        $trocas = Troca::with(['anuncioSolicitado.utilizador', 'anuncioOferecido.utilizador', 'statusTroca'])
+            ->whereHas('anuncioSolicitado', function ($query) use ($user) {
+                $query->where('UtilizadorID_User', $user->ID_User);
+            })
+            ->orderBy('DataTroca', 'desc')
+            ->get();
+
+        return response()->json($trocas);
+    }
+    
+    /**
+     * Listar todas as propostas enviadas (independente do status)
+     */
+    public function allSent()
+    {
+        $user = auth()->user();
+        $trocas = Troca::with(['anuncioSolicitado.utilizador', 'anuncioOferecido.utilizador', 'statusTroca'])
+            ->whereHas('anuncioOferecido', function ($query) use ($user) {
+                $query->where('UtilizadorID_User', $user->ID_User);
+            })
+            ->orderBy('DataTroca', 'desc')
+            ->get();
+        
+        return response()->json($trocas);
     }
 }

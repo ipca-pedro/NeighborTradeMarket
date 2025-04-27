@@ -137,6 +137,10 @@ const DetalhesProduto = () => {
         ));
     };
 
+    // Verificar se o produto está reservado
+    const isReservado = anuncio?.Status_AnuncioID_Status_Anuncio === 8;
+    const isVendedor = anuncio?.UtilizadorID_User === currentUser?.ID_User;
+
     return (
         <>
             <Header />
@@ -282,6 +286,7 @@ const DetalhesProduto = () => {
                                                     variant="success" 
                                                     size="lg" 
                                                     onClick={() => setShowTrocaModal(true)}
+                                                    disabled={isReservado}
                                                 >
                                                     <i className="fas fa-exchange-alt me-2"></i> Trocar
                                                 </Button>
@@ -289,6 +294,7 @@ const DetalhesProduto = () => {
                                                     variant="outline-primary" 
                                                     size="lg" 
                                                     onClick={() => setShowUserChat(true)}
+                                                    disabled={isReservado}
                                                 >
                                                     <i className="fas fa-comments me-2"></i> Conversar com Vendedor
                                                 </Button>
@@ -300,6 +306,7 @@ const DetalhesProduto = () => {
                                                     to={`/anuncios/editar/${anuncio.ID_Anuncio}`} 
                                                     variant="outline-primary" 
                                                     size="lg"
+                                                    disabled={isReservado}
                                                 >
                                                     <i className="fas fa-edit me-2"></i> Editar Anúncio
                                                 </Button>
@@ -308,6 +315,7 @@ const DetalhesProduto = () => {
                                                         variant="outline-info" 
                                                         size="lg"
                                                         onClick={() => anuncioService.marcarComoVendido(anuncio.ID_Anuncio).then(() => carregarAnuncio())}
+                                                        disabled={isReservado}
                                                     >
                                                         <i className="fas fa-check-circle me-2"></i> Marcar como Vendido
                                                     </Button>
@@ -435,6 +443,7 @@ const DetalhesProduto = () => {
                                                 variant="primary" 
                                                 className="w-100"
                                                 onClick={() => handleProporTroca(meuAnuncio.ID_Anuncio)}
+                                                disabled={isReservado}
                                             >
                                                 Propor Troca
                                             </Button>

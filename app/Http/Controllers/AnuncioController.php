@@ -1109,8 +1109,8 @@ class AnuncioController extends Controller
                 'STATUS_REJEITADO' => StatusAnuncio::STATUS_REJEITADO
             ]);
             
-            $query = Anuncio::with(['utilizador', 'categorium', 'tipo_item', 'item_imagems.imagem'])
-                ->where('Status_AnuncioID_Status_Anuncio', StatusAnuncio::STATUS_ATIVO)
+            $query = Anuncio::with(['utilizador', 'categorium', 'tipo_item', 'item_imagems.imagem', 'status_anuncio'])
+                ->whereIn('Status_AnuncioID_Status_Anuncio', [StatusAnuncio::STATUS_ATIVO, 8]) // Incluir ativos e reservados
                 ->orderBy('ID_Anuncio', 'desc');
             
             // Filtrar por categoria se especificado

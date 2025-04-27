@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast } from 'react-toastify';
 import AvaliacaoModal from '../avaliacao/AvaliacaoModal';
+import { Badge, Spinner, Alert } from 'react-bootstrap';
 
 const MinhasCompras = () => {
     const [compras, setCompras] = useState([]);
@@ -16,6 +17,7 @@ const MinhasCompras = () => {
     const [submittingReclamacao, setSubmittingReclamacao] = useState(false);
     const [showAvaliacaoModal, setShowAvaliacaoModal] = useState(false);
     const [selectedCompraParaAvaliacao, setSelectedCompraParaAvaliacao] = useState(null);
+    const [isReservado, setIsReservado] = useState(false);
 
     useEffect(() => {
         carregarCompras();
@@ -27,6 +29,7 @@ const MinhasCompras = () => {
             const data = await CompraService.minhasCompras();
             setCompras(data);
             setError(null);
+            setIsReservado(data.some(compra => compra.StatusID_Status === 8));
         } catch (err) {
             setError('Erro ao carregar compras: ' + err.message);
         } finally {
@@ -110,6 +113,25 @@ const MinhasCompras = () => {
         toast.success('Avaliação enviada com sucesso!');
     };
 
+    const getStatusBadge = (statusId) => {
+        switch (statusId) {
+            case 1:
+                return <Badge bg="warning" text="dark">Pendente</Badge>;
+            case 2:
+                return <Badge bg="success">Em Processamento</Badge>;
+            case 3:
+                return <Badge bg="info">Enviado</Badge>;
+            case 4:
+                return <Badge bg="success">Concluído</Badge>;
+            case 5:
+                return <Badge bg="danger">Cancelado</Badge>;
+            case 8:
+                return <Badge bg="warning" text="dark">Reservado</Badge>;
+            default:
+                return <Badge bg="secondary">Desconhecido</Badge>;
+        }
+    };
+
     if (loading) return <div>Carregando...</div>;
     if (error) return <div className="error">{error}</div>;
 
@@ -123,27 +145,18 @@ const MinhasCompras = () => {
                     {compras.map((compra) => (
                         <div key={compra.ID_Compra} className="compra-card">
                             <div className="compra-header">
-                                <h3>{compra.anuncio.Titulo}</h3>
-                                <span className="status">{compra.status.Descricao}</span>
+                                <h3>{compra.anuncio?.Titulo || 'Produto não disponível'}</h3>
+                                {getStatusBadge(compra.StatusID_Status)}
                             </div>
                             <div className="compra-info">
-                                <p>
-                                    <strong>Data:</strong>{' '}
-                                    {format(new Date(compra.Data_compra), "dd 'de' MMMM 'de' yyyy", {
-                                        locale: ptBR,
-                                    })}
-                                </p>
-                                <p>
-                                    <strong>Valor:</strong> R$ {compra.Valor.toFixed(2)}
-                                </p>
-                                {compra.Observacoes && (
-                                    <p>
-                                        <strong>Observações:</strong> {compra.Observacoes}
-                                    </p>
-                                )}
+                                <p><strong>Vendedor:</strong> {compra.anuncio?.utilizador?.Name || 'N/A'}</p>
+                                <p><strong>Data da Compra:</strong> {format(new Date(compra.Data_compra), "dd 'de' MMMM 'de' yyyy", {
+                                    locale: ptBR,
+                                })}</p>
+                                <p><strong>Valor:</strong> R$ {compra.Valor.toFixed(2)}</p>
                             </div>
                             <div className="compra-actions">
-                                {compra.StatusID_Status === 1 && ( // Status Pendente
+                                {compra.StatusID_Status === 1 && !isReservado && (
                                     <button
                                         onClick={() => handleCancelarCompra(compra.ID_Compra)}
                                         className="btn-cancelar"
@@ -151,7 +164,7 @@ const MinhasCompras = () => {
                                         Cancelar Compra
                                     </button>
                                 )}
-                                {compra.StatusID_Status === 3 && ( // Status Enviado
+                                {compra.StatusID_Status === 3 && !isReservado && (
                                     <button
                                         onClick={() => handleConfirmarRecebimento(compra.ID_Compra)}
                                         className="btn-confirmar"
@@ -160,7 +173,7 @@ const MinhasCompras = () => {
                                     </button>
                                 )}
                                 <div style={{ display: 'flex', gap: '8px' }}>
-                                    {compra.PodeReclamar && (
+                                    {compra.PodeReclamar && !isReservado && (
                                         <button
                                             className="btn-reclamacao"
                                             onClick={() => {
@@ -172,8 +185,7 @@ const MinhasCompras = () => {
                                         </button>
                                     )}
 
-                                    {/* Botão de avaliação - apenas se não houver avaliação e compra estiver concluída */}
-                                    {!compra.avaliacao && compra.StatusID_Status === 4 && (
+                                    {!compra.avaliacao && compra.StatusID_Status === 4 && !isReservado && (
                                         <button
                                             className="btn-avaliar"
                                             style={{ backgroundColor: '#ffc107', color: '#222', border: 'none', borderRadius: '4px', padding: '6px 12px', cursor: 'pointer' }}
@@ -181,14 +193,6 @@ const MinhasCompras = () => {
                                         >
                                             Avaliar Compra
                                         </button>
-                                    )}
-
-                                    {/* Mostrar nota se já existe avaliação */}
-                                    {compra.avaliacao && (
-                                        <span className="avaliacao-info" style={{ color: '#666', padding: '6px 12px' }}>
-                                            <i className="fas fa-star" style={{ color: '#ffc107', marginRight: '4px' }}></i>
-                                            Avaliado: {compra.avaliacao.nota?.Descricao_nota || 'N/A'}
-                                        </span>
                                     )}
                                 </div>
                                 

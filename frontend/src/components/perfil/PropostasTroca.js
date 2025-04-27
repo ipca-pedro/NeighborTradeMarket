@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Button, Modal, Form, Alert, Spinner } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Alert, Spinner } from 'react-bootstrap';
 import trocaService from '../../services/trocaService';
 import { toast } from 'react-toastify';
 import { formatarPreco } from '../../utils/formatUtils';
@@ -8,9 +8,6 @@ import { Link } from 'react-router-dom';
 const PropostasTroca = () => {
     const [propostasRecebidas, setPropostasRecebidas] = useState([]);
     const [propostasEnviadas, setPropostasEnviadas] = useState([]);
-    const [showRejeitarModal, setShowRejeitarModal] = useState(false);
-    const [selectedTrocaId, setSelectedTrocaId] = useState(null);
-    const [motivoRejeicao, setMotivoRejeicao] = useState('');
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -22,8 +19,8 @@ const PropostasTroca = () => {
             setLoading(true);
             console.log('Carregando propostas de troca...');
             
-            const recebidas = await trocaService.getPropostasRecebidas();
-            const enviadas = await trocaService.getPropostasEnviadas();
+            const recebidas = await trocaService.getTodasPropostasRecebidas();
+            const enviadas = await trocaService.getTodasPropostasEnviadas();
             
             console.log('Propostas recebidas:', recebidas.data);
             console.log('Propostas enviadas:', enviadas.data);
@@ -41,7 +38,7 @@ const PropostasTroca = () => {
     const handleAceitar = async (trocaId) => {
         try {
             await trocaService.aceitarProposta(trocaId);
-            toast.success('Proposta de troca aceita com sucesso!');
+            toast.success('Proposta de troca aceite com sucesso!');
             carregarPropostas();
         } catch (error) {
             console.error('Erro ao aceitar proposta:', error);
@@ -49,12 +46,10 @@ const PropostasTroca = () => {
         }
     };
 
-    const handleRejeitar = async () => {
+    const handleRejeitar = async (trocaId) => {
         try {
-            await trocaService.rejeitarProposta(selectedTrocaId, motivoRejeicao);
+            await trocaService.rejeitarProposta(trocaId);
             toast.success('Proposta de troca rejeitada com sucesso!');
-            setShowRejeitarModal(false);
-            setMotivoRejeicao('');
             carregarPropostas();
         } catch (error) {
             console.error('Erro ao rejeitar proposta:', error);
@@ -73,11 +68,6 @@ const PropostasTroca = () => {
         }
     };
 
-    const abrirModalRejeitar = (trocaId) => {
-        setSelectedTrocaId(trocaId);
-        setShowRejeitarModal(true);
-    };
-
     if (loading) {
         return (
             <Container className="py-5 text-center">
@@ -91,7 +81,7 @@ const PropostasTroca = () => {
     const renderStatus = (statusId) => {
         switch (statusId) {
             case 1: return <span className="badge bg-warning">Pendente</span>;
-            case 2: return <span className="badge bg-success">Aceita</span>;
+            case 2: return <span className="badge bg-success">Aceite</span>;
             case 3: return <span className="badge bg-danger">Rejeitada</span>;
             case 4: return <span className="badge bg-secondary">Cancelada</span>;
             default: return <span className="badge bg-info">Desconhecido</span>;
@@ -152,7 +142,7 @@ const PropostasTroca = () => {
                                             <Button 
                                                 variant="danger" 
                                                 className="flex-grow-1" 
-                                                onClick={() => abrirModalRejeitar(proposta.ID_Troca)}
+                                                onClick={() => handleRejeitar(proposta.ID_Troca)}
                                             >
                                                 Rejeitar
                                             </Button>
@@ -230,34 +220,6 @@ const PropostasTroca = () => {
                     </Col>
                 )}
             </Row>
-
-            <Modal show={showRejeitarModal} onHide={() => setShowRejeitarModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Rejeitar Proposta de Troca</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form>
-                        <Form.Group>
-                            <Form.Label>Motivo da Rejeição</Form.Label>
-                            <Form.Control
-                                as="textarea"
-                                rows={3}
-                                value={motivoRejeicao}
-                                onChange={(e) => setMotivoRejeicao(e.target.value)}
-                                placeholder="Explique o motivo da rejeição..."
-                            />
-                        </Form.Group>
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowRejeitarModal(false)}>
-                        Cancelar
-                    </Button>
-                    <Button variant="danger" onClick={handleRejeitar}>
-                        Confirmar Rejeição
-                    </Button>
-                </Modal.Footer>
-            </Modal>
         </Container>
     );
 };

@@ -20,12 +20,22 @@ const trocaService = {
         }
     },
 
-    // Obter propostas recebidas
+    // Obter todas as propostas recebidas
+    getTodasPropostasRecebidas: async () => {
+        return await api.get('/trocas/recebidas');
+    },
+
+    // Obter todas as propostas enviadas
+    getTodasPropostasEnviadas: async () => {
+        return await api.get('/trocas/enviadas');
+    },
+
+    // Obter propostas recebidas pendentes
     getPropostasRecebidas: async () => {
         return await api.get('/trocas/recebidas/pendentes');
     },
 
-    // Obter propostas enviadas
+    // Obter propostas enviadas pendentes
     getPropostasEnviadas: async () => {
         return await api.get('/trocas/enviadas/pendentes');
     },

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import CompraService from '../../services/CompraService';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { Badge, Spinner, Alert } from 'react-bootstrap';
+import '../perfil/MinhasVendas.css';
 
 const MinhasVendas = () => {
     const [vendas, setVendas] = useState([]);
@@ -10,6 +12,7 @@ const MinhasVendas = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [statusOptions, setStatusOptions] = useState([]);
+    const [isReservado, setIsReservado] = useState(false);
 
     useEffect(() => {
         carregarVendas();
@@ -49,6 +52,45 @@ const MinhasVendas = () => {
         }
     };
 
+    const handleProcessarVenda = async (compraId) => {
+        try {
+            await CompraService.processarVenda(compraId);
+            await carregarVendas();
+            alert('Venda processada com sucesso!');
+        } catch (err) {
+            alert('Erro ao processar venda: ' + err.message);
+        }
+    };
+
+    const handleMarcarEnviado = async (compraId) => {
+        try {
+            await CompraService.marcarEnviado(compraId);
+            await carregarVendas();
+            alert('Venda marcada como enviada com sucesso!');
+        } catch (err) {
+            alert('Erro ao marcar venda como enviada: ' + err.message);
+        }
+    };
+
+    const getStatusBadge = (statusId) => {
+        switch (statusId) {
+            case 1:
+                return <Badge bg="warning" text="dark">Pendente</Badge>;
+            case 2:
+                return <Badge bg="success">Em Processamento</Badge>;
+            case 3:
+                return <Badge bg="info">Enviado</Badge>;
+            case 4:
+                return <Badge bg="success">Concluído</Badge>;
+            case 5:
+                return <Badge bg="danger">Cancelado</Badge>;
+            case 8:
+                return <Badge bg="warning" text="dark">Reservado</Badge>;
+            default:
+                return <Badge bg="secondary">Desconhecido</Badge>;
+        }
+    };
+
     const renderPaginacao = () => {
         return (
             <div className="paginacao">
@@ -71,55 +113,50 @@ const MinhasVendas = () => {
         );
     };
 
-    if (loading) return <div>Carregando...</div>;
-    if (error) return <div className="error">{error}</div>;
-
     return (
         <div className="minhas-vendas">
             <h2>Minhas Vendas</h2>
-            {vendas.length === 0 ? (
-                <p>Você ainda não tem nenhuma venda.</p>
+            {loading ? (
+                <div className="text-center">
+                    <Spinner animation="border" role="status">
+                        <span className="visually-hidden">Carregando...</span>
+                    </Spinner>
+                </div>
+            ) : error ? (
+                <Alert variant="danger">{error}</Alert>
             ) : (
                 <>
                     <div className="vendas-list">
                         {vendas.map((venda) => (
                             <div key={venda.ID_Compra} className="venda-card">
                                 <div className="venda-header">
-                                    <h3>{venda.anuncio.Titulo}</h3>
-                                    <span className="status">{venda.status.Descricao}</span>
+                                    <h3>{venda.anuncio?.Titulo || 'Produto não disponível'}</h3>
+                                    {getStatusBadge(venda.StatusID_Status)}
                                 </div>
                                 <div className="venda-info">
-                                    <p>
-                                        <strong>Comprador:</strong> {venda.comprador.Nome}
-                                    </p>
-                                    <p>
-                                        <strong>Data:</strong>{' '}
-                                        {format(new Date(venda.Data_compra), "dd 'de' MMMM 'de' yyyy", {
-                                            locale: ptBR,
-                                        })}
-                                    </p>
-                                    <p>
-                                        <strong>Valor:</strong> R$ {venda.Valor.toFixed(2)}
-                                    </p>
+                                    <p><strong>Comprador:</strong> {venda.comprador?.Name || 'N/A'}</p>
+                                    <p><strong>Data da Venda:</strong> {format(new Date(venda.DataCompra), "dd 'de' MMMM 'de' yyyy", {
+                                        locale: ptBR,
+                                    })}</p>
+                                    <p><strong>Valor:</strong> €{venda.ValorTotal?.toFixed(2) || '0.00'}</p>
                                 </div>
                                 <div className="venda-actions">
-                                    <select
-                                        value={venda.StatusID_Status}
-                                        onChange={(e) => handleAtualizarStatus(venda.ID_Compra, e.target.value)}
-                                        disabled={venda.StatusID_Status === 4 || venda.StatusID_Status === 5} // Concluído ou Cancelado
-                                    >
-                                        {statusOptions.map((status) => (
-                                            <option key={status.ID_Status} value={status.ID_Status}>
-                                                {status.Descricao}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <button
-                                        onClick={() => window.location.href = `/compras/${venda.ID_Compra}`}
-                                        className="btn-detalhes"
-                                    >
-                                        Ver Detalhes
-                                    </button>
+                                    {venda.StatusID_Status === 1 && !isReservado && (
+                                        <button
+                                            onClick={() => handleProcessarVenda(venda.ID_Compra)}
+                                            className="btn-processar"
+                                        >
+                                            Processar Venda
+                                        </button>
+                                    )}
+                                    {venda.StatusID_Status === 2 && !isReservado && (
+                                        <button
+                                            onClick={() => handleMarcarEnviado(venda.ID_Compra)}
+                                            className="btn-enviar"
+                                        >
+                                            Marcar como Enviado
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         ))}

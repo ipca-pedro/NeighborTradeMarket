@@ -138,14 +138,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/mensagens/nao-lidas/contar', [MensagemController::class, 'countUnread']);
     
     // Rotas de trocas
+    Route::get('/trocas/recebidas/pendentes', [TrocaController::class, 'pendingReceived']);
+    Route::get('/trocas/enviadas/pendentes', [TrocaController::class, 'pendingSent']);
+    Route::get('/trocas/recebidas', [TrocaController::class, 'allReceived']);
+    Route::get('/trocas/enviadas', [TrocaController::class, 'allSent']);
     Route::get('/trocas', [TrocaController::class, 'index']);
-    Route::get('/trocas/{id}', [TrocaController::class, 'show']);
     Route::post('/trocas', [TrocaController::class, 'store']);
+    Route::get('/trocas/{id}', [TrocaController::class, 'show']);
     Route::post('/trocas/{id}/aceitar', [TrocaController::class, 'accept']);
     Route::post('/trocas/{id}/rejeitar', [TrocaController::class, 'reject']);
     Route::post('/trocas/{id}/cancelar', [TrocaController::class, 'cancel']);
-    Route::get('/trocas/recebidas/pendentes', [TrocaController::class, 'pendingReceived']);
-    Route::get('/trocas/enviadas/pendentes', [TrocaController::class, 'pendingSent']);
     
     // Rotas de avaliações
     Route::get('/avaliacoes/notas', [AvaliacaoController::class, 'getNotas']);
