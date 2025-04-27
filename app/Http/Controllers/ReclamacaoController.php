@@ -423,33 +423,65 @@ class ReclamacaoController extends Controller
             $reclamacao->Status_ReclamacaoID_Status_Reclamacao = $novoStatus;
             $reclamacao->save();
 
-            // Atualizar aprovação
+            // Atualizar a aprovação existente
             $aprovacao = $reclamacao->aprovacao;
+            if (!$aprovacao) {
+                return response()->json([
+                    'message' => 'Erro: Aprovação não encontrada para esta reclamação'
+                ], 500);
+            }
             
             if ($novoStatus == 3) { // Resolvida (Aprovada)
                 $aprovacao->Status_AprovacaoID_Status_Aprovacao = 2; // Aprovada
                 $aprovacao->Data_Aprovacao = now();
+                $aprovacao->UtilizadorID_Admin = $user->ID_User; // Admin que aprovou
+                
+                // Adicionar comentário automático de aprovação
+                $comentarioAprovacao = now()->format('Y-m-d H:i:s') . " - SISTEMA: Reclamação foi resolvida e aprovada pelo administrador.";
+                $aprovacao->Comentario = $aprovacao->Comentario 
+                    ? $aprovacao->Comentario . "\n" . $comentarioAprovacao
+                    : $comentarioAprovacao;
+                
                 $aprovacao->save();
                 
                 if ($compra && $compra->anuncio) {
-                    // Inativar o anúncio
+                    // Inativar o anúncio (que automaticamente afeta o status da compra)
                     app(AnuncioController::class)->marcarComoProblematico($compra->anuncio->ID_Anuncio);
 
                     // Notificar o comprador
                     $notificacaoComprador = new Notificacao();
-                    $notificacaoComprador->Mensagem = "O anúncio '{$compra->anuncio->Titulo}' foi inativado pois sua reclamação foi aprovada.";
+                    $notificacaoComprador->Mensagem = "Sua reclamação sobre o anúncio '{$compra->anuncio->Titulo}' foi aprovada.";
                     $notificacaoComprador->DataNotificacao = now();
                     $notificacaoComprador->ReferenciaID = $compra->ID_Compra;
                     $notificacaoComprador->UtilizadorID_User = $compra->UtilizadorID_User;
-                    $notificacaoComprador->ReferenciaTipoID_ReferenciaTipo = 6; // Compra
-                    $notificacaoComprador->TIpo_notificacaoID_TipoNotificacao = 8; // Compra
+                    $notificacaoComprador->ReferenciaTipoID_ReferenciaTipo = 4; // Reclamação
+                    $notificacaoComprador->TIpo_notificacaoID_TipoNotificacao = 9; // Troca/Reclamação
                     $notificacaoComprador->Estado_notificacaoID_estado_notificacao = 1; // Não Lida
                     $notificacaoComprador->save();
+
+                    // Notificar o vendedor
+                    $notificacaoVendedor = new Notificacao();
+                    $notificacaoVendedor->Mensagem = "Uma reclamação sobre o anúncio '{$compra->anuncio->Titulo}' foi aprovada e seu anúncio foi inativado.";
+                    $notificacaoVendedor->DataNotificacao = now();
+                    $notificacaoVendedor->ReferenciaID = $compra->anuncio->ID_Anuncio;
+                    $notificacaoVendedor->UtilizadorID_User = $compra->anuncio->UtilizadorID_User;
+                    $notificacaoVendedor->ReferenciaTipoID_ReferenciaTipo = 4; // Reclamação
+                    $notificacaoVendedor->TIpo_notificacaoID_TipoNotificacao = 9; // Troca/Reclamação
+                    $notificacaoVendedor->Estado_notificacaoID_estado_notificacao = 1; // Não Lida
+                    $notificacaoVendedor->save();
                 }
             } 
             else { // Rejeitada
                 $aprovacao->Status_AprovacaoID_Status_Aprovacao = 3; // Rejeitada
                 $aprovacao->Data_Aprovacao = now();
+                $aprovacao->UtilizadorID_Admin = $user->ID_User; // Admin que rejeitou
+                
+                // Adicionar comentário automático de rejeição
+                $comentarioRejeicao = now()->format('Y-m-d H:i:s') . " - SISTEMA: Reclamação foi rejeitada pelo administrador.";
+                $aprovacao->Comentario = $aprovacao->Comentario 
+                    ? $aprovacao->Comentario . "\n" . $comentarioRejeicao
+                    : $comentarioRejeicao;
+                
                 $aprovacao->save();
 
                 if ($compra && $compra->anuncio) {
@@ -459,10 +491,21 @@ class ReclamacaoController extends Controller
                     $notificacaoComprador->DataNotificacao = now();
                     $notificacaoComprador->ReferenciaID = $compra->ID_Compra;
                     $notificacaoComprador->UtilizadorID_User = $compra->UtilizadorID_User;
-                    $notificacaoComprador->ReferenciaTipoID_ReferenciaTipo = 6; // Compra
-                    $notificacaoComprador->TIpo_notificacaoID_TipoNotificacao = 8; // Compra
+                    $notificacaoComprador->ReferenciaTipoID_ReferenciaTipo = 4; // Reclamação
+                    $notificacaoComprador->TIpo_notificacaoID_TipoNotificacao = 9; // Troca/Reclamação
                     $notificacaoComprador->Estado_notificacaoID_estado_notificacao = 1; // Não Lida
                     $notificacaoComprador->save();
+
+                    // Notificar o vendedor
+                    $notificacaoVendedor = new Notificacao();
+                    $notificacaoVendedor->Mensagem = "Uma reclamação sobre o anúncio '{$compra->anuncio->Titulo}' foi rejeitada.";
+                    $notificacaoVendedor->DataNotificacao = now();
+                    $notificacaoVendedor->ReferenciaID = $compra->anuncio->ID_Anuncio;
+                    $notificacaoVendedor->UtilizadorID_User = $compra->anuncio->UtilizadorID_User;
+                    $notificacaoVendedor->ReferenciaTipoID_ReferenciaTipo = 4; // Reclamação
+                    $notificacaoVendedor->TIpo_notificacaoID_TipoNotificacao = 9; // Troca/Reclamação
+                    $notificacaoVendedor->Estado_notificacaoID_estado_notificacao = 1; // Não Lida
+                    $notificacaoVendedor->save();
                 }
             }
 

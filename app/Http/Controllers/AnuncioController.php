@@ -1283,7 +1283,7 @@ class AnuncioController extends Controller
             $notificacao->ReferenciaID = $anuncio->ID_Anuncio;
             $notificacao->UtilizadorID_User = $anuncio->UtilizadorID_User;
             $notificacao->ReferenciaTipoID_ReferenciaTipo = 1; // Anúncio
-            $notificacao->TIpo_notificacaoID_TipoNotificacao = 3; // Atualização de Status
+            $notificacao->TIpo_notificacaoID_TipoNotificacao = 12; // Anúncio Rejeitado
             $notificacao->Estado_notificacaoID_estado_notificacao = 1; // Não Lida
             $notificacao->save();
 
