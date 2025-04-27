@@ -26,10 +26,10 @@ export const notificacaoService = {
     // Marcar todas as notificações como lidas
     marcarTodasComoLidas: async () => {
         try {
-            const response = await api.post('/notificacoes/marcar-todas-lidas');
+            const response = await api.post('/notificacoes/todas-lidas');
             return response.data;
         } catch (error) {
-            console.error('Erro ao marcar todas notificações como lidas:', error);
+            console.error('Erro ao marcar todas as notificações como lidas:', error);
             throw error;
         }
     },

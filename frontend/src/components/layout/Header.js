@@ -214,6 +214,7 @@ const Header = () => {
                                     <NotificationDropdown
                                         notifications={notifications}
                                         onRead={handleMarkAsRead}
+                                        onMarkAllAsRead={handleMarkAllAsRead}
                                     />
                                     <div className="text-center p-2 border-top">
                                         <Link

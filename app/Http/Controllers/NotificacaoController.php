@@ -203,14 +203,17 @@ class NotificacaoController extends Controller
     {
         try {
             $user = auth()->user();
-            Notificacao::where('UtilizadorID_User', $user->ID_User)
-                ->where('Estado_notificacaoID_estado_notificacao', 1) // ID 1 = Não Lida
-                ->update(['Estado_notificacaoID_estado_notificacao' => 2]); // ID 2 = Lida
+            $count = Notificacao::where('UtilizadorID_User', $user->ID_User)
+                ->where('Estado_notificacaoID_estado_notificacao', 1) // 1 = Não Lida
+                ->update(['Estado_notificacaoID_estado_notificacao' => 2]); // 2 = Lida
 
-            return response()->json(['message' => 'Todas as notificações marcadas como lidas']);
+            return response()->json([
+                'message' => 'Todas as notificações foram marcadas como lidas',
+                'count' => $count
+            ]);
         } catch (\Exception $e) {
-            Log::error('Erro ao marcar todas notificações como lidas: ' . $e->getMessage());
-            return response()->json(['error' => 'Erro ao marcar todas notificações como lidas'], 500);
+            Log::error('Erro ao marcar todas as notificações como lidas: ' . $e->getMessage());
+            return response()->json(['error' => 'Erro ao marcar todas as notificações como lidas'], 500);
         }
     }
     

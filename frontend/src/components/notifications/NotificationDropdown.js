@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const NotificationDropdown = ({ notifications, onRead }) => {
+const NotificationDropdown = ({ notifications, onRead, onMarkAllAsRead }) => {
     const getNotificationIcon = (type) => {
         switch (type) {
             case 'ANUNCIO_PENDENTE':
@@ -58,7 +58,7 @@ const NotificationDropdown = ({ notifications, onRead }) => {
                 {notifications.some(n => !n.read) && (
                     <button 
                         className="btn btn-link btn-sm p-0 text-decoration-none"
-                        onClick={() => onRead(notifications.filter(n => !n.read).map(n => n.id))}
+                        onClick={onMarkAllAsRead}
                     >
                         Marcar todas como lidas
                     </button>
