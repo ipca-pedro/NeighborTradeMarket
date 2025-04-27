@@ -18,7 +18,8 @@ class AvaliacaoController extends Controller
      */
     public function receivedRatings()
     {
-        $userId = Auth::id();
+        $user = Auth::user();
+        $userId = $user->ID_User;
         
         // Buscar avaliações recebidas (através de compras e trocas)
         $avaliacoes = Avaliacao::whereHas('compra', function($query) use ($userId) {
@@ -39,7 +40,8 @@ class AvaliacaoController extends Controller
      */
     public function sentRatings()
     {
-        $userId = Auth::id();
+        $user = Auth::user();
+        $userId = $user->ID_User;
         
         // Buscar avaliações feitas pelo utilizador
         $avaliacoes = Avaliacao::whereHas('compra', function($query) use ($userId) {
@@ -58,7 +60,8 @@ class AvaliacaoController extends Controller
      */
     public function show($id)
     {
-        $userId = Auth::id();
+        $user = Auth::user();
+        $userId = $user->ID_User;
         
         $avaliacao = Avaliacao::with(['nota', 'compra', 'compra.anuncio', 'compra.utilizador', 'compra.anuncio.utilizador'])
             ->findOrFail($id);
@@ -87,16 +90,41 @@ class AvaliacaoController extends Controller
             'comentario' => 'required|string|max:255'
         ]);
         
-        $userId = Auth::id();
+        $user = Auth::user();
+        $userId = $user->ID_User;
         $compraId = $request->compra_id;
         
         // Verificar se a compra existe e se o utilizador é o comprador
-        $compra = Compra::findOrFail($compraId);
+        $compra = Compra::with(['anuncio', 'anuncio.utilizador', 'utilizador'])
+            ->findOrFail($compraId);
+
+        // Log para debug
+        \Log::info('Tentativa de avaliação', [
+            'user_id' => $userId,
+            'user_email' => $user->Email,
+            'compra_user_id' => $compra->UtilizadorID_User,
+            'compra_id' => $compraId,
+            'anuncio_status' => $compra->anuncio->Status_AnuncioID_Status_Anuncio
+        ]);
         
+        // Verificar se o usuário é o comprador
         if ($compra->UtilizadorID_User != $userId) {
             return response()->json([
-                'message' => 'Você não é o comprador deste item'
+                'message' => 'Você não é o comprador deste item',
+                'debug' => [
+                    'user_id' => $userId,
+                    'user_email' => $user->Email,
+                    'compra_user_id' => $compra->UtilizadorID_User
+                ]
             ], 403);
+        }
+
+        // Verificar se o anúncio está vendido
+        if ($compra->anuncio->Status_AnuncioID_Status_Anuncio != 3) { // 3 = Vendido
+            return response()->json([
+                'message' => 'Só é possível avaliar compras concluídas',
+                'status_atual' => $compra->anuncio->Status_AnuncioID_Status_Anuncio
+            ], 400);
         }
         
         // Verificar se já existe uma avaliação para esta compra
@@ -140,11 +168,16 @@ class AvaliacaoController extends Controller
             
             return response()->json([
                 'message' => 'Avaliação enviada com sucesso',
-                'avaliacao' => $avaliacao
+                'avaliacao' => $avaliacao->load(['nota', 'compra', 'compra.anuncio'])
             ], 201);
             
         } catch (\Exception $e) {
             DB::rollBack();
+            \Log::error('Erro ao criar avaliação', [
+                'error' => $e->getMessage(),
+                'user_id' => $userId,
+                'compra_id' => $compraId
+            ]);
             return response()->json([
                 'message' => 'Erro ao criar avaliação: ' . $e->getMessage()
             ], 500);
@@ -219,11 +252,15 @@ class AvaliacaoController extends Controller
      */
     public function getPendingRatings()
     {
-        $userId = Auth::id();
+        $user = Auth::user();
+        $userId = $user->ID_User;
         
-        // Buscar compras do utilizador que ainda não foram avaliadas
+        // Buscar compras do utilizador que ainda não foram avaliadas e estão vendidas
         $compras = Compra::where('UtilizadorID_User', $userId)
             ->whereDoesntHave('avaliacao')
+            ->whereHas('anuncio', function($query) {
+                $query->where('Status_AnuncioID_Status_Anuncio', 3); // 3 = Vendido
+            })
             ->with(['anuncio', 'anuncio.utilizador'])
             ->orderBy('Data', 'desc')
             ->get();
