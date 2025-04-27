@@ -5,8 +5,7 @@ import { toast } from 'react-toastify';
 import { criarAvaliacao, buscarNotas } from '../../services/avaliacaoService';
 
 const AvaliacaoModal = ({ show, onHide, compraId, onSuccess }) => {
-    const [rating, setRating] = useState(0);
-    const [hover, setHover] = useState(0);
+    const [selectedNota, setSelectedNota] = useState(null);
     const [comentario, setComentario] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [notas, setNotas] = useState([]);
@@ -14,7 +13,9 @@ const AvaliacaoModal = ({ show, onHide, compraId, onSuccess }) => {
     useEffect(() => {
         const carregarNotas = async () => {
             try {
+                console.log('Carregando notas disponíveis...');
                 const notasData = await buscarNotas();
+                console.log('Notas carregadas:', notasData);
                 setNotas(notasData);
             } catch (error) {
                 console.error('Erro ao carregar notas:', error);
@@ -23,34 +24,66 @@ const AvaliacaoModal = ({ show, onHide, compraId, onSuccess }) => {
         };
         if (show) {
             carregarNotas();
+            setSelectedNota(null);
+            setComentario('');
         }
     }, [show]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (rating === 0) {
+        console.log('Iniciando submissão da avaliação...');
+        console.log('Dados do formulário:', {
+            compraId,
+            notaId: selectedNota,
+            comentario
+        });
+
+        // Validações
+        if (!compraId) {
+            console.error('ID da compra não fornecido');
+            toast.error('Erro: ID da compra não fornecido');
+            return;
+        }
+
+        if (!selectedNota) {
+            console.error('Nenhuma nota selecionada');
             toast.error('Por favor, selecione uma classificação');
+            return;
+        }
+
+        if (!comentario.trim()) {
+            console.error('Comentário vazio');
+            toast.error('Por favor, deixe um comentário');
             return;
         }
 
         setSubmitting(true);
         try {
+            console.log('Enviando avaliação para a API...');
             await criarAvaliacao({
                 compra_id: compraId,
-                nota_id: rating,
-                comentario: comentario
+                nota_id: selectedNota,
+                comentario: comentario.trim()
             });
 
+            console.log('Avaliação enviada com sucesso');
             toast.success('Avaliação enviada com sucesso!');
-            setRating(0);
+            setSelectedNota(null);
             setComentario('');
             onSuccess();
             onHide();
         } catch (error) {
+            console.error('Erro ao enviar avaliação:', error);
             toast.error(error.message || 'Erro ao enviar avaliação');
         } finally {
             setSubmitting(false);
         }
+    };
+
+    const renderEstrelas = (quantidade) => {
+        return [...Array(quantidade)].map((_, index) => (
+            <FaStar key={index} className="star" size={16} style={{ color: '#ffc107', marginRight: '2px' }} />
+        ));
     };
 
     return (
@@ -60,32 +93,30 @@ const AvaliacaoModal = ({ show, onHide, compraId, onSuccess }) => {
             </Modal.Header>
             <Modal.Body>
                 <Form onSubmit={handleSubmit}>
-                    <div className="mb-4 text-center">
-                        <div className="d-flex justify-content-center">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                                <FaStar
-                                    key={star}
-                                    className="star"
-                                    size={32}
-                                    style={{
-                                        cursor: 'pointer',
-                                        marginRight: '8px',
-                                        color: (hover || rating) >= star ? '#ffc107' : '#e4e5e9'
-                                    }}
-                                    onClick={() => setRating(star)}
-                                    onMouseEnter={() => setHover(star)}
-                                    onMouseLeave={() => setHover(rating)}
-                                />
+                    <Form.Group className="mb-4">
+                        <Form.Label>Sua Avaliação</Form.Label>
+                        <div className="d-flex flex-column gap-2">
+                            {notas.map((nota) => (
+                                <div
+                                    key={nota.ID_Nota}
+                                    className={`p-2 rounded cursor-pointer ${
+                                        selectedNota === nota.ID_Nota
+                                            ? 'bg-primary text-white'
+                                            : 'bg-light'
+                                    }`}
+                                    style={{ cursor: 'pointer' }}
+                                    onClick={() => setSelectedNota(nota.ID_Nota)}
+                                >
+                                    <div className="d-flex align-items-center">
+                                        <div className="me-2">
+                                            {renderEstrelas(nota.ID_Nota)}
+                                        </div>
+                                        <span>{nota.Descricao_nota}</span>
+                                    </div>
+                                </div>
                             ))}
                         </div>
-                        <small className="text-muted mt-2">
-                            {rating === 1 && "Muito insatisfeito"}
-                            {rating === 2 && "Insatisfeito"}
-                            {rating === 3 && "Neutro"}
-                            {rating === 4 && "Satisfeito"}
-                            {rating === 5 && "Muito satisfeito"}
-                        </small>
-                    </div>
+                    </Form.Group>
 
                     <Form.Group className="mb-3">
                         <Form.Label>Comentário</Form.Label>

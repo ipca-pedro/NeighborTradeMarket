@@ -2,14 +2,38 @@ import api from './api';
 
 export const criarAvaliacao = async (dados) => {
     try {
-        console.log('Enviando avaliação:', dados);
+        // Log dos dados enviados
+        console.log('Dados da avaliação sendo enviados:', dados);
+        
+        // Verificar token e usuário
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        
+        console.log('Debug avaliação:', {
+            token: !!token,
+            userId: user.ID_User,
+            compraId: dados.compra_id
+        });
+
+        // Verificar se temos o ID do usuário
+        if (!user.ID_User) {
+            throw new Error('ID do usuário não encontrado. Por favor, faça login novamente.');
+        }
+
+        // Log do estado da requisição
+        console.log('Iniciando requisição POST para /avaliacoes/compra');
+        
         const response = await api.post('/avaliacoes/compra', dados);
+        console.log('Resposta da API:', response);
+        
         return response.data;
     } catch (error) {
         console.error('Erro detalhado ao criar avaliação:', {
             message: error.message,
             response: error.response?.data,
-            status: error.response?.status
+            status: error.response?.status,
+            headers: error.response?.headers,
+            config: error.config
         });
         
         // Se for erro de validação
@@ -17,6 +41,11 @@ export const criarAvaliacao = async (dados) => {
             const mensagem = error.response.data?.message || 
                            Object.values(error.response.data?.errors || {}).flat().join(', ');
             throw new Error(mensagem || 'Dados inválidos para avaliação');
+        }
+        
+        // Se for erro de autorização
+        if (error.response?.status === 403) {
+            throw new Error('Você não tem permissão para avaliar esta compra. Verifique se você é o comprador.');
         }
         
         throw new Error(error.response?.data?.message || 'Erro ao criar avaliação');

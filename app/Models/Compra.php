@@ -9,6 +9,7 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Class Compra
@@ -28,14 +29,14 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Compra extends Model
 {
-	protected $table = 'compra';
+	protected $table = 'Compra';
 	protected $primaryKey = 'ID_Compra';
 	public $timestamps = false;
 
 	protected $casts = [
 		'Data' => 'datetime',
-		'UtilizadorID_User' => 'int',
-		'AnuncioID_Anuncio' => 'int'
+		'UtilizadorID_User' => 'integer',
+		'AnuncioID_Anuncio' => 'integer'
 	];
 
 	protected $fillable = [
@@ -44,12 +45,12 @@ class Compra extends Model
 		'AnuncioID_Anuncio'
 	];
 
-	public function utilizador()
+	public function utilizador(): BelongsTo
 	{
-		return $this->belongsTo(Utilizador::class, 'UtilizadorID_User');
+		return $this->belongsTo(Utilizador::class, 'UtilizadorID_User', 'ID_User');
 	}
 
-	public function anuncio()
+	public function anuncio(): BelongsTo
 	{
 		return $this->belongsTo(Anuncio::class, 'AnuncioID_Anuncio', 'ID_Anuncio');
 	}
@@ -67,5 +68,13 @@ class Compra extends Model
 	public function pagamentos()
 	{
 		return $this->hasMany(Pagamento::class, 'CompraID_Compra');
+	}
+
+	/**
+	 * Get the status of the purchase through the associated announcement's status
+	 */
+	public function getStatusAttribute()
+	{
+		return $this->anuncio->status_anuncio;
 	}
 }

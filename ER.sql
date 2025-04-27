@@ -3,7 +3,7 @@ CREATE TABLE Morada (ID_Morada int(10) NOT NULL AUTO_INCREMENT, Rua varchar(255)
 CREATE TABLE TipoUser (ID_TipoUser int(11) NOT NULL AUTO_INCREMENT, Descrição_TipoUtilizador varchar(255), PRIMARY KEY (ID_TipoUser));
 CREATE TABLE Tipo_Item (ID_Tipo int(10) NOT NULL AUTO_INCREMENT, Descricao_TipoItem varchar(255), PRIMARY KEY (ID_Tipo));
 CREATE TABLE Mensagem (ID_Mensagem int(10) NOT NULL AUTO_INCREMENT, Conteudo varchar(255), Data_mensagem timestamp NULL, ItemID_Item int(10) NOT NULL, Status_MensagemID_Status_Mensagem int(10) NOT NULL, PRIMARY KEY (ID_Mensagem));
-CREATE TABLE Avaliacao (Id_Avaliacao int(10) NOT NULL AUTO_INCREMENT, Comentario varchar(255), Data_Avaliacao timestamp NULL, NotaID_Nota int(10) NOT NULL, OrdemID_Produto int(10) NOT NULL, AprovacaoID_aprovacao int(10) NOT NULL, PRIMARY KEY (Id_Avaliacao));
+CREATE TABLE Avaliacao (Id_Avaliacao int(10) NOT NULL AUTO_INCREMENT, Comentario varchar(255), Data_Avaliacao timestamp NULL, NotaID_Nota int(10) NOT NULL, OrdemID_Produto int(10) NOT NULL, PRIMARY KEY (Id_Avaliacao));
 CREATE TABLE Status_Mensagem (ID_Status_Mensagem int(10) NOT NULL AUTO_INCREMENT, Descricao_status_mensagem varchar(255), PRIMARY KEY (ID_Status_Mensagem));
 CREATE TABLE Nota (ID_Nota int(10) NOT NULL AUTO_INCREMENT, Descricao_nota varchar(255), PRIMARY KEY (ID_Nota));
 CREATE TABLE Aprovacao (ID_aprovacao int(10) NOT NULL AUTO_INCREMENT, Comentario varchar(255), Data_Submissao timestamp NULL, Data_Aprovacao timestamp NULL, UtilizadorID_Admin int(10) NOT NULL, Status_AprovacaoID_Status_Aprovacao int(11) NOT NULL, PRIMARY KEY (ID_aprovacao));
@@ -15,7 +15,7 @@ CREATE TABLE Pagamento (ID_Pagamento int(11) NOT NULL AUTO_INCREMENT, Valor int(
 CREATE TABLE Imagem (ID_Imagem int(11) NOT NULL AUTO_INCREMENT, Caminho varchar(255), PRIMARY KEY (ID_Imagem));
 CREATE TABLE Item_Imagem (ItemID_Item int(10) NOT NULL, ImagemID_Imagem int(11) NOT NULL, PRIMARY KEY (ItemID_Item, ImagemID_Imagem));
 CREATE TABLE Troca (ID_Troca int(11) NOT NULL AUTO_INCREMENT, DataTroca timestamp NULL, ItemID_ItemOferecido int(10) NOT NULL, ItemID_Solicitado int(10) NOT NULL, Status_TrocaID_Status_Troca int(11) NOT NULL, PRIMARY KEY (ID_Troca));
-CREATE TABLE Notificacao (ID_Notificacao int(11) NOT NULL AUTO_INCREMENT, Mensagem varchar(255), DataNotificacao timestamp NULL, ReferenciaID int(11), UtilizadorID_User int(10) NOT NULL, ReferenciaTipoID_ReferenciaTipo int(11) NOT NULL, TIpo_notificacaoID_TipoNotificacao int(11) NOT NULL, PRIMARY KEY (ID_Notificacao));
+CREATE TABLE Notificacao (ID_Notificacao int(11) NOT NULL AUTO_INCREMENT, Mensagem varchar(255), DataNotificacao timestamp NULL, ReferenciaID int(11), UtilizadorID_User int(10) NOT NULL, ReferenciaTipoID_ReferenciaTipo int(11) NOT NULL, TIpo_notificacaoID_TipoNotificacao int(11) NOT NULL, Estado_notificacaoID_estado_notificacao int(11) NOT NULL, PRIMARY KEY (ID_Notificacao));
 CREATE TABLE ReferenciaTipo (ID_ReferenciaTipo int(11) NOT NULL AUTO_INCREMENT, Descricao varchar(255), PRIMARY KEY (ID_ReferenciaTipo));
 CREATE TABLE Reclamacao (ID_Reclamacao int(11) NOT NULL AUTO_INCREMENT, Descricao varchar(255), DataReclamacao timestamp NULL, AprovacaoID_aprovacao int(10) NOT NULL, Status_ReclamacaoID_Status_Reclamacao int(11) NOT NULL, PRIMARY KEY (ID_Reclamacao));
 CREATE TABLE Compra_Reclamacao (CompraID_Compra int(10) NOT NULL, ReclamacaoID_Reclamacao int(11) NOT NULL, PRIMARY KEY (CompraID_Compra, ReclamacaoID_Reclamacao));
@@ -26,10 +26,9 @@ CREATE TABLE Status_Reclamacao (ID_Status_Reclamacao int(11) NOT NULL AUTO_INCRE
 CREATE TABLE Status_Utilizador (ID_status_utilizador int(10) NOT NULL AUTO_INCREMENT, Descricao_status_utilizador varchar(255), PRIMARY KEY (ID_status_utilizador));
 CREATE TABLE Anuncio (ID_Anuncio int(10) NOT NULL AUTO_INCREMENT, Titulo varchar(255), Descricao varchar(255), Preco decimal(6, 2), UtilizadorID_User int(10) NOT NULL, AprovacaoID_aprovacao int(10) NOT NULL, Tipo_ItemID_Tipo int(10) NOT NULL, CategoriaID_Categoria int(11) NOT NULL, Status_AnuncioID_Status_Anuncio int(11) NOT NULL, PRIMARY KEY (ID_Anuncio));
 CREATE TABLE Status_Anuncio (ID_Status_Anuncio int(11) NOT NULL AUTO_INCREMENT, Descricao_status_anuncio varchar(255), PRIMARY KEY (ID_Status_Anuncio));
-CREATE TABLE personal_access_tokens (id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT, tokenable_type VARCHAR(255) NOT NULL, tokenable_id BIGINT UNSIGNED NOT NULL, name VARCHAR(255) NOT NULL, token VARCHAR(64) NOT NULL, abilities TEXT NULL, last_used_at TIMESTAMP NULL, expires_at TIMESTAMP NULL, created_at TIMESTAMP NULL, updated_at TIMESTAMP NULL, PRIMARY KEY (id), UNIQUE INDEX personal_access_tokens_token_unique (token), INDEX personal_access_tokens_tokenable_type_tokenable_id_index (tokenable_type, tokenable_id));
+CREATE TABLE Estado_notificacao (ID_estado_notificacao int(11) NOT NULL AUTO_INCREMENT, Descricao varchar(255) NOT NULL, PRIMARY KEY (ID_estado_notificacao));
 ALTER TABLE Utilizador ADD CONSTRAINT FKUtilizador680017 FOREIGN KEY (MoradaID_Morada) REFERENCES Morada (ID_Morada);
 ALTER TABLE Avaliacao ADD CONSTRAINT FKAvaliacao214094 FOREIGN KEY (NotaID_Nota) REFERENCES Nota (ID_Nota);
-ALTER TABLE Avaliacao ADD CONSTRAINT FKAvaliacao460566 FOREIGN KEY (AprovacaoID_aprovacao) REFERENCES Aprovacao (ID_aprovacao);
 ALTER TABLE Utilizador ADD CONSTRAINT FKUtilizador462334 FOREIGN KEY (AprovacaoID_aprovacao) REFERENCES Aprovacao (ID_aprovacao);
 ALTER TABLE Utilizador ADD CONSTRAINT FKUtilizador373700 FOREIGN KEY (cartaoID_Cartao) REFERENCES Cartao (ID_Cartao);
 ALTER TABLE Avaliacao ADD CONSTRAINT FKAvaliacao286296 FOREIGN KEY (OrdemID_Produto) REFERENCES Compra (ID_Compra);
@@ -62,3 +61,4 @@ ALTER TABLE Anuncio ADD CONSTRAINT FKAnuncio47220 FOREIGN KEY (Tipo_ItemID_Tipo)
 ALTER TABLE Anuncio ADD CONSTRAINT FKAnuncio617781 FOREIGN KEY (CategoriaID_Categoria) REFERENCES Categoria (ID_Categoria);
 ALTER TABLE Anuncio ADD CONSTRAINT FKAnuncio546000 FOREIGN KEY (Status_AnuncioID_Status_Anuncio) REFERENCES Status_Anuncio (ID_Status_Anuncio);
 ALTER TABLE Utilizador ADD CONSTRAINT FKUtilizador244028 FOREIGN KEY (Status_UtilizadorID_status_utilizador) REFERENCES Status_Utilizador (ID_status_utilizador);
+ALTER TABLE Notificacao ADD CONSTRAINT FKNotificaca560186 FOREIGN KEY (Estado_notificacaoID_estado_notificacao) REFERENCES Estado_notificacao (ID_estado_notificacao);

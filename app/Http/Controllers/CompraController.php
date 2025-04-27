@@ -18,7 +18,7 @@ class CompraController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $compras = Compra::with(['anuncio', 'utilizador'])
+        $compras = Compra::with(['anuncio.status_anuncio', 'utilizador'])
             ->where('UtilizadorID_User', $user->ID_User)
             ->orderBy('Data', 'desc')
             ->get();
@@ -40,7 +40,7 @@ class CompraController extends Controller
         
         // Buscar compras relacionadas a esses anúncios
         $vendas = Compra::whereIn('AnuncioID_Anuncio', $anunciosIds)
-            ->with(['anuncio', 'utilizador', 'status_compra'])
+            ->with(['anuncio.status_anuncio', 'utilizador'])
             ->orderBy('Data', 'desc')
             ->get();
         
@@ -53,7 +53,7 @@ class CompraController extends Controller
     public function show($id)
     {
         $user = Auth::user();
-        $compra = Compra::with(['anuncio', 'utilizador'])
+        $compra = Compra::with(['anuncio.status_anuncio', 'utilizador'])
             ->where('ID_Compra', $id)
             ->where('UtilizadorID_User', $user->ID_User)
             ->firstOrFail();
@@ -73,18 +73,31 @@ class CompraController extends Controller
         $user = Auth::user();
         $anuncio = Anuncio::findOrFail($anuncioId);
 
-        $compra = new Compra([
-            'Data' => Carbon::now(),
-            'UtilizadorID_User' => $user->ID_User,
-            'AnuncioID_Anuncio' => $anuncioId
-        ]);
+        DB::beginTransaction();
+        try {
+            $compra = new Compra([
+                'Data' => Carbon::now(),
+                'UtilizadorID_User' => $user->ID_User,
+                'AnuncioID_Anuncio' => $anuncioId
+            ]);
+            $compra->save();
 
-        $compra->save();
+            // Atualizar o status do anúncio para vendido
+            $anuncio->Status_AnuncioID_Status_Anuncio = 3; // Vendido
+            $anuncio->save();
 
-        return response()->json([
-            'message' => 'Compra realizada com sucesso',
-            'compra' => $compra
-        ], 201);
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Compra realizada com sucesso',
+                'compra' => $compra
+            ], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Erro ao realizar a compra: ' . $e->getMessage()
+            ], 500);
+        }
     }
     
     /**
@@ -93,7 +106,7 @@ class CompraController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
-            'status_id' => 'required|exists:Status_Compra,ID_Status_Compra'
+            'status_id' => 'required|exists:Status_Anuncio,ID_Status_Anuncio'
         ]);
         
         $userId = Auth::id();
@@ -108,29 +121,40 @@ class CompraController extends Controller
             ], 403);
         }
         
-        // Atualizar o status da compra
-        $compra->Status_CompraID_Status_Compra = $request->status_id;
-        $compra->save();
-        
-        // Buscar descrição do status para a notificação
-        $statusDescricao = DB::table('Status_Compra')
-            ->where('ID_Status_Compra', $request->status_id)
-            ->value('Descricao_status_compra');
-        
-        // Criar notificação para o comprador
-        DB::table('Notificacao')->insert([
-            'Mensagem' => 'O status da sua compra foi atualizado para: ' . $statusDescricao . ' - ' . $compra->anuncio->Titulo,
-            'DataNotificacao' => now(),
-            'ReferenciaID' => $compra->ID_Compra,
-            'UtilizadorID_User' => $compra->UtilizadorID_User,
-            'ReferenciaTipoID_ReferenciaTipo' => 1, // Compras
-            'TIpo_notificacaoID_TipoNotificacao' => 3 // Notificações de compra
-        ]);
-        
-        return response()->json([
-            'message' => 'Status da compra atualizado com sucesso',
-            'compra' => $compra
-        ]);
+        DB::beginTransaction();
+        try {
+            // Atualizar o status do anúncio
+            $compra->anuncio->Status_AnuncioID_Status_Anuncio = $request->status_id;
+            $compra->anuncio->save();
+            
+            // Buscar descrição do status para a notificação
+            $statusDescricao = DB::table('Status_Anuncio')
+                ->where('ID_Status_Anuncio', $request->status_id)
+                ->value('Descricao_status_anuncio');
+            
+            // Criar notificação para o comprador
+            DB::table('Notificacao')->insert([
+                'Mensagem' => 'O status da sua compra foi atualizado para: ' . $statusDescricao . ' - ' . $compra->anuncio->Titulo,
+                'DataNotificacao' => now(),
+                'ReferenciaID' => $compra->ID_Compra,
+                'UtilizadorID_User' => $compra->UtilizadorID_User,
+                'ReferenciaTipoID_ReferenciaTipo' => 1, // Compras
+                'TIpo_notificacaoID_TipoNotificacao' => 3, // Notificações de compra
+                'Estado_notificacaoID_estado_notificacao' => 1 // 1 = Não Lida
+            ]);
+
+            DB::commit();
+            
+            return response()->json([
+                'message' => 'Status da compra atualizado com sucesso',
+                'compra' => $compra
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Erro ao atualizar status: ' . $e->getMessage()
+            ], 500);
+        }
     }
     
     /**
@@ -150,8 +174,8 @@ class CompraController extends Controller
             ], 403);
         }
         
-        // Verificar se a compra está em um estado que permite cancelamento
-        if ($compra->Status_CompraID_Status_Compra > 2) { // Assumindo que apenas status 1 (Pendente) e 2 (Em processamento) podem ser cancelados
+        // Verificar se o anúncio está em um estado que permite cancelamento
+        if ($compra->anuncio->Status_AnuncioID_Status_Anuncio != 3) { // Só pode cancelar se estiver vendido
             return response()->json([
                 'message' => 'Esta compra não pode ser cancelada no estado atual'
             ], 400);
@@ -160,29 +184,25 @@ class CompraController extends Controller
         DB::beginTransaction();
         
         try {
-            // Atualizar o status da compra para cancelado
-            $compra->Status_CompraID_Status_Compra = 5; // Cancelado
-            $compra->save();
+            // Atualizar o status do anúncio para ativo novamente
+            $compra->anuncio->Status_AnuncioID_Status_Anuncio = 1; // Ativo
+            $compra->anuncio->save();
             
-            // Restaurar a quantidade disponível no anúncio
-            $anuncio = $compra->anuncio;
-            $anuncio->Quantidade_disponivel += $compra->Quantidade;
-            
-            // Se o anúncio estava marcado como vendido, restaurar para ativo
-            if ($anuncio->Status_AnuncioID_Status_Anuncio == 3) { // Vendido
-                $anuncio->Status_AnuncioID_Status_Anuncio = 2; // Ativo
+            // Restaurar a quantidade disponível no anúncio se necessário
+            if ($compra->anuncio->Quantidade_disponivel !== null) {
+                $compra->anuncio->Quantidade_disponivel += 1;
+                $compra->anuncio->save();
             }
-            
-            $anuncio->save();
             
             // Criar notificação para o vendedor
             DB::table('Notificacao')->insert([
-                'Mensagem' => 'Uma compra foi cancelada pelo comprador: ' . $anuncio->Titulo,
+                'Mensagem' => 'Uma compra foi cancelada pelo comprador: ' . $compra->anuncio->Titulo,
                 'DataNotificacao' => now(),
                 'ReferenciaID' => $compra->ID_Compra,
-                'UtilizadorID_User' => $anuncio->UtilizadorID_User,
+                'UtilizadorID_User' => $compra->anuncio->UtilizadorID_User,
                 'ReferenciaTipoID_ReferenciaTipo' => 1, // Compras
-                'TIpo_notificacaoID_TipoNotificacao' => 3 // Notificações de compra
+                'TIpo_notificacaoID_TipoNotificacao' => 3, // Notificações de compra
+                'Estado_notificacaoID_estado_notificacao' => 1 // 1 = Não Lida
             ]);
             
             DB::commit();
@@ -217,31 +237,41 @@ class CompraController extends Controller
             ], 403);
         }
         
-        // Verificar se a compra está em um estado que permite confirmação de recebimento
-        if ($compra->Status_CompraID_Status_Compra != 3) { // Assumindo que 3 é "Enviado"
+        // Verificar se o anúncio está vendido
+        if ($compra->anuncio->Status_AnuncioID_Status_Anuncio != 3) { // Vendido
             return response()->json([
-                'message' => 'Esta compra não está em estado de envio para confirmar recebimento'
+                'message' => 'Esta compra não está em estado apropriado para confirmar recebimento'
             ], 400);
         }
         
-        // Atualizar o status da compra para concluído
-        $compra->Status_CompraID_Status_Compra = 4; // Concluído
-        $compra->save();
-        
-        // Criar notificação para o vendedor
-        DB::table('Notificacao')->insert([
-            'Mensagem' => 'O comprador confirmou o recebimento do item: ' . $compra->anuncio->Titulo,
-            'DataNotificacao' => now(),
-            'ReferenciaID' => $compra->ID_Compra,
-            'UtilizadorID_User' => $compra->anuncio->UtilizadorID_User,
-            'ReferenciaTipoID_ReferenciaTipo' => 1, // Compras
-            'TIpo_notificacaoID_TipoNotificacao' => 3 // Notificações de compra
-        ]);
-        
-        return response()->json([
-            'message' => 'Recebimento confirmado com sucesso',
-            'compra' => $compra
-        ]);
+        DB::beginTransaction();
+        try {
+            // O anúncio permanece como vendido (3)
+            // Aqui poderíamos adicionar um campo na tabela Compra para marcar como "recebido" se necessário
+            
+            // Criar notificação para o vendedor
+            DB::table('Notificacao')->insert([
+                'Mensagem' => 'O comprador confirmou o recebimento do item: ' . $compra->anuncio->Titulo,
+                'DataNotificacao' => now(),
+                'ReferenciaID' => $compra->ID_Compra,
+                'UtilizadorID_User' => $compra->anuncio->UtilizadorID_User,
+                'ReferenciaTipoID_ReferenciaTipo' => 1, // Compras
+                'TIpo_notificacaoID_TipoNotificacao' => 3, // Notificações de compra
+                'Estado_notificacaoID_estado_notificacao' => 1 // 1 = Não Lida
+            ]);
+
+            DB::commit();
+            
+            return response()->json([
+                'message' => 'Recebimento confirmado com sucesso',
+                'compra' => $compra
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Erro ao confirmar recebimento: ' . $e->getMessage()
+            ], 500);
+        }
     }
     
     /**
@@ -249,7 +279,7 @@ class CompraController extends Controller
      */
     public function getStatusOptions()
     {
-        $statusOptions = DB::table('Status_Compra')->get();
+        $statusOptions = DB::table('Status_Anuncio')->get();
         return response()->json($statusOptions);
     }
     
@@ -265,10 +295,12 @@ class CompraController extends Controller
             ->pluck('ID_Anuncio')
             ->toArray();
         
-        // Buscar compras pendentes relacionadas a esses anúncios
+        // Buscar compras relacionadas a esses anúncios que estão vendidos
         $vendasPendentes = Compra::whereIn('AnuncioID_Anuncio', $anunciosIds)
-            ->where('Status_CompraID_Status_Compra', 1) // Pendente
-            ->with(['anuncio', 'utilizador', 'status_compra'])
+            ->whereHas('anuncio', function($query) {
+                $query->where('Status_AnuncioID_Status_Anuncio', 3); // Vendido
+            })
+            ->with(['anuncio.status_anuncio', 'utilizador'])
             ->orderBy('Data', 'desc')
             ->get();
         
@@ -314,8 +346,8 @@ class CompraController extends Controller
             $compra->Data = now();
             $compra->save();
 
-            // Atualizar status do anúncio para vendido
-            $anuncio->Status_AnuncioID_Status_Anuncio = 3; // ID 3 = Vendido
+            // Atualizar status do anúncio para vendido imediatamente
+            $anuncio->Status_AnuncioID_Status_Anuncio = 3; // Vendido
             $anuncio->save();
 
             // Criar registo de pagamento
@@ -327,24 +359,25 @@ class CompraController extends Controller
 
             // Criar notificação para o vendedor
             DB::table('notificacao')->insert([
-                'Mensagem' => 'Nova solicitação de compra para o anúncio: ' . $anuncio->Titulo,
+                'Mensagem' => 'Seu anúncio foi vendido: ' . $anuncio->Titulo,
                 'DataNotificacao' => now(),
                 'ReferenciaID' => $compra->ID_Compra,
                 'UtilizadorID_User' => $anuncio->UtilizadorID_User,
                 'ReferenciaTipoID_ReferenciaTipo' => 6, // ID 6 = Compra na tabela referenciatipo
-                'TIpo_notificacaoID_TipoNotificacao' => 8 // ID 8 = Compra na tabela TIpo_notificacao
+                'TIpo_notificacaoID_TipoNotificacao' => 8, // ID 8 = Compra na tabela TIpo_notificacao
+                'Estado_notificacaoID_estado_notificacao' => 1 // 1 = Não Lida
             ]);
 
             DB::commit();
 
             return response()->json([
-                'message' => 'Compra iniciada com sucesso',
+                'message' => 'Compra realizada com sucesso',
                 'compra' => $compra->load(['anuncio', 'utilizador'])
             ], 201);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['error' => 'Erro ao iniciar compra: ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'Erro ao realizar compra: ' . $e->getMessage()], 500);
         }
     }
 
@@ -357,7 +390,7 @@ class CompraController extends Controller
             $user = Auth::user();
             
             // Buscar todas as compras do usuário com relacionamentos
-            $compras = Compra::with(['anuncio.utilizador'])
+            $compras = Compra::with(['anuncio.status_anuncio'])
                 ->where('UtilizadorID_User', $user->ID_User)
                 ->orderBy('Data', 'desc')
                 ->get()
@@ -376,11 +409,7 @@ class CompraController extends Controller
                             'Titulo' => $compra->anuncio->Titulo,
                             'Preco' => $compra->anuncio->Preco,
                             'Descricao' => $compra->anuncio->Descricao,
-                            'utilizador' => [
-                                'ID_User' => $compra->anuncio->utilizador->ID_User,
-                                'Nome' => $compra->anuncio->utilizador->Name,
-                                'Email' => $compra->anuncio->utilizador->Email
-                            ]
+                            'Status' => $compra->anuncio->status_anuncio->Descricao_status_anuncio
                         ]
                     ];
                 })
@@ -404,11 +433,11 @@ class CompraController extends Controller
         $user = Auth::user();
         $perPage = $request->get('per_page', 15);
         
-        $vendas = Compra::with(['anuncio', 'status', 'comprador'])
+        $vendas = Compra::with(['anuncio.status_anuncio', 'utilizador'])
             ->whereHas('anuncio', function($query) use ($user) {
                 $query->where('UtilizadorID_User', $user->ID_User);
             })
-            ->orderBy('Data_compra', 'desc')
+            ->orderBy('Data', 'desc')
             ->paginate($perPage);
 
         return response()->json($vendas);
@@ -430,13 +459,13 @@ class CompraController extends Controller
             }
 
             $request->validate([
-                'status' => 'required|integer|exists:status_compra,ID_Status',
+                'status' => 'required|integer|exists:status_anuncio,ID_Status_Anuncio',
                 'observacoes' => 'nullable|string|max:500'
             ]);
 
             DB::beginTransaction();
 
-            $compra->StatusID_Status = $request->status;
+            $compra->anuncio->Status_AnuncioID_Status_Anuncio = $request->status;
             if ($request->has('observacoes')) {
                 $compra->Observacoes = $request->observacoes;
             }
@@ -445,19 +474,20 @@ class CompraController extends Controller
 
             // Criar notificação para o comprador
             DB::table('notificacao')->insert([
-                'Mensagem' => 'Status da sua compra foi atualizado para: ' . $compra->status->Descricao,
+                'Mensagem' => 'Status da sua compra foi atualizado para: ' . $compra->anuncio->status_anuncio->Descricao_status_anuncio,
                 'DataNotificacao' => now(),
                 'ReferenciaID' => $compra->ID_Compra,
-                'UtilizadorID_User' => $compra->CompradorID_User,
+                'UtilizadorID_User' => $compra->UtilizadorID_User,
                 'ReferenciaTipoID_ReferenciaTipo' => 3, // Tipo Compra
-                'TIpo_notificacaoID_TipoNotificacao' => 2 // Atualização de status
+                'TIpo_notificacaoID_TipoNotificacao' => 2, // Atualização de status
+                'Estado_notificacaoID_estado_notificacao' => 1 // 1 = Não Lida
             ]);
 
             DB::commit();
 
             return response()->json([
                 'message' => 'Status atualizado com sucesso',
-                'compra' => $compra->load(['anuncio', 'status'])
+                'compra' => $compra->load(['anuncio', 'anuncio.status_anuncio'])
             ]);
 
         } catch (\Exception $e) {
@@ -473,11 +503,11 @@ class CompraController extends Controller
     {
         $user = Auth::user();
         
-        $compra = Compra::with(['anuncio', 'status', 'comprador'])
+        $compra = Compra::with(['anuncio.status_anuncio', 'utilizador'])
             ->findOrFail($compraId);
 
         // Verificar se o usuário é o comprador ou vendedor
-        if ($compra->CompradorID_User != $user->ID_User && 
+        if ($compra->UtilizadorID_User != $user->ID_User && 
             $compra->anuncio->UtilizadorID_User != $user->ID_User) {
             return response()->json(['error' => 'Não autorizado'], 403);
         }
