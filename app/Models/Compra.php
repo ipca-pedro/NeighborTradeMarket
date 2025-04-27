@@ -62,7 +62,7 @@ class Compra extends Model
 
 	public function reclamacoes()
 	{
-		return $this->belongsToMany(Reclamacao::class, 'compra_reclamacao', 'CompraID_Compra', 'ReclamacaoID_Reclamacao');
+		return $this->belongsToMany(Reclamacao::class, 'Compra_Reclamacao', 'CompraID_Compra', 'ReclamacaoID_Reclamacao');
 	}
 
 	public function pagamentos()

@@ -1,0 +1,37 @@
+.mensagem-item {
+    border-left: 3px solid #007bff;
+    background-color: #f8f9fa;
+    transition: all 0.2s ease;
+}
+
+.mensagem-item:hover {
+    background-color: #e9ecef;
+}
+
+.status-badge {
+    font-size: 0.9rem;
+    padding: 0.5em 1em;
+}
+
+.mensagens-lista {
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.mensagens-lista::-webkit-scrollbar {
+    width: 6px;
+}
+
+.mensagens-lista::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.mensagens-lista::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.mensagens-lista::-webkit-scrollbar-thumb:hover {
+    background: #555;
+} 

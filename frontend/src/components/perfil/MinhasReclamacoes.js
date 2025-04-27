@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Card, Badge, Alert, Spinner, Row, Col } from 'react-bootstrap';
+import { Container, Card, Badge, Alert, Spinner, Row, Col, Button } from 'react-bootstrap';
 import { buscarMinhasReclamacoes } from '../../services/reclamacaoService';
 import { formatarData } from '../../utils/dataUtils';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '../layout/Header';
 import './MinhasReclamacoes.css';
 
 const MinhasReclamacoes = () => {
     const location = useLocation();
+    const navigate = useNavigate();
     const isStandalone = location.pathname === '/minhas-reclamacoes';
     const [reclamacoes, setReclamacoes] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -50,6 +51,10 @@ const MinhasReclamacoes = () => {
             case 4: return 'Rejeitada';
             default: return status?.Descricao_status_reclamacao || 'Desconhecido';
         }
+    };
+
+    const verDetalhes = (id) => {
+        navigate(`/reclamacoes/${id}`);
     };
 
     // Renderiza o conteúdo principal
@@ -116,9 +121,16 @@ const MinhasReclamacoes = () => {
                                                 <p className="text-muted small mb-2">
                                                     <strong>Data:</strong> {formatarData(reclamacao.DataReclamacao)}
                                                 </p>
-                                                <p className="mb-0">
+                                                <p className="mb-2">
                                                     <strong>Motivo:</strong> {reclamacao.Descricao}
                                                 </p>
+                                                <Button 
+                                                    variant="outline-primary" 
+                                                    size="sm"
+                                                    onClick={() => verDetalhes(reclamacao.ID_Reclamacao)}
+                                                >
+                                                    Ver Detalhes
+                                                </Button>
                                             </Col>
                                         </Row>
                                     </Card.Body>

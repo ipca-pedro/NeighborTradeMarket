@@ -361,7 +361,8 @@ class ReclamacaoController extends Controller
                 $notificacao->ReferenciaID = $reclamacao->ID_Reclamacao;
                 $notificacao->UtilizadorID_User = $userId;
                 $notificacao->ReferenciaTipoID_ReferenciaTipo = 4; // Tipo Reclamação
-                $notificacao->TIpo_notificacaoID_TipoNotificacao = 2; // Nova Mensagem
+                $notificacao->TIpo_notificacaoID_TipoNotificacao = 5; // Mensagem
+                $notificacao->Estado_notificacaoID_estado_notificacao = 1; // Não lida
                 $notificacao->save();
             }
 
@@ -485,7 +486,8 @@ class ReclamacaoController extends Controller
                 $notificacao->ReferenciaID = $reclamacao->ID_Reclamacao;
                 $notificacao->UtilizadorID_User = $compra->UtilizadorID_User;
                 $notificacao->ReferenciaTipoID_ReferenciaTipo = 4; // Tipo Reclamação
-                $notificacao->TIpo_notificacaoID_TipoNotificacao = 3; // Atualizacao
+                $notificacao->TIpo_notificacaoID_TipoNotificacao = 5; // Mensagem
+                $notificacao->Estado_notificacaoID_estado_notificacao = 1; // Não lida
                 $notificacao->save();
             } 
             else {
@@ -507,7 +509,8 @@ class ReclamacaoController extends Controller
                     $notificacao->ReferenciaID = $reclamacao->ID_Reclamacao;
                     $notificacao->UtilizadorID_User = $admin->ID_User;
                     $notificacao->ReferenciaTipoID_ReferenciaTipo = 4; // Tipo Reclamação
-                    $notificacao->TIpo_notificacaoID_TipoNotificacao = 3; // Atualizacao
+                    $notificacao->TIpo_notificacaoID_TipoNotificacao = 5; // Mensagem
+                    $notificacao->Estado_notificacaoID_estado_notificacao = 1; // Não lida
                     $notificacao->save();
                 }
             }
