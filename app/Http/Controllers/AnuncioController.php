@@ -1217,25 +1217,28 @@ class AnuncioController extends Controller
             DB::beginTransaction();
 
             $anuncio = Anuncio::findOrFail($id);
-            $anuncio->Status_AnuncioID_Status_Anuncio = 3; // Status para revisão
+            
+            // Atualiza o status do anúncio para pendente
+            $anuncio->Status_AnuncioID_Status_Anuncio = 4; // 4 = Pendente
             $anuncio->save();
 
-            // Criar notificação para o vendedor
+            // Cria notificação para o vendedor
             DB::table('Notificacao')->insert([
-                'Mensagem' => 'Seu anúncio "' . $anuncio->Titulo . '" precisa de revisão. Por favor, verifique os detalhes e faça as correções necessárias.',
+                'Mensagem' => 'Seu anúncio "' . $anuncio->Titulo . '" requer revisão.',
                 'DataNotificacao' => now(),
                 'ReferenciaID' => $anuncio->ID_Anuncio,
                 'UtilizadorID_User' => $anuncio->UtilizadorID_User,
-                'ReferenciaTipoID_ReferenciaTipo' => 1, // Anúncios
-                'TIpo_notificacaoID_TipoNotificacao' => 11 // Anúncio precisa de revisão
+                'ReferenciaTipoID_ReferenciaTipo' => 1, // 1 = Anúncio
+                'TIpo_notificacaoID_TipoNotificacao' => 3, // 3 = Atualização de Status
+                'Lida' => false
             ]);
 
             DB::commit();
-            return response()->json(['message' => 'Anúncio marcado para revisão com sucesso']);
+            return response()->json(['message' => 'Anúncio marcado para revisão com sucesso.']);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['error' => 'Erro ao marcar anúncio para revisão: ' . $e->getMessage()], 500);
         }
     }
 }
