@@ -136,7 +136,7 @@ const MinhasVendas = () => {
                                 <div className="venda-info">
                                     <p><strong>Comprador:</strong> {venda.comprador?.Name || 'N/A'}</p>
                                     <p><strong>Data da Venda:</strong> {format(new Date(venda.DataCompra), "dd 'de' MMMM 'de' yyyy", {
-                                        locale: ptBR,
+                                            locale: ptBR,
                                     })}</p>
                                     <p><strong>Valor:</strong> €{venda.ValorTotal?.toFixed(2) || '0.00'}</p>
                                 </div>
@@ -150,12 +150,12 @@ const MinhasVendas = () => {
                                         </button>
                                     )}
                                     {venda.StatusID_Status === 2 && !isReservado && (
-                                        <button
+                                    <button
                                             onClick={() => handleMarcarEnviado(venda.ID_Compra)}
                                             className="btn-enviar"
-                                        >
+                                    >
                                             Marcar como Enviado
-                                        </button>
+                                    </button>
                                     )}
                                 </div>
                             </div>

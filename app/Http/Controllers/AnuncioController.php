@@ -317,11 +317,11 @@ class AnuncioController extends Controller
     {
         try {
             DB::beginTransaction();
-
+            
             $anuncio = Anuncio::findOrFail($id);
             $anuncio->Status_AnuncioID_Status_Anuncio = 1; // Status aprovado
             $anuncio->save();
-
+            
             // Criar notificação para o vendedor
             DB::table('Notificacao')->insert([
                 'Mensagem' => 'Seu anúncio "' . $anuncio->Titulo . '" foi aprovado e está agora visível para outros usuários.',
@@ -330,11 +330,11 @@ class AnuncioController extends Controller
                 'UtilizadorID_User' => $anuncio->UtilizadorID_User,
                 'ReferenciaTipoID_ReferenciaTipo' => 1, // Anúncios
                 'TIpo_notificacaoID_TipoNotificacao' => 12 // Anúncio aprovado
-            ]);
-
+                ]);
+            
             DB::commit();
             return response()->json(['message' => 'Anúncio aprovado com sucesso']);
-
+            
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['error' => $e->getMessage()], 500);
@@ -1258,6 +1258,46 @@ class AnuncioController extends Controller
             return response()->json([
                 'message' => 'Erro ao marcar anúncio para revisão: ' . $e->getMessage(),
                 'status' => false
+            ], 500);
+        }
+    }
+
+    /**
+     * Marcar anúncio como problemático
+     */
+    public function marcarComoProblematico($id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $anuncio = Anuncio::with(['compras', 'utilizador'])->findOrFail($id);
+            
+            // 1. Inativar o anúncio
+            $anuncio->Status_AnuncioID_Status_Anuncio = 2; // Status inativo
+            $anuncio->save();
+
+            // 2. Notificar o vendedor
+            $notificacao = new Notificacao();
+            $notificacao->Mensagem = "Seu anúncio '{$anuncio->Titulo}' foi inativado devido a uma reclamação aprovada.";
+            $notificacao->DataNotificacao = now();
+            $notificacao->ReferenciaID = $anuncio->ID_Anuncio;
+            $notificacao->UtilizadorID_User = $anuncio->UtilizadorID_User;
+            $notificacao->ReferenciaTipoID_ReferenciaTipo = 1; // Anúncio
+            $notificacao->TIpo_notificacaoID_TipoNotificacao = 3; // Atualização de Status
+            $notificacao->Estado_notificacaoID_estado_notificacao = 1; // Não Lida
+            $notificacao->save();
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Anúncio inativado com sucesso',
+                'anuncio' => $anuncio->fresh()
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Erro ao inativar anúncio: ' . $e->getMessage()
             ], 500);
         }
     }

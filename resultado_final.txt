@@ -1,0 +1,206 @@
+
+   WARN  Metadata found in doc-comment for method Tests\Unit\AnuncioControllerTest::it_retrieves_anuncios_for_logged_in_user(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Unit\AnuncioControllerTest::it_creates_anuncio_successfully(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Unit\AnuncioControllerTest::it_updates_anuncio_status(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Unit\AnuncioControllerTest::it_categorizes_anuncios_correctly(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Unit\AnuncioControllerTest::it_verifies_anuncio_table_name(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Unit\AnuncioControllerTest::it_can_mark_anuncio_as_sold(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Unit\AnuncioControllerTest::it_can_get_public_anuncios(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Unit\CompraControllerTest::it_returns_purchases_for_logged_in_user(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Unit\CompraControllerTest::it_creates_purchase_successfully(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Unit\CompraControllerTest::it_updates_purchase_status(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Unit\CompraControllerTest::it_verifies_compra_table_name(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Unit\CompraControllerTest::it_has_correct_relationships(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Unit\CompraControllerTest::it_can_get_purchase_details(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Unit\CompraControllerTest::it_can_get_pending_sales(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Unit\ReclamacaoControllerTest::it_creates_a_reclamacao_successfully(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Unit\ReclamacaoControllerTest::it_returns_403_when_user_is_not_buyer(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Unit\ReclamacaoControllerTest::it_returns_400_when_reclamacao_already_exists(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Unit\ReclamacaoControllerTest::it_verifies_reclamacao_table_name(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Unit\ReclamacaoControllerTest::it_validates_required_fields(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Unit\ReclamacaoControllerTest::admin_can_see_all_reclamacoes(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Unit\ReclamacaoControllerTest::normal_user_can_only_see_own_reclamacoes(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Unit\ReclamacaoModelTest::it_has_correct_relationships(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Unit\ReclamacaoModelTest::it_can_scope_by_status(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Unit\ReclamacaoModelTest::it_has_correct_table_name_and_primary_key(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Unit\ReclamacaoModelTest::it_uses_correct_fillable_attributes(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Unit\ReclamacaoModelTest::it_has_correct_casts(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Unit\ReclamacaoModelTest::it_doesnt_use_timestamps(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Tests\Unit\AnuncioControllerTest
+  ✓ it retrieves anuncios for logged in user                                                                     0.33s  
+  - it creates anuncio successfully → Teste simplificado para focar nos principais cenários primeiro             0.05s  
+  ✓ it updates anuncio status                                                                                    0.05s  
+  ✓ it categorizes anuncios correctly                                                                            0.03s  
+  ✓ it verifies anuncio table name                                                                               0.03s  
+  - it can mark anuncio as sold → O AnuncioController não tem um método dedicado para marcar como vendido        0.04s  
+  ✓ it can get public anuncios                                                                                   0.04s  
+
+   FAIL  Tests\Unit\CompraControllerTest
+  ✓ it returns purchases for logged in user                                                                      0.05s  
+  ✓ it creates purchase successfully                                                                             0.03s  
+  ✓ it updates purchase status                                                                                   0.03s  
+  ✓ it verifies compra table name                                                                                0.03s  
+  ⨯ it has correct relationships                                                                                 0.03s  
+  ✓ it can get purchase details                                                                                  0.03s  
+  ✓ it can get pending sales                                                                                     0.03s  
+
+   PASS  Tests\Unit\ExampleTest
+  ✓ that true is true                                                                                            0.01s  
+
+   WARN  Tests\Unit\ReclamacaoControllerTest
+  - it creates a reclamacao successfully → Este teste requer configuração de mockery mais avançada               0.06s  
+  - it returns 403 when user is not buyer → Este teste requer configuração de mockery mais avançada              0.03s  
+  - it returns 400 when reclamacao already exists → Este teste requer configuração de mockery mais avançada      0.03s  
+  ✓ it verifies reclamacao table name                                                                            0.03s  
+  ✓ it validates required fields                                                                                 0.05s  
+  - admin can see all reclamacoes → Este teste requer configuração de mockery mais avançada                      0.03s  
+  - normal user can only see own reclamacoes → Este teste requer configuração de mockery mais avançada           0.03s  
+
+   PASS  Tests\Unit\ReclamacaoModelTest
+  ✓ it has correct relationships                                                                                 0.04s  
+  ✓ it can scope by status                                                                                       0.06s  
+  ✓ it has correct table name and primary key                                                                    0.03s  
+  ✓ it uses correct fillable attributes                                                                          0.03s  
+  ✓ it has correct casts                                                                                         0.03s  
+  ✓ it doesnt use timestamps                                                                                     0.03s  
+  ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\CompraControllerTest > it has correct relationships                                               
+  O relacionamento com reclamações não existe
+Failed asserting that false is true.
+
+  at tests\Unit\CompraControllerTest.php:94
+     90▕         $this->assertTrue(method_exists($compra, 'utilizador'), 
+     91▕             'O relacionamento com utilizador não existe');
+     92▕         $this->assertTrue(method_exists($compra, 'anuncio'), 
+     93▕             'O relacionamento com anúncio não existe');
+  ➜  94▕         $this->assertTrue(method_exists($compra, 'reclamacaos'), 
+     95▕             'O relacionamento com reclamações não existe');
+     96▕         $this->assertTrue(method_exists($compra, 'avaliacaos'), 
+     97▕             'O relacionamento com avaliações não existe');
+     98▕         $this->assertTrue(method_exists($compra, 'pagamentos'),
+
+  1   tests\Unit\CompraControllerTest.php:94
+
+
+  Tests:    1 failed, 7 skipped, 20 passed (36 assertions)
+  Duration: 1.63s
+
+ 
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\AnuncioApiTest::unauthenticated_user_cannot_create_anuncio(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\AnuncioApiTest::unauthenticated_user_can_view_public_anuncios(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\AnuncioApiTest::user_can_create_anuncio(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\AnuncioApiTest::user_can_view_own_anuncios(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\AnuncioApiTest::anuncios_can_be_filtered_by_categoria(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\AnuncioApiTest::user_can_update_own_anuncio(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\AnuncioApiTest::random_anuncios_endpoint_returns_success(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\CompraApiTest::unauthenticated_user_cannot_access_compra_endpoints(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\CompraApiTest::user_can_view_own_purchases(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\CompraApiTest::user_can_view_own_sales(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\CompraApiTest::user_can_view_purchase_details(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\CompraApiTest::user_can_cancel_own_purchase(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\CompraApiTest::user_can_confirm_receipt(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\ReclamacaoApiTest::unauthenticated_user_cannot_access_reclamacao_endpoints(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\ReclamacaoApiTest::user_can_create_reclamacao_for_own_purchase(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\ReclamacaoApiTest::user_cannot_create_reclamacao_for_other_users_purchase(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\ReclamacaoApiTest::user_can_see_own_reclamacoes(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\ReclamacaoApiTest::admin_can_see_all_reclamacoes(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\ReclamacaoApiTest::admin_can_update_reclamacao_status(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\ReclamacaoApiTest::validation_fails_with_missing_fields(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\ReclamacaoApiTest::validation_fails_with_invalid_compra_id(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\ReclamacaoApiTest::reclamacao_show_endpoint_returns_detailed_info(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+[2025-04-27 21:40:54] testing.INFO: Buscando anúncios públicos {"filtros":[]} 
+
+[2025-04-27 21:40:54] testing.INFO: Status disponíveis: {"STATUS_PENDENTE":4,"STATUS_ATIVO":1,"STATUS_REJEITADO":7} 
+
+[2025-04-27 21:40:54] testing.INFO: Amostra de anúncios na BD: {"anuncios":{"Illuminate\\Database\\Eloquent\\Collection":[{"ID_Anuncio":1,"Titulo":"teste","Status_AnuncioID_Status_Anuncio":3,"CategoriaID_Categoria":1,"Tipo_ItemID_Tipo":1},{"ID_Anuncio":2,"Titulo":"teste2","Status_AnuncioID_Status_Anuncio":1,"CategoriaID_Categoria":2,"Tipo_ItemID_Tipo":2},{"ID_Anuncio":3,"Titulo":"portatil","Status_AnuncioID_Status_Anuncio":3,"CategoriaID_Categoria":1,"Tipo_ItemID_Tipo":1},{"ID_Anuncio":4,"Titulo":"bicicleta","Status_AnuncioID_Status_Anuncio":1,"CategoriaID_Categoria":9,"Tipo_ItemID_Tipo":1},{"ID_Anuncio":5,"Titulo":"rato logitech","Status_AnuncioID_Status_Anuncio":3,"CategoriaID_Categoria":1,"Tipo_ItemID_Tipo":1},{"ID_Anuncio":6,"Titulo":"bicicleta","Status_AnuncioID_Status_Anuncio":3,"CategoriaID_Categoria":9,"Tipo_ItemID_Tipo":1},{"ID_Anuncio":7,"Titulo":"airpods","Status_AnuncioID_Status_Anuncio":3,"CategoriaID_Categoria":1,"Tipo_ItemID_Tipo":1},{"ID_Anuncio":8,"Titulo":"apple watch","Status_AnuncioID_Status_Anuncio":3,"CategoriaID_Categoria":1,"Tipo_ItemID_Tipo":1},{"ID_Anuncio":10,"Titulo":"Iphone 16 Pro","Status_AnuncioID_Status_Anuncio":1,"CategoriaID_Categoria":7,"Tipo_ItemID_Tipo":1},{"ID_Anuncio":11,"Titulo":"Crime do padre amaro","Status_AnuncioID_Status_Anuncio":1,"CategoriaID_Categoria":4,"Tipo_ItemID_Tipo":1}]}} 
+
+[2025-04-27 21:40:54] testing.INFO: Anúncios encontrados: {"count":8,"query":"select * from `anuncio` where `Status_AnuncioID_Status_Anuncio` in (?, ?) order by `ID_Anuncio` desc","bindings":[1,8]} 
+
+[2025-04-27 21:40:54] testing.INFO: Buscando anúncios por categoria {"categoria_id":"1"} 
+
+[2025-04-27 21:40:54] testing.INFO: Anúncios encontrados por categoria {"categoria_id":"1","quantidade":0} 
+
+
+   WARN  Tests\Feature\AnuncioApiTest
+  ✓ unauthenticated user cannot create anuncio                                                                   0.33s  
+  ✓ unauthenticated user can view public anuncios                                                                0.12s  
+  - user can create anuncio → Teste que requer configuração de banco de dados de teste                           0.04s  
+  - user can view own anuncios → Teste que requer configuração de banco de dados de teste                        0.02s  
+  ✓ anuncios can be filtered by categoria                                                                        0.05s  
+  - user can update own anuncio → Teste que requer configuração de banco de dados de teste                       0.02s  
+  ✓ random anuncios endpoint returns success                                                                     0.05s  
+
+   WARN  Tests\Feature\CompraApiTest
+  ✓ unauthenticated user cannot access compra endpoints                                                          0.04s  
+  - user can view own purchases → Teste que requer configuração de banco de dados de teste                       0.02s  
+  - user can view own sales → Teste que requer configuração de banco de dados de teste                           0.02s  
+  - user can view purchase details → Teste que requer configuração de banco de dados de teste                    0.02s  
+  - user can cancel own purchase → Teste que requer configuração de banco de dados de teste                      0.02s  
+  - user can confirm receipt → Teste que requer configuração de banco de dados de teste                          0.02s  
+
+   PASS  Tests\Feature\ExampleTest
+  ✓ the application returns a successful response                                                                0.07s  
+
+   WARN  Tests\Feature\ReclamacaoApiTest
+  ✓ unauthenticated user cannot access reclamacao endpoints                                                      0.05s  
+  - user can create reclamacao for own purchase → Necessita configuração de banco de dados de teste              0.03s  
+  - user cannot create reclamacao for other users purchase → Necessita configuração de banco de dados de teste   0.05s  
+  - user can see own reclamacoes → Demonstração de teste que evita interação com banco de dados                  0.06s  
+  - admin can see all reclamacoes → Demonstração de teste que evita interação com banco de dados                 0.06s  
+  - admin can update reclamacao status → Demonstração de teste que evita interação com banco de dados            0.06s  
+  - validation fails with missing fields → Demonstração de teste de validação - pulado para evitar erro 500      0.06s  
+  - validation fails with invalid compra id → Demonstração de teste de validação - pulado para evitar erro 500   0.05s  
+  - reclamacao show endpoint returns detailed info → Demonstração de teste que evita interação com banco de dad… 0.05s  
+
+  Tests:    16 skipped, 7 passed (9 assertions)
+  Duration: 1.61s
+

@@ -483,7 +483,7 @@ class TrocaController extends Controller
             
             $troca->fill($request->all());
             $troca->save();
-
+        
             // Se o status mudou para aceito ou rejeitado
             if ($oldStatus != $troca->Status_TrocaID_Status_Troca) {
                 $anuncio = Anuncio::find($troca->AnuncioID_Anuncio);

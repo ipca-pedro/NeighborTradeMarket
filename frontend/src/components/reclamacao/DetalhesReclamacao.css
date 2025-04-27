@@ -1,0 +1,76 @@
+.reclamacao-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.reclamacao-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.reclamacao-header h5 {
+    margin: 0;
+    color: #333;
+}
+
+.status-badge {
+    font-size: 0.9rem;
+    padding: 8px 12px;
+}
+
+.reclamacao-info {
+    margin-bottom: 20px;
+}
+
+.info-section {
+    margin-bottom: 15px;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.info-value {
+    color: #333;
+}
+
+.reclamacao-descricao {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+
+.reclamacao-descricao h6 {
+    margin-bottom: 10px;
+    color: #495057;
+}
+
+.reclamacao-descricao p {
+    margin-bottom: 0;
+    color: #333;
+    line-height: 1.5;
+}
+
+.reclamacao-actions {
+    margin-bottom: 24px;
+}
+
+.reclamacao-chat {
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
+
+.reclamacao-chat h6 {
+    margin-bottom: 16px;
+    color: #333;
+} 

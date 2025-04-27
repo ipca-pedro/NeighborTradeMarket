@@ -157,26 +157,26 @@ const MinhasCompras = () => {
                                     </Card.Text>
                                     
                                     <div className="mt-3">
-                                        <Button 
-                                            variant="danger" 
-                                            onClick={() => handleAbrirReclamacao(compra)}
-                                            className="me-2"
+                                            <Button 
+                                                variant="danger" 
+                                                onClick={() => handleAbrirReclamacao(compra)}
+                                                className="me-2"
                                             disabled={compra.reclamacoes && compra.reclamacoes.length > 0}
-                                        >
+                                            >
                                             {compra.reclamacoes && compra.reclamacoes.length > 0
                                                 ? 'Já Reclamado'
                                                 : 'Fazer Reclamação'
                                             }
-                                        </Button>
-
-                                        <Button 
+                                            </Button>
+                                        
+                                            <Button 
                                             variant="success"
                                             onClick={() => handleAbrirAvaliacao(compra)}
                                             className="ms-2"
                                             disabled={compra.avaliacoes && compra.avaliacoes.length > 0}
                                         >
                                             {compra.avaliacoes && compra.avaliacoes.length > 0 ? 'Já Avaliado' : 'Avaliar'}
-                                        </Button>
+                                            </Button>
                                     </div>
                                 </Card.Body>
                             </Card>
@@ -279,4 +279,4 @@ const MinhasCompras = () => {
     );
 };
 
-export default MinhasCompras;
+export default MinhasCompras; 

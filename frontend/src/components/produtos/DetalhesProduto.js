@@ -264,8 +264,8 @@ const DetalhesProduto = () => {
                                                     ))}
                                                     <span className="ms-1 text-muted">
                                                         ({anuncio.utilizador?.media_avaliacoes?.toFixed(1) || '0.0'})
-                                                    </span>
-                                                </div>
+                                                </span>
+                                            </div>
                                             </Button>
                                         </div>
                                         {/* Botões de compra e mensagem */}

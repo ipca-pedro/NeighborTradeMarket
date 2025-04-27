@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Card, Badge, Alert, Spinner, Row, Col, Button } from 'react-bootstrap';
+import { Container, Card, Badge, Alert, Spinner, Row, Col, Button, Form } from 'react-bootstrap';
 import { useParams, useNavigate } from 'react-router-dom';
 import { formatarData } from '../../utils/dataUtils';
 import Header from '../layout/Header';
-import { buscarReclamacao, buscarMensagensReclamacao } from '../../services/reclamacaoService';
+import { buscarReclamacao, buscarMensagensReclamacao, enviarMensagem } from '../../services/reclamacaoService';
 
 const DetalhesReclamacao = () => {
     const { id } = useParams();
@@ -12,6 +12,8 @@ const DetalhesReclamacao = () => {
     const [mensagens, setMensagens] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [novaMensagem, setNovaMensagem] = useState('');
+    const [enviandoMensagem, setEnviandoMensagem] = useState(false);
 
     useEffect(() => {
         carregarDetalhes();
@@ -40,7 +42,6 @@ const DetalhesReclamacao = () => {
     const getStatusBadgeVariant = (status) => {
         switch (status) {
             case 1: return 'warning';  // Pendente
-            case 2: return 'info';     // Em análise
             case 3: return 'success';  // Resolvida
             case 4: return 'danger';   // Rejeitada
             default: return 'secondary';
@@ -50,10 +51,33 @@ const DetalhesReclamacao = () => {
     const getStatusText = (status) => {
         switch (status) {
             case 1: return 'Pendente';
-            case 2: return 'Em Análise';
             case 3: return 'Resolvida';
             case 4: return 'Rejeitada';
             default: return 'Desconhecido';
+        }
+    };
+
+    const podeEnviarMensagem = (status) => {
+        // Pode enviar mensagem se estiver pendente
+        return status === 1;
+    };
+
+    const handleEnviarMensagem = async (e) => {
+        e.preventDefault();
+        if (!novaMensagem.trim() || !podeEnviarMensagem(reclamacao.Status_ReclamacaoID_Status_Reclamacao)) return;
+
+        try {
+            setEnviandoMensagem(true);
+            await enviarMensagem(id, novaMensagem);
+            setNovaMensagem('');
+            // Recarregar mensagens
+            const msgs = await buscarMensagensReclamacao(id);
+            setMensagens(msgs.mensagens || []);
+        } catch (err) {
+            console.error('Erro ao enviar mensagem:', err);
+            setError('Erro ao enviar mensagem. Por favor, tente novamente.');
+        } finally {
+            setEnviandoMensagem(false);
         }
     };
 
@@ -132,7 +156,7 @@ const DetalhesReclamacao = () => {
                             <p>{reclamacao.Descricao}</p>
                         </div>
 
-                        <div>
+                        <div className="mb-4">
                             <h6>Histórico de Mensagens:</h6>
                             {mensagens.length === 0 ? (
                                 <p className="text-muted">Nenhuma mensagem trocada ainda.</p>
@@ -150,6 +174,32 @@ const DetalhesReclamacao = () => {
                                 </div>
                             )}
                         </div>
+
+                        {podeEnviarMensagem(reclamacao.Status_ReclamacaoID_Status_Reclamacao) ? (
+                            <Form onSubmit={handleEnviarMensagem}>
+                                <Form.Group className="mb-3">
+                                    <Form.Control
+                                        as="textarea"
+                                        rows={3}
+                                        placeholder="Digite sua mensagem..."
+                                        value={novaMensagem}
+                                        onChange={(e) => setNovaMensagem(e.target.value)}
+                                        disabled={enviandoMensagem}
+                                    />
+                                </Form.Group>
+                                <Button 
+                                    type="submit" 
+                                    variant="primary"
+                                    disabled={!novaMensagem.trim() || enviandoMensagem}
+                                >
+                                    {enviandoMensagem ? 'Enviando...' : 'Enviar Mensagem'}
+                                </Button>
+                            </Form>
+                        ) : (
+                            <Alert variant="info">
+                                Esta reclamação já foi {reclamacao.Status_ReclamacaoID_Status_Reclamacao === 3 ? 'resolvida' : 'rejeitada'} pelo administrador e não aceita mais mensagens.
+                            </Alert>
+                        )}
                     </Card.Body>
                 </Card>
             </Container>
