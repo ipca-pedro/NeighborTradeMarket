@@ -30,7 +30,6 @@ import CriarProduto from './components/produtos/CriarProduto';
 import MeusAnuncios from './components/perfil/MeusAnuncios';
 import HomePage from './components/home/HomePage';
 import Footer from './components/layout/Footer';
-import HomeButton from './components/layout/HomeButton';
 
 // Componentes de Informação
 import About from './components/about/About';
@@ -91,7 +90,6 @@ function App() {
       <ChatProvider>
         <Router>
           <div className="App d-flex flex-column min-vh-100">
-            <HomeButton />
             <Routes>
               {/* Rotas Públicas */}
               <Route path="/" element={<HomePage />} />

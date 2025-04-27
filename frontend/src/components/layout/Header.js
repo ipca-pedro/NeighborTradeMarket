@@ -183,14 +183,22 @@ const Header = () => {
                         )}
                         
                         <div className="position-relative me-3 notifications-dropdown">
-                            <Nav.Link 
-                                className="text-white position-relative d-flex align-items-center" 
+                            <Nav.Link
+                                className="text-white position-relative d-flex align-items-center"
                                 onClick={() => setShowNotificationsDropdown(!showNotificationsDropdown)}
-                                style={{ cursor: 'pointer' }}
+                                style={{
+                                    cursor: 'pointer',
+                                    width: '40px',
+                                    height: '40px',
+                                    padding: 0,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}
                             >
-                                <i className="fas fa-bell"></i>
+                                <i className="fas fa-bell" style={{ fontSize: '20px', width: '20px', height: '20px', lineHeight: '20px' }}></i>
                                 {unreadCount > 0 && (
-                                    <span 
+                                    <span
                                         className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
                                         style={{ fontSize: '0.65rem', marginTop: '-3px' }}
                                     >
@@ -199,21 +207,24 @@ const Header = () => {
                                 )}
                             </Nav.Link>
                             {showNotificationsDropdown && (
-                                <>
-                                    <NotificationDropdown 
+                                <div
+                                    className="position-absolute bg-white shadow rounded"
+                                    style={{ top: '100%', right: 0, width: '320px', zIndex: 1000 }}
+                                >
+                                    <NotificationDropdown
                                         notifications={notifications}
                                         onRead={handleMarkAsRead}
                                     />
                                     <div className="text-center p-2 border-top">
-                                        <Link 
-                                            to="/perfil?tab=notificacoes" 
+                                        <Link
+                                            to="/perfil?tab=notificacoes"
                                             className="text-decoration-none small"
                                             onClick={() => setShowNotificationsDropdown(false)}
                                         >
                                             Ver todas as notificações
                                         </Link>
                                     </div>
-                                </>
+                                </div>
                             )}
                         </div>
                         <div className="position-relative me-3 messages-dropdown">
