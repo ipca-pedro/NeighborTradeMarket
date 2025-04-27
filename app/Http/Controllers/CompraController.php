@@ -522,4 +522,17 @@ class CompraController extends Controller
 
         return response()->json($compras);
     }
+
+    /**
+     * Listar compras de um utilizador específico (admin ou uso geral)
+     */
+    public function comprasPorUtilizador($userId)
+    {
+        $compras = Compra::with(['anuncio.status_anuncio', 'utilizador'])
+            ->where('UtilizadorID_User', $userId)
+            ->orderBy('Data', 'desc')
+            ->get();
+
+        return response()->json($compras);
+    }
 }

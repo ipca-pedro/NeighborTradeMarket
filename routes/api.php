@@ -97,6 +97,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/compras/minhas', [CompraController::class, 'minhasCompras']);
     Route::get('/compras/{id}', [CompraController::class, 'show']);
     
+    // Listar compras de um utilizador específico (admin ou uso geral)
+    Route::get('/compras/utilizador/{userId}', [CompraController::class, 'comprasPorUtilizador']);
+
     // Rotas de administrador
     Route::prefix('admin')->group(function () {
         // Users
