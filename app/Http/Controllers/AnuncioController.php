@@ -9,6 +9,7 @@ use App\Models\ItemImagem;
 use App\Models\Categoria;
 use App\Models\TipoItem;
 use App\Models\StatusAnuncio;
+use App\Models\Notificacao;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -1216,29 +1217,36 @@ class AnuncioController extends Controller
         try {
             DB::beginTransaction();
 
+            // Update anuncio status to require review
             $anuncio = Anuncio::findOrFail($id);
-            
-            // Atualiza o status do anúncio para pendente
-            $anuncio->Status_AnuncioID_Status_Anuncio = 4; // 4 = Pendente
+            $anuncio->Status_AnuncioID_Status_Anuncio = 4; // Status pendente
             $anuncio->save();
 
-            // Cria notificação para o vendedor
-            DB::table('Notificacao')->insert([
-                'Mensagem' => 'Seu anúncio "' . $anuncio->Titulo . '" requer revisão.',
-                'DataNotificacao' => now(),
-                'ReferenciaID' => $anuncio->ID_Anuncio,
-                'UtilizadorID_User' => $anuncio->UtilizadorID_User,
-                'ReferenciaTipoID_ReferenciaTipo' => 1, // 1 = Anúncio
-                'TIpo_notificacaoID_TipoNotificacao' => 3, // 3 = Atualização de Status
-                'Lida' => false
-            ]);
+            // Create notification
+            $notificacao = new Notificacao();
+            $notificacao->Mensagem = "O anúncio '{$anuncio->Titulo}' requer revisão";
+            $notificacao->DataNotificacao = now();
+            $notificacao->ReferenciaID = $anuncio->ID_Anuncio;
+            $notificacao->UtilizadorID_User = $anuncio->UtilizadorID_User;
+            $notificacao->ReferenciaTipoID_ReferenciaTipo = 1; // Anúncio
+            $notificacao->TIpo_notificacaoID_TipoNotificacao = 3; // Atualização de Status
+            $notificacao->Estado_notificacaoID_estado_notificacao = 1; // Não Lida
+
+            $notificacao->save();
 
             DB::commit();
-            return response()->json(['message' => 'Anúncio marcado para revisão com sucesso.']);
+
+            return response()->json([
+                'message' => 'Anúncio marcado para revisão com sucesso',
+                'status' => true
+            ]);
 
         } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json(['error' => 'Erro ao marcar anúncio para revisão: ' . $e->getMessage()], 500);
+            DB::rollback();
+            return response()->json([
+                'message' => 'Erro ao marcar anúncio para revisão: ' . $e->getMessage(),
+                'status' => false
+            ], 500);
         }
     }
 }

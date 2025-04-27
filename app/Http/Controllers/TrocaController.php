@@ -211,7 +211,8 @@ class TrocaController extends Controller
                 'ReferenciaID' => $troca->ID_Troca,
                 'UtilizadorID_User' => $itemSolicitado->UtilizadorID_User,
                 'ReferenciaTipoID_ReferenciaTipo' => 4, // Trocas
-                'TIpo_notificacaoID_TipoNotificacao' => 9 // Nova proposta de troca
+                'TIpo_notificacaoID_TipoNotificacao' => 9, // Nova proposta de troca
+                'Estado_notificacaoID_estado_notificacao' => 1 // Não Lida
             ]);
 
             DB::commit();
@@ -294,7 +295,8 @@ class TrocaController extends Controller
                 'ReferenciaID' => $troca->ID_Troca,
                 'UtilizadorID_User' => $itemOferecido->UtilizadorID_User,
                 'ReferenciaTipoID_ReferenciaTipo' => 3, // Trocas
-                'TIpo_notificacaoID_TipoNotificacao' => 2 // Propostas de troca
+                'TIpo_notificacaoID_TipoNotificacao' => 2, // Propostas de troca
+                'Estado_notificacaoID_estado_notificacao' => 1 // Não Lida
             ]);
             
             DB::commit();
@@ -354,7 +356,8 @@ class TrocaController extends Controller
                 'ReferenciaID' => $troca->ID_Troca,
                 'UtilizadorID_User' => $itemOferecido->UtilizadorID_User,
                 'ReferenciaTipoID_ReferenciaTipo' => 3, // Trocas
-                'TIpo_notificacaoID_TipoNotificacao' => 2 // Propostas de troca
+                'TIpo_notificacaoID_TipoNotificacao' => 2, // Propostas de troca
+                'Estado_notificacaoID_estado_notificacao' => 1 // Não Lida
             ]);
             
             DB::commit();
@@ -414,7 +417,8 @@ class TrocaController extends Controller
                 'ReferenciaID' => $troca->ID_Troca,
                 'UtilizadorID_User' => $itemSolicitado->UtilizadorID_User,
                 'ReferenciaTipoID_ReferenciaTipo' => 3, // Trocas
-                'TIpo_notificacaoID_TipoNotificacao' => 2 // Propostas de troca
+                'TIpo_notificacaoID_TipoNotificacao' => 2, // Propostas de troca
+                'Estado_notificacaoID_estado_notificacao' => 1 // Não Lida
             ]);
             
             DB::commit();
@@ -519,7 +523,8 @@ class TrocaController extends Controller
                             'ReferenciaID' => $troca->ID_Troca,
                             'UtilizadorID_User' => $troca->UtilizadorID_User,
                             'ReferenciaTipoID_ReferenciaTipo' => 4, // Trocas
-                            'TIpo_notificacaoID_TipoNotificacao' => $tipoNotificacao
+                            'TIpo_notificacaoID_TipoNotificacao' => $tipoNotificacao,
+                            'Estado_notificacaoID_estado_notificacao' => 1 // Não Lida
                         ]);
                     }
                 }
