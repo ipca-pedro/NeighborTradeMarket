@@ -694,4 +694,14 @@ export const anuncioService = {
     }
 };
 
+export const getUnreadMessagesCount = async () => {
+  try {
+    const response = await api.get('/mensagens/nao-lidas/contar');
+    return response.data.unread_count || 0;
+  } catch (error) {
+    console.error('Erro ao buscar contagem de mensagens não lidas:', error);
+    return 0;
+  }
+};
+
 export default api;

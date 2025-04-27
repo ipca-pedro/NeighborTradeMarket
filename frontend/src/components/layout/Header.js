@@ -8,6 +8,7 @@ import CategoryMenu from './CategoryMenu';
 import HelpModal from '../help/HelpModal';
 import NotificationDropdown from '../notifications/NotificationDropdown';
 import { notificacaoService } from '../../services/notificacaoService';
+import { getUnreadMessagesCount } from '../../services/api';
 
 const Header = () => {
     const [showLoginPopup, setShowLoginPopup] = useState(false);
@@ -18,6 +19,9 @@ const Header = () => {
     const [showNotificationsDropdown, setShowNotificationsDropdown] = useState(false);
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
+    const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
+    const [messageNotifications, setMessageNotifications] = useState([]);
+    const [generalNotifications, setGeneralNotifications] = useState([]);
 
     const { currentUser, logout } = useAuth();
     const navigate = useNavigate();
@@ -38,8 +42,14 @@ const Header = () => {
                 referenceType: notif.ReferenciaTipoID_ReferenciaTipo,
                 type: notif.TIpo_notificacaoID_TipoNotificacao
             }));
-            setNotifications(formattedNotifications);
-            setUnreadCount(formattedNotifications.filter(n => !n.read).length);
+            // Agora, notificações de mensagem são as que tem referenceType === 2
+            const msgNotifs = formattedNotifications.filter(n => n.referenceType === 2);
+            const generalNotifs = formattedNotifications.filter(n => n.referenceType !== 2);
+            setMessageNotifications(msgNotifs);
+            setGeneralNotifications(generalNotifs);
+            setNotifications(formattedNotifications); // mantém todas para uso geral
+            setUnreadCount(generalNotifs.filter(n => !n.read).length);
+            setMessages(msgNotifs);
         } catch (error) {
             console.error('Erro ao buscar notificações:', error);
         }
@@ -54,6 +64,23 @@ const Header = () => {
             return () => clearInterval(interval);
         }
     }, [currentUser]);
+
+    useEffect(() => {
+        if (currentUser && currentUser.ID_User) {
+            const fetchUnreadMessages = async () => {
+                const count = await getUnreadMessagesCount();
+                setUnreadMessagesCount(count);
+            };
+            fetchUnreadMessages();
+            const interval = setInterval(fetchUnreadMessages, 5000);
+            return () => clearInterval(interval);
+        }
+    }, [currentUser]);
+
+    useEffect(() => {
+        // Badge de mensagens não lidas deve ser a contagem de messageNotifications não lidas
+        setUnreadMessagesCount(messageNotifications.filter(n => !n.read).length);
+    }, [messageNotifications]);
 
     const handleMarkAsRead = async (notificationId) => {
         try {
@@ -212,7 +239,7 @@ const Header = () => {
                                     style={{ top: '100%', right: 0, width: '320px', zIndex: 1000 }}
                                 >
                                     <NotificationDropdown
-                                        notifications={notifications}
+                                        notifications={generalNotifications}
                                         onRead={handleMarkAsRead}
                                         onMarkAllAsRead={handleMarkAllAsRead}
                                     />
@@ -231,10 +258,18 @@ const Header = () => {
                         <div className="position-relative me-3 messages-dropdown">
                             <Nav.Link 
                                 href="#" 
-                                className="text-white" 
+                                className="text-white position-relative" 
                                 onClick={() => setShowMessagesDropdown(!showMessagesDropdown)}
                             >
                                 <i className="far fa-comment-alt text-white"></i>
+                                {messageNotifications.filter(n => !n.read).length > 0 && (
+                                    <span
+                                        className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                        style={{ fontSize: '0.65rem', marginTop: '-3px' }}
+                                    >
+                                        {messageNotifications.filter(n => !n.read).length}
+                                    </span>
+                                )}
                             </Nav.Link>
                             {showMessagesDropdown && (
                                 <div 
@@ -250,16 +285,17 @@ const Header = () => {
                                         <h6 className="mb-0">Mensagens</h6>
                                     </div>
                                     <div className="messages-list" style={{ maxHeight: '400px', overflowY: 'auto' }}>
-                                        {messages.length === 0 ? (
+                                        {messageNotifications.length === 0 ? (
                                             <div className="p-4 text-center text-muted">
                                                 <i className="far fa-comment-alt fa-2x mb-2"></i>
                                                 <p className="mb-0">Você ainda não tem mensagens</p>
                                                 <small>Quando iniciar uma conversa, ela aparecerá aqui</small>
                                             </div>
                                         ) : (
-                                            messages.map(message => (
+                                            messageNotifications.map(message => (
                                                 <div key={message.id} className="p-3 border-bottom hover-bg-light">
-                                                    {/* Aqui vai o conteúdo de cada mensagem quando implementado */}
+                                                    <div className="fw-bold mb-1">{message.message}</div>
+                                                    <div className="text-muted small">{message.date.toLocaleString()}</div>
                                                 </div>
                                             ))
                                         )}
