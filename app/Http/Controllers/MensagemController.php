@@ -235,7 +235,8 @@ class MensagemController extends Controller
                         'ReferenciaID' => $mensagem->ID_Mensagem,
                         'UtilizadorID_User' => $ultimoRemetente,
                         'ReferenciaTipoID_ReferenciaTipo' => 2,
-                        'TIpo_notificacaoID_TipoNotificacao' => 5
+                        'TIpo_notificacaoID_TipoNotificacao' => 5,
+                        'Estado_notificacaoID_estado_notificacao' => 1
                     ]);
                 }
             } else {
@@ -246,7 +247,8 @@ class MensagemController extends Controller
                 'ReferenciaID' => $mensagem->ID_Mensagem,
                 'UtilizadorID_User' => $anuncio->UtilizadorID_User,
                     'ReferenciaTipoID_ReferenciaTipo' => 2,
-                    'TIpo_notificacaoID_TipoNotificacao' => 5
+                    'TIpo_notificacaoID_TipoNotificacao' => 5,
+                    'Estado_notificacaoID_estado_notificacao' => 1
             ]);
             }
             
@@ -349,7 +351,8 @@ class MensagemController extends Controller
                         'ReferenciaID' => $mensagem->ID_Mensagem,
                         'UtilizadorID_User' => $recipient->UtilizadorID_User,
                         'ReferenciaTipoID_ReferenciaTipo' => 2,
-                        'TIpo_notificacaoID_TipoNotificacao' => 5
+                        'TIpo_notificacaoID_TipoNotificacao' => 5,
+                        'Estado_notificacaoID_estado_notificacao' => 1
                     ]);
                 }
             } else {
@@ -366,7 +369,8 @@ class MensagemController extends Controller
                     'ReferenciaID' => $mensagem->ID_Mensagem,
                     'UtilizadorID_User' => $anuncio->UtilizadorID_User,
                     'ReferenciaTipoID_ReferenciaTipo' => 2,
-                    'TIpo_notificacaoID_TipoNotificacao' => 5
+                    'TIpo_notificacaoID_TipoNotificacao' => 5,
+                    'Estado_notificacaoID_estado_notificacao' => 1
                 ]);
             }
             
@@ -504,7 +508,8 @@ class MensagemController extends Controller
                 'ReferenciaID' => $mensagem->ID_Mensagem,
                 'UtilizadorID_User' => $anuncio->UtilizadorID_User,
                 'ReferenciaTipoID_ReferenciaTipo' => 2,
-                'TIpo_notificacaoID_TipoNotificacao' => 5
+                'TIpo_notificacaoID_TipoNotificacao' => 5,
+                'Estado_notificacaoID_estado_notificacao' => 1
             ]);
 
             DB::commit();

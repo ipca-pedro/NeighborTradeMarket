@@ -33,11 +33,19 @@ const Mensagens = () => {
 
   useEffect(() => {
     loadConversations();
+    const interval = setInterval(() => {
+      loadConversations();
+    }, 5000);
+    return () => clearInterval(interval);
   }, [conversationPage]);
 
   useEffect(() => {
     if (selectedConversation) {
       loadMessages(selectedConversation.ID_Anuncio);
+      const interval = setInterval(() => {
+        loadMessages(selectedConversation.ID_Anuncio);
+      }, 5000);
+      return () => clearInterval(interval);
     }
   }, [selectedConversation, messagePage]);
 
@@ -216,6 +224,7 @@ const Mensagens = () => {
               className="mensagens-lista" 
               ref={messagesListRef}
               onScroll={handleScroll}
+              style={{ minHeight: '500px', height: '75vh', maxHeight: '85vh' }}
             >
               {loadingMore && (
                 <div className="loading-messages">

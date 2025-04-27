@@ -66,6 +66,17 @@ const UserToUserChat = ({ show, onClose, anuncioId, vendedorId, vendedorNome }) 
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [show, minimized]);
 
+    useEffect(() => {
+        if (!show) return;
+        loadMessages(); // Carrega ao abrir
+
+        const interval = setInterval(() => {
+            loadMessages();
+        }, 5000); // 5 segundos
+
+        return () => clearInterval(interval);
+    }, [show, anuncioId]);
+
     const handleSendMessage = async (e) => {
         e.preventDefault();
         if (!inputText.trim()) return;
@@ -119,7 +130,7 @@ const UserToUserChat = ({ show, onClose, anuncioId, vendedorId, vendedorNome }) 
     // Chat expandido
     return (
         <div className="chat-widget" style={{ zIndex: 1060, bottom: 100, right: 20, position: 'fixed' }}>
-            <div className="chat-container" ref={chatRef}>
+            <div className="chat-container" ref={chatRef} style={{ height: 600, width: 350 }}>
                 <div className="chat-header bg-primary text-white d-flex justify-content-between align-items-center p-3">
                     <div>
                         <i className="fas fa-user me-2"></i>
@@ -129,8 +140,8 @@ const UserToUserChat = ({ show, onClose, anuncioId, vendedorId, vendedorNome }) 
                         <i className="fas fa-times"></i>
                     </Button>
                 </div>
-                <div className="chat-body">
-                    <div className="messages-container" style={{ height: 330, overflowY: 'auto' }}>
+                <div className="chat-body" style={{ height: 500, display: 'flex', flexDirection: 'column', position: 'relative' }}>
+                    <div className="messages-container" style={{ height: '100%', overflowY: 'auto', padding: '20px 15px 80px 15px' }}>
                         {loading ? (
                             <div className="text-center p-3">
                                 <div className="spinner-border text-primary" role="status">
@@ -159,20 +170,20 @@ const UserToUserChat = ({ show, onClose, anuncioId, vendedorId, vendedorNome }) 
                         )}
                         <div ref={messagesEndRef} />
                     </div>
-                    <Form className="chat-input-form mt-2" onSubmit={handleSendMessage} autoComplete="off">
-                        <Form.Group className="d-flex align-items-center mb-0">
+                    <form onSubmit={handleSendMessage} className="chat-input-form" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, background: 'white', borderTop: '1px solid #e9ecef', padding: 10, display: 'flex', gap: 8 }}>
+                        <Form.Group style={{ flex: 1, margin: 0 }}>
                             <Form.Control
                                 type="text"
-                                placeholder="Digite sua mensagem..."
                                 value={inputText}
                                 onChange={e => setInputText(e.target.value)}
-                                autoFocus
+                                placeholder="Digite sua mensagem..."
+                                style={{ borderRadius: 20 }}
                             />
-                            <Button variant="primary" type="submit" disabled={!inputText.trim()}>
-                                <i className="fas fa-paper-plane"></i>
-                            </Button>
                         </Form.Group>
-                    </Form>
+                        <Button type="submit" variant="primary" style={{ borderRadius: '50%', width: 40, height: 40, minWidth: 40, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <i className="fas fa-paper-plane"></i>
+                        </Button>
+                    </form>
                 </div>
             </div>
         </div>

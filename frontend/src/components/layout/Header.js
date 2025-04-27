@@ -50,7 +50,7 @@ const Header = () => {
             fetchNotifications();
             const interval = setInterval(() => {
                 fetchNotifications();
-            }, 30000);
+            }, 5000);
             return () => clearInterval(interval);
         }
     }, [currentUser]);
