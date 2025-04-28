@@ -91,9 +91,9 @@ class CompraControllerTest extends TestCase
             'O relacionamento com utilizador não existe');
         $this->assertTrue(method_exists($compra, 'anuncio'), 
             'O relacionamento com anúncio não existe');
-        $this->assertTrue(method_exists($compra, 'reclamacaos'), 
+        $this->assertTrue(method_exists($compra, 'reclamacoes'), 
             'O relacionamento com reclamações não existe');
-        $this->assertTrue(method_exists($compra, 'avaliacaos'), 
+        $this->assertTrue(method_exists($compra, 'avaliacoes'), 
             'O relacionamento com avaliações não existe');
         $this->assertTrue(method_exists($compra, 'pagamentos'), 
             'O relacionamento com pagamentos não existe');
