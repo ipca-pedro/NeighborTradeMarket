@@ -40,30 +40,49 @@ foreach ($linhas as $linha) {
     }
     if (strpos($linha, 'Metadata in doc-comments is deprecated') !== false) {
         continue;
-    } elseif (preg_match('/^PASS\b/i', $linha)) {
-        $currentBlock = 'passados';
-        continue;
-    } elseif (preg_match('/^FAIL\b/i', $linha)) {
-        $currentBlock = 'falhados';
-        continue;
-    } elseif (preg_match('/^WARN(ING)?\b/i', $linha)) {
-        $currentBlock = 'avisos';
-        continue;
-    } elseif (preg_match('/^SKIP(PED)?\b/i', $linha)) {
-        $currentBlock = 'skipped';
-        continue;
-    } elseif (preg_match('/^INCOMPLETE\b/i', $linha)) {
-        $currentBlock = 'incompletos';
-        continue;
-    } elseif (preg_match('/^ERROR\b/i', $linha)) {
-        $currentBlock = 'erros';
+    }
+
+    // Falha real: linha com FAIL ou FAILURE
+    if (preg_match('/FAIL(URE)?/i', $linha)) {
+        $falhados[] = $linha;
+        $total_testes++;
+        $currentBlock = null;
         continue;
     }
 
-    // Captura detalhes dos testes (✓ ou -)
-    if ($currentBlock && (strpos($linha, '✓') === 0 || strpos($linha, '-') === 0)) {
-        ${$currentBlock}[] = $linha;
+    // ✓ = passed
+    if (strpos($linha, '✓') === 0) {
+        $passados[] = $linha;
         $total_testes++;
+        continue;
+    }
+
+    // - = skipped
+    if (strpos($linha, '-') === 0) {
+        $skipped[] = $linha;
+        $total_testes++;
+        continue;
+    }
+
+    // Avisos
+    if (stripos($linha, 'WARN') === 0 || stripos($linha, 'WARNING') === 0) {
+        $avisos[] = $linha;
+        $total_testes++;
+        continue;
+    }
+
+    // Incompletos
+    if (stripos($linha, 'INCOMPLETE') === 0) {
+        $incompletos[] = $linha;
+        $total_testes++;
+        continue;
+    }
+
+    // Erros
+    if (stripos($linha, 'ERROR') === 0) {
+        $erros[] = $linha;
+        $total_testes++;
+        continue;
     }
 }
 

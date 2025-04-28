@@ -98,16 +98,16 @@
    WARN  Metadata found in doc-comment for method Tests\Feature\CompraApiTest::user_can_confirm_receipt(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
 
    PASS  Tests\Unit\ReclamacaoModelTest
-  ✓ it has correct relationships                                                                                 0.23s  
-  ✓ it can scope by status                                                                                       0.06s  
+  ✓ it has correct relationships                                                                                 0.17s  
+  ✓ it can scope by status                                                                                       0.05s  
   ✓ it has correct table name and primary key                                                                    0.02s  
   ✓ it uses correct fillable attributes                                                                          0.02s  
   ✓ it has correct casts                                                                                         0.02s  
-  ✓ it doesnt use timestamps                                                                                     0.03s  
+  ✓ it doesnt use timestamps                                                                                     0.02s  
 
    WARN  Tests\Unit\ReclamacaoControllerTest
-  - it creates a reclamacao successfully → Este teste requer configuração de mockery mais avançada               0.07s  
-  - it returns 403 when user is not buyer → Este teste requer configuração de mockery mais avançada              0.03s  
+  - it creates a reclamacao successfully → Este teste requer configuração de mockery mais avançada               0.05s  
+  - it returns 403 when user is not buyer → Este teste requer configuração de mockery mais avançada              0.02s  
   - it returns 400 when reclamacao already exists → Este teste requer configuração de mockery mais avançada      0.02s  
   ✓ it verifies reclamacao table name                                                                            0.02s  
   ✓ it validates required fields                                                                                 0.04s  
@@ -115,16 +115,16 @@
   - normal user can only see own reclamacoes → Este teste requer configuração de mockery mais avançada           0.02s  
 
    WARN  Tests\Unit\AnuncioControllerTest
-  ✓ it retrieves anuncios for logged in user                                                                     0.04s  
-  - it creates anuncio successfully → Teste simplificado para focar nos principais cenários primeiro             0.03s  
-  ✓ it updates anuncio status                                                                                    0.04s  
+  ✓ it retrieves anuncios for logged in user                                                                     0.03s  
+  - it creates anuncio successfully → Teste simplificado para focar nos principais cenários primeiro             0.02s  
+  ✓ it updates anuncio status                                                                                    0.03s  
   ✓ it categorizes anuncios correctly                                                                            0.02s  
   ✓ it verifies anuncio table name                                                                               0.02s  
   - it can mark anuncio as sold → O AnuncioController não tem um método dedicado para marcar como vendido        0.02s  
   ✓ it can get public anuncios                                                                                   0.02s  
 
    PASS  Tests\Unit\CompraControllerTest
-  ✓ it returns purchases for logged in user                                                                      0.03s  
+  ✓ it returns purchases for logged in user                                                                      0.02s  
   ✓ it creates purchase successfully                                                                             0.02s  
   ✓ it updates purchase status                                                                                   0.02s  
   ✓ it verifies compra table name                                                                                0.02s  
@@ -133,48 +133,48 @@
   ✓ it can get pending sales                                                                                     0.02s  
 
    WARN  Tests\Feature\ReclamacaoApiTest
-  ✓ unauthenticated user cannot access reclamacao endpoints                                                      0.07s  
+  ✓ unauthenticated user cannot access reclamacao endpoints                                                      0.06s  
   - user can create reclamacao for own purchase → Necessita configuração de banco de dados de teste              0.02s  
-  - user cannot create reclamacao for other users purchase → Necessita configuração de banco de dados de teste   0.03s  
+  - user cannot create reclamacao for other users purchase → Necessita configuração de banco de dados de teste   0.02s  
   - user can see own reclamacoes → Demonstração de teste que evita interação com banco de dados                  0.02s  
   - admin can see all reclamacoes → Demonstração de teste que evita interação com banco de dados                 0.02s  
   - admin can update reclamacao status → Demonstração de teste que evita interação com banco de dados            0.02s  
   - validation fails with missing fields → Demonstração de teste de validação - pulado para evitar erro 500      0.02s  
-  - validation fails with invalid compra id → Demonstração de teste de validação - pulado para evitar erro 500   0.02s  
+  - validation fails with invalid compra id → Demonstração de teste de validação - pulado para evitar erro 500   0.03s  
   - reclamacao show endpoint returns detailed info → Demonstração de teste que evita interação com banco de dad… 0.02s  
-[2025-04-28 00:30:55] testing.INFO: Buscando anúncios públicos {"filtros":[]} 
+[2025-04-28 09:57:37] testing.INFO: Buscando anúncios públicos {"filtros":[]} 
 
-[2025-04-28 00:30:55] testing.INFO: Status disponíveis: {"STATUS_PENDENTE":4,"STATUS_ATIVO":1,"STATUS_REJEITADO":7} 
+[2025-04-28 09:57:37] testing.INFO: Status disponíveis: {"STATUS_PENDENTE":4,"STATUS_ATIVO":1,"STATUS_REJEITADO":7} 
 
-[2025-04-28 00:30:55] testing.INFO: Amostra de anúncios na BD: {"anuncios":{"Illuminate\\Database\\Eloquent\\Collection":[{"ID_Anuncio":1,"Titulo":"teste","Status_AnuncioID_Status_Anuncio":3,"CategoriaID_Categoria":1,"Tipo_ItemID_Tipo":1},{"ID_Anuncio":2,"Titulo":"teste2","Status_AnuncioID_Status_Anuncio":1,"CategoriaID_Categoria":2,"Tipo_ItemID_Tipo":2},{"ID_Anuncio":3,"Titulo":"portatil","Status_AnuncioID_Status_Anuncio":3,"CategoriaID_Categoria":1,"Tipo_ItemID_Tipo":1},{"ID_Anuncio":4,"Titulo":"bicicleta","Status_AnuncioID_Status_Anuncio":1,"CategoriaID_Categoria":9,"Tipo_ItemID_Tipo":1},{"ID_Anuncio":5,"Titulo":"rato logitech","Status_AnuncioID_Status_Anuncio":3,"CategoriaID_Categoria":1,"Tipo_ItemID_Tipo":1},{"ID_Anuncio":6,"Titulo":"bicicleta","Status_AnuncioID_Status_Anuncio":3,"CategoriaID_Categoria":9,"Tipo_ItemID_Tipo":1},{"ID_Anuncio":7,"Titulo":"airpods","Status_AnuncioID_Status_Anuncio":3,"CategoriaID_Categoria":1,"Tipo_ItemID_Tipo":1},{"ID_Anuncio":8,"Titulo":"apple watch","Status_AnuncioID_Status_Anuncio":3,"CategoriaID_Categoria":1,"Tipo_ItemID_Tipo":1},{"ID_Anuncio":10,"Titulo":"Iphone 16 Pro","Status_AnuncioID_Status_Anuncio":1,"CategoriaID_Categoria":7,"Tipo_ItemID_Tipo":1},{"ID_Anuncio":11,"Titulo":"Crime do padre amaro","Status_AnuncioID_Status_Anuncio":1,"CategoriaID_Categoria":4,"Tipo_ItemID_Tipo":1}]}} 
+[2025-04-28 09:57:37] testing.INFO: Amostra de anúncios na BD: {"anuncios":{"Illuminate\\Database\\Eloquent\\Collection":[{"ID_Anuncio":1,"Titulo":"teste","Status_AnuncioID_Status_Anuncio":3,"CategoriaID_Categoria":1,"Tipo_ItemID_Tipo":1},{"ID_Anuncio":2,"Titulo":"teste2","Status_AnuncioID_Status_Anuncio":1,"CategoriaID_Categoria":2,"Tipo_ItemID_Tipo":2},{"ID_Anuncio":3,"Titulo":"portatil","Status_AnuncioID_Status_Anuncio":3,"CategoriaID_Categoria":1,"Tipo_ItemID_Tipo":1},{"ID_Anuncio":4,"Titulo":"bicicleta","Status_AnuncioID_Status_Anuncio":1,"CategoriaID_Categoria":9,"Tipo_ItemID_Tipo":1},{"ID_Anuncio":5,"Titulo":"rato logitech","Status_AnuncioID_Status_Anuncio":3,"CategoriaID_Categoria":1,"Tipo_ItemID_Tipo":1},{"ID_Anuncio":6,"Titulo":"bicicleta","Status_AnuncioID_Status_Anuncio":3,"CategoriaID_Categoria":9,"Tipo_ItemID_Tipo":1},{"ID_Anuncio":7,"Titulo":"airpods","Status_AnuncioID_Status_Anuncio":3,"CategoriaID_Categoria":1,"Tipo_ItemID_Tipo":1},{"ID_Anuncio":8,"Titulo":"apple watch","Status_AnuncioID_Status_Anuncio":3,"CategoriaID_Categoria":1,"Tipo_ItemID_Tipo":1},{"ID_Anuncio":10,"Titulo":"Iphone 16 Pro","Status_AnuncioID_Status_Anuncio":1,"CategoriaID_Categoria":7,"Tipo_ItemID_Tipo":1},{"ID_Anuncio":11,"Titulo":"Crime do padre amaro","Status_AnuncioID_Status_Anuncio":1,"CategoriaID_Categoria":4,"Tipo_ItemID_Tipo":1}]}} 
 
-[2025-04-28 00:30:55] testing.INFO: Anúncios encontrados: {"count":7,"query":"select * from `anuncio` where `Status_AnuncioID_Status_Anuncio` in (?, ?) order by `ID_Anuncio` desc","bindings":[1,8]} 
-
-[2025-04-28 00:30:55] testing.INFO: Buscando anúncios por categoria {"categoria_id":"1"} 
+[2025-04-28 09:57:37] testing.INFO: Anúncios encontrados: {"count":7,"query":"select * from `anuncio` where `Status_AnuncioID_Status_Anuncio` in (?, ?) order by `ID_Anuncio` desc","bindings":[1,8]} 
 
 
    WARN  Tests\Feature\AnuncioApiTest
   ✓ unauthenticated user cannot create anuncio                                                                   0.03s  
-  ✓ unauthenticated user can view public anuncios                                                                0.09s  
-  - user can create anuncio → Teste que requer configuração de banco de dados de teste                           0.02s  
-  - user can view own anuncios → Teste que requer configuração de banco de dados de teste                        0.02s  
+  ✓ unauthenticated user can view public anuncios                                                                0.16s  
+  - user can create anuncio → Teste que requer configuração de banco de dados de teste                           0.04s  
+  - user can view own anuncios → Teste que requer configuração de banco de dados de teste                        0.03s  
   ✓ anuncios can be filtered by categoria                                                                        0.05s  
-  - user can update own anuncio → Teste que requer configuração de banco de dados de teste                       0.03s  
-  ✓ random anuncios endpoint returns success                                                                     0.06s  
-[2025-04-28 00:30:55] testing.INFO: Anúncios encontrados por categoria {"categoria_id":"1","quantidade":0} 
+  - user can update own anuncio → Teste que requer configuração de banco de dados de teste                       0.02s  
+  ✓ random anuncios endpoint returns success                                                                     0.05s  
+[2025-04-28 09:57:37] testing.INFO: Buscando anúncios por categoria {"categoria_id":"1"} 
+
+[2025-04-28 09:57:37] testing.INFO: Anúncios encontrados por categoria {"categoria_id":"1","quantidade":0} 
 
 
    WARN  Tests\Feature\CompraApiTest
-  ✓ unauthenticated user cannot access compra endpoints                                                          0.04s  
-  - user can view own purchases → Teste que requer configuração de banco de dados de teste                       0.03s  
-  - user can view own sales → Teste que requer configuração de banco de dados de teste                           0.03s  
+  ✓ unauthenticated user cannot access compra endpoints                                                          0.03s  
+  - user can view own purchases → Teste que requer configuração de banco de dados de teste                       0.02s  
+  - user can view own sales → Teste que requer configuração de banco de dados de teste                           0.02s  
   - user can view purchase details → Teste que requer configuração de banco de dados de teste                    0.03s  
-  - user can cancel own purchase → Teste que requer configuração de banco de dados de teste                      0.03s  
-  - user can confirm receipt → Teste que requer configuração de banco de dados de teste                          0.03s  
+  - user can cancel own purchase → Teste que requer configuração de banco de dados de teste                      0.02s  
+  - user can confirm receipt → Teste que requer configuração de banco de dados de teste                          0.02s  
 
    PASS  Tests\Unit\ExampleTest
-  ✓ that true is true
+  ✓ that true is true                                                                                            0.01s  
 
   Tests:    23 skipped, 27 passed (46 assertions)
-  Duration: 1.97s
+  Duration: 1.77s
 
