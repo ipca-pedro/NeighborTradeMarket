@@ -54,16 +54,16 @@
    WARN  Metadata found in doc-comment for method Tests\Unit\ReclamacaoModelTest::it_doesnt_use_timestamps(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
 
    WARN  Tests\Unit\AnuncioControllerTest
-  ✓ it retrieves anuncios for logged in user                                                                     0.22s  
-  - it creates anuncio successfully → Teste simplificado para focar nos principais cenários primeiro             0.04s  
-  ✓ it updates anuncio status                                                                                    0.04s  
+  ✓ it retrieves anuncios for logged in user                                                                     0.19s  
+  - it creates anuncio successfully → Teste simplificado para focar nos principais cenários primeiro             0.03s  
+  ✓ it updates anuncio status                                                                                    0.03s  
   ✓ it categorizes anuncios correctly                                                                            0.02s  
   ✓ it verifies anuncio table name                                                                               0.02s  
-  - it can mark anuncio as sold → O AnuncioController não tem um método dedicado para marcar como vendido        0.03s  
+  - it can mark anuncio as sold → O AnuncioController não tem um método dedicado para marcar como vendido        0.02s  
   ✓ it can get public anuncios                                                                                   0.02s  
 
    PASS  Tests\Unit\CompraControllerTest
-  ✓ it returns purchases for logged in user                                                                      0.04s  
+  ✓ it returns purchases for logged in user                                                                      0.03s  
   ✓ it creates purchase successfully                                                                             0.02s  
   ✓ it updates purchase status                                                                                   0.02s  
   ✓ it verifies compra table name                                                                                0.02s  
@@ -79,7 +79,7 @@
   - it returns 403 when user is not buyer → Este teste requer configuração de mockery mais avançada              0.03s  
   - it returns 400 when reclamacao already exists → Este teste requer configuração de mockery mais avançada      0.02s  
   ✓ it verifies reclamacao table name                                                                            0.02s  
-  ✓ it validates required fields                                                                                 0.03s  
+  ✓ it validates required fields                                                                                 0.04s  
   - admin can see all reclamacoes → Este teste requer configuração de mockery mais avançada                      0.02s  
   - normal user can only see own reclamacoes → Este teste requer configuração de mockery mais avançada           0.02s  
 
@@ -92,5 +92,5 @@
   ✓ it doesnt use timestamps                                                                                     0.02s  
 
   Tests:    7 skipped, 21 passed (38 assertions)
-  Duration: 1.16s
+  Duration: 1.10s
 

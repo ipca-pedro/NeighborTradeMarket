@@ -2,40 +2,81 @@
 
 echo "Iniciando geracao do relatorio HTML...\n";
 
-// Defina o caminho absoluto para o arquivo resultado_final.txt
-$arquivo_final = 'C:/xampp/htdocs/NT/resultado_final.txt';
+// Defina o caminho relativo para o arquivo resultado_final.txt
+$arquivo_final = __DIR__ . '/../resultado_final.txt';
 
 if (!file_exists($arquivo_final)) {
     echo "Arquivo resultado_final.txt nao encontrado.\n";
     exit(1);
 }
 
-echo "Lendo resultado_final.txt...\n";
-$resultado = file_get_contents($arquivo_final);
+echo "Lendo resultado_final.txt: {$arquivo_final}\n";
+if (filesize($arquivo_final) == 0) {
+    echo "AVISO: O arquivo de resultados está vazio!\n";
+    $resultado = "";
+} else {
+    $resultado = file_get_contents($arquivo_final);
+    echo "Tamanho do arquivo: " . strlen($resultado) . " bytes\n";
+}
 
 // Processando os resultados dos testes
 $linhas = explode("\n", $resultado);
 $passados = [];
 $falhados = [];
 $avisos = [];
+$skipped = [];
+$incompletos = [];
+$erros = [];
 $total_testes = 0;
 
+echo "Total de linhas encontradas: " . count($linhas) . "\n";
+
+$currentBlock = null;
 foreach ($linhas as $linha) {
+    $linha = trim($linha);
+    if (empty($linha)) {
+        $currentBlock = null;
+        continue;
+    }
     if (strpos($linha, 'Metadata in doc-comments is deprecated') !== false) {
-        continue; // Ignorar avisos de metadata deprecated
-    } elseif (strpos($linha, 'PASS') !== false) {
-        $passados[] = $linha;
-        $total_testes++;
-    } elseif (strpos($linha, 'FAIL') !== false) {
-        $falhados[] = $linha;
-        $total_testes++;
-    } elseif (strpos($linha, 'WARN') !== false) {
-        $avisos[] = $linha;
+        continue;
+    } elseif (preg_match('/^PASS\b/i', $linha)) {
+        $currentBlock = 'passados';
+        continue;
+    } elseif (preg_match('/^FAIL\b/i', $linha)) {
+        $currentBlock = 'falhados';
+        continue;
+    } elseif (preg_match('/^WARN(ING)?\b/i', $linha)) {
+        $currentBlock = 'avisos';
+        continue;
+    } elseif (preg_match('/^SKIP(PED)?\b/i', $linha)) {
+        $currentBlock = 'skipped';
+        continue;
+    } elseif (preg_match('/^INCOMPLETE\b/i', $linha)) {
+        $currentBlock = 'incompletos';
+        continue;
+    } elseif (preg_match('/^ERROR\b/i', $linha)) {
+        $currentBlock = 'erros';
+        continue;
+    }
+
+    // Captura detalhes dos testes (✓ ou -)
+    if ($currentBlock && (strpos($linha, '✓') === 0 || strpos($linha, '-') === 0)) {
+        ${$currentBlock}[] = $linha;
         $total_testes++;
     }
 }
 
+
+echo "Testes encontrados: Passados={" . count($passados) . "}, Falhas={" . count($falhados) . "}, Avisos={" . count($avisos) . "}\n";
+
 $data = date('Y-m-d H:i:s');
+$passados_count = count($passados);
+$falhados_count = count($falhados);
+$avisos_count = count($avisos);
+$skipped_count = count($skipped);
+$incompletos_count = count($incompletos);
+$erros_count = count($erros);
 $html = <<<HTML
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -137,19 +178,31 @@ $html = <<<HTML
         <div class="summary-cards">
             <div class="card bg-success bg-opacity-10">
                 <h3>Passados</h3>
-                <h2 class="display-5">" . count($passados) . "</h2>
+                <h2 class="display-5">{$passados_count}</h2>
             </div>
             <div class="card bg-danger bg-opacity-10">
                 <h3>Falhas</h3>
-                <h2 class="display-5">" . count($falhados) . "</h2>
+                <h2 class="display-5">{$falhados_count}</h2>
             </div>
             <div class="card bg-warning bg-opacity-10">
                 <h3>Avisos</h3>
-                <h2 class="display-5">" . count($avisos) . "</h2>
+                <h2 class="display-5">{$avisos_count}</h2>
+            </div>
+            <div class="card bg-secondary bg-opacity-10">
+                <h3>Skipped</h3>
+                <h2 class="display-5">{$skipped_count}</h2>
+            </div>
+            <div class="card bg-secondary bg-opacity-25">
+                <h3>Incompletos</h3>
+                <h2 class="display-5">{$incompletos_count}</h2>
+            </div>
+            <div class="card bg-dark bg-opacity-10">
+                <h3>Erros</h3>
+                <h2 class="display-5">{$erros_count}</h2>
             </div>
             <div class="card bg-info bg-opacity-10">
                 <h3>Total</h3>
-                <h2 class="display-5">$total_testes</h2>
+                <h2 class="display-5">{$total_testes}</h2>
             </div>
         </div>
 
@@ -177,6 +230,21 @@ foreach ($avisos as $teste) {
     $html .= '<div class="test-item warn">' . htmlspecialchars($teste) . '</div>';
 }
 
+$html .= '<h3>Testes Skipped</h3>';
+foreach ($skipped as $teste) {
+    $html .= '<div class="test-item warn">' . htmlspecialchars($teste) . '</div>';
+}
+
+$html .= '<h3>Testes Incompletos</h3>';
+foreach ($incompletos as $teste) {
+    $html .= '<div class="test-item warn">' . htmlspecialchars($teste) . '</div>';
+}
+
+$html .= '<h3>Testes com Erro</h3>';
+foreach ($erros as $teste) {
+    $html .= '<div class="test-item fail">' . htmlspecialchars($teste) . '</div>';
+}
+
 $html .= <<<HTML
         </div>
 
@@ -192,18 +260,24 @@ $html .= <<<HTML
         new Chart(ctx, {
             type: 'doughnut',
             data: {
-                labels: ['Passados', 'Falhas', 'Avisos'],
+                labels: ['Passados', 'Falhas', 'Avisos', 'Skipped', 'Incompletos', 'Erros'],
                 datasets: [{
-                    data: [" . count($passados) . ", " . count($falhados) . ", " . count($avisos) . "],
+                    data: [{$passados_count}, {$falhados_count}, {$avisos_count}, {$skipped_count}, {$incompletos_count}, {$erros_count}],
                     backgroundColor: [
-                        'rgba(40, 167, 69, 0.8)',
-                        'rgba(220, 53, 69, 0.8)',
-                        'rgba(255, 193, 7, 0.8)'
+                        'rgba(40, 167, 69, 0.8)', // Passados
+                        'rgba(220, 53, 69, 0.8)', // Falhas
+                        'rgba(255, 193, 7, 0.8)', // Avisos
+                        'rgba(108, 117, 125, 0.8)', // Skipped
+                        'rgba(108, 117, 125, 0.4)', // Incompletos
+                        'rgba(33, 37, 41, 0.8)' // Erros
                     ],
                     borderColor: [
-                        'rgba(40, 167, 69, 1)',
-                        'rgba(220, 53, 69, 1)',
-                        'rgba(255, 193, 7, 1)'
+                        'rgba(40, 167, 69, 1)', // Passados
+                        'rgba(220, 53, 69, 1)', // Falhas
+                        'rgba(255, 193, 7, 1)', // Avisos
+                        'rgba(108, 117, 125, 1)', // Skipped
+                        'rgba(108, 117, 125, 0.7)', // Incompletos
+                        'rgba(33, 37, 41, 1)' // Erros
                     ],
                     borderWidth: 1
                 }]
