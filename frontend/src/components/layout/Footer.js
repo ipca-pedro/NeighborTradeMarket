@@ -33,25 +33,28 @@ const Footer = () => {
                         <h5 className="mb-4">CATEGORIAS PRINCIPAIS</h5>
                         <ListGroup variant="flush" className="footer-links">
                             <ListGroup.Item className="bg-transparent border-0 p-0 mb-2">
-                                <Link to="/anuncios/categoria/1" className="text-white text-decoration-none">Computador & Portátil</Link>
+                                <Link to="/anuncios/categoria/1" className="text-white text-decoration-none">Informática</Link>
                             </ListGroup.Item>
                             <ListGroup.Item className="bg-transparent border-0 p-0 mb-2">
-                                <Link to="/anuncios/categoria/3" className="text-white text-decoration-none">Smartphone</Link>
+                                <Link to="/anuncios/categoria/2" className="text-white text-decoration-none">Móveis</Link>
                             </ListGroup.Item>
                             <ListGroup.Item className="bg-transparent border-0 p-0 mb-2">
-                                <Link to="/anuncios/categoria/4" className="text-white text-decoration-none">Auscultadores</Link>
+                                <Link to="/anuncios/categoria/3" className="text-white text-decoration-none">Roupas</Link>
                             </ListGroup.Item>
                             <ListGroup.Item className="bg-transparent border-0 p-0 mb-2">
-                                <Link to="/anuncios/categoria/5" className="text-white text-decoration-none">Acessórios</Link>
+                                <Link to="/anuncios/categoria/4" className="text-white text-decoration-none">Livros</Link>
                             </ListGroup.Item>
                             <ListGroup.Item className="bg-transparent border-0 p-0 mb-2">
-                                <Link to="/anuncios/categoria/6" className="text-white text-decoration-none">Consolas</Link>
+                                <Link to="/anuncios/categoria/5" className="text-white text-decoration-none">Brinquedos</Link>
                             </ListGroup.Item>
                             <ListGroup.Item className="bg-transparent border-0 p-0 mb-2">
-                                <Link to="/anuncios/categoria/7" className="text-white text-decoration-none">Câmaras & Foto</Link>
+                                <Link to="/anuncios/categoria/6" className="text-white text-decoration-none">Ferramentas</Link>
                             </ListGroup.Item>
                             <ListGroup.Item className="bg-transparent border-0 p-0 mb-2">
-                                <Link to="/anuncios/categoria/8" className="text-white text-decoration-none">TV & Eletrodomésticos</Link>
+                                <Link to="/anuncios/categoria/7" className="text-white text-decoration-none">Veículos</Link>
+                            </ListGroup.Item>
+                            <ListGroup.Item className="bg-transparent border-0 p-0 mb-2">
+                                <Link to="/anuncios/categoria/8" className="text-white text-decoration-none">Imóveis</Link>
                             </ListGroup.Item>
                         </ListGroup>
                     </Col>
@@ -63,7 +66,7 @@ const Footer = () => {
                                 <Link to="/anuncios" className="text-white text-decoration-none">Produtos</Link>
                             </ListGroup.Item>
                             <ListGroup.Item className="bg-transparent border-0 p-0 mb-2">
-                                <Link to="/carrinho" className="text-white text-decoration-none">Carrinho</Link>
+                                <Link to="/anuncios?tipo=2" className="text-white text-decoration-none">Serviços</Link>
                             </ListGroup.Item>
                             <ListGroup.Item className="bg-transparent border-0 p-0 mb-2">
                                 <Link to="/wishlist" className="text-white text-decoration-none">Lista de Desejos</Link>

@@ -4,19 +4,19 @@ import { Link } from 'react-router-dom';
 import './CategoryGrid.css';
 
 const categories = [
-  { id: 1, name: 'Computador & Portátil', icon: 'fas fa-laptop' },
-  { id: 2, name: 'Acessórios de Computador', icon: 'fas fa-keyboard' },
-  { id: 3, name: 'Smartphone', icon: 'fas fa-mobile-alt' },
-  { id: 4, name: 'Auscultadores', icon: 'fas fa-headphones' },
-  { id: 5, name: 'Acessórios Móveis', icon: 'fas fa-tablet-alt' },
-  { id: 6, name: 'Consola de Jogos', icon: 'fas fa-gamepad' },
-  { id: 7, name: 'Câmara & Foto', icon: 'fas fa-camera' },
-  { id: 8, name: 'TV & Eletrodomésticos', icon: 'fas fa-tv' }
+  { id: 1, name: 'Informática', icon: 'fas fa-laptop' },
+  { id: 2, name: 'Móveis', icon: 'fas fa-couch' },
+  { id: 3, name: 'Roupas', icon: 'fas fa-tshirt' },
+  { id: 4, name: 'Livros', icon: 'fas fa-book' },
+  { id: 5, name: 'Brinquedos', icon: 'fas fa-gamepad' },
+  { id: 6, name: 'Ferramentas', icon: 'fas fa-tools' },
+  { id: 7, name: 'Veículos', icon: 'fas fa-car' },
+  { id: 8, name: 'Imóveis', icon: 'fas fa-home' }
 ];
 
 const CategoryGrid = () => (
   <div className="category-grid-container">
-    <Row xs={2} sm={3} md={4} lg={5} className="g-3">
+    <Row xs={2} sm={3} md={4} lg={4} className="g-3">
       {categories.map(category => (
         <Col key={category.id}>
           <Card as={Link} to={`/anuncios/categoria/${category.id}`} className="category-card text-center h-100 shadow-sm border-0">
@@ -28,7 +28,7 @@ const CategoryGrid = () => (
         </Col>
       ))}
       <Col>
-        <Card as={Link} to="/anuncios/categorias" className="category-card text-center h-100 shadow border-primary border-2">
+        <Card as={Link} to="/categorias" className="category-card text-center h-100 shadow border-primary border-2">
           <Card.Body className="d-flex flex-column align-items-center justify-content-center py-4">
             <span className="fw-bold text-primary">Ver Todas as Categorias</span>
           </Card.Body>

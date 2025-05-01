@@ -3,20 +3,9 @@ import { getAnunciosDestaque, getAnunciosAleatorios } from '../../services/anunc
 import { Container, Row, Col, Card, Button, Form, Carousel, Spinner, Alert } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import Header from '../layout/Header';
+import CategoryGrid from '../layout/CategoryGrid';
 import './HomePage.css';
 import { getImageUrl } from '../../services/api';
-
-// Categorias estáticas correspondentes ao banco de dados
-const staticCategories = [
-    { ID_Categoria: 1, Descricao_Categoria: "Informática", icon: "fas fa-laptop", color: "#0d6efd" },
-    { ID_Categoria: 2, Descricao_Categoria: "Móveis", icon: "fas fa-couch", color: "#0d6efd" },
-    { ID_Categoria: 3, Descricao_Categoria: "Roupas", icon: "fas fa-tshirt", color: "#0d6efd" },
-    { ID_Categoria: 4, Descricao_Categoria: "Livros", icon: "fas fa-book", color: "#0d6efd" },
-    { ID_Categoria: 5, Descricao_Categoria: "Brinquedos", icon: "fas fa-gamepad", color: "#0d6efd" },
-    { ID_Categoria: 6, Descricao_Categoria: "Ferramentas", icon: "fas fa-tools", color: "#0d6efd" },
-    { ID_Categoria: 7, Descricao_Categoria: "Veículos", icon: "fas fa-car", color: "#0d6efd" },
-    { ID_Categoria: 8, Descricao_Categoria: "Imóveis", icon: "fas fa-home", color: "#0d6efd" }
-];
 
 const HomePage = () => {
     const [produtos, setProdutos] = useState([]);
@@ -153,7 +142,7 @@ const HomePage = () => {
                 )}
             </section>
 
-            {/* Categorias Simplificadas - Estilo Clean */}
+            {/* Categorias */}
             <section className="categories-section py-5">
                 <Container>
                     <div className="d-flex justify-content-between align-items-center mb-4">
@@ -162,28 +151,7 @@ const HomePage = () => {
                             Ver Todas <i className="fas fa-arrow-right ms-1"></i>
                         </Link>
                     </div>
-                    
-                    <Row>
-                        {staticCategories.map(category => (
-                            <Col key={category.ID_Categoria} xs={6} md={3} className="mb-4">
-                                <Link 
-                                    to={`/anuncios?categoria=${category.ID_Categoria}`}
-                                    className="text-decoration-none"
-                                >
-                                    <Card className="category-card h-100 text-center border-0 shadow-sm">
-                                        <Card.Body className="d-flex flex-column align-items-center justify-content-center p-4">
-                                            <div className="category-icon mb-3">
-                                                <i className={`${category.icon} fa-3x`} style={{color: category.color}}></i>
-                                            </div>
-                                            <Card.Title className="category-name mb-0">
-                                                {category.Descricao_Categoria}
-                                            </Card.Title>
-                                        </Card.Body>
-                                    </Card>
-                                </Link>
-                            </Col>
-                        ))}
-                    </Row>
+                    <CategoryGrid />
                 </Container>
             </section>
 
