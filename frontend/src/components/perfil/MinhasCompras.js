@@ -140,21 +140,28 @@ const MinhasCompras = () => {
                         <div key={compra.ID_Compra} className="col-12 mb-3">
                             <Card>
                                 <Card.Body>
-                                    <Card.Title>Compra #{compra.ID_Compra}</Card.Title>
-                                    <Card.Text>
-                                        <strong>Título:</strong> {compra.anuncio?.Titulo || 'N/A'}<br />
-                                        <strong>Data:</strong> {formatarData(compra.Data_compra)}<br />
-                                        <strong>Valor:</strong> €{compra.anuncio?.Preco?.toFixed(2) || '0.00'}<br />
-                                        <strong>Vendedor:</strong> 
-                                        <Button 
-                                            variant="link" 
-                                            className="p-0 ms-1"
-                                            onClick={() => handleVerAvaliacoesVendedor(compra.anuncio?.utilizador)}
-                                        >
-                                            {compra.anuncio?.utilizador?.Nome || 'N/A'}
-                                        </Button><br />
-                                        <strong>Status:</strong> {compra.status?.Descricao_status_compra || 'N/A'}
-                                    </Card.Text>
+                                    <Card.Title className="mb-3">{compra.anuncio?.Titulo || 'N/A'}</Card.Title>
+                                    <div className="compra-detalhes">
+                                        <p className="mb-2">
+                                            <strong>Data:</strong> {formatarData(compra.Data_compra)}
+                                        </p>
+                                        <p className="mb-2">
+                                            <strong>Valor:</strong> €{compra.anuncio?.Preco?.toFixed(2) || '0.00'}
+                                        </p>
+                                        <p className="mb-2">
+                                            <strong>Vendedor:</strong>{' '}
+                                            <Button 
+                                                variant="link" 
+                                                className="p-0 ms-1"
+                                                onClick={() => handleVerAvaliacoesVendedor(compra.anuncio?.utilizador)}
+                                            >
+                                                {compra.anuncio?.utilizador?.Nome || 'N/A'}
+                                            </Button>
+                                        </p>
+                                        <p className="mb-2">
+                                            <strong>Status:</strong> {compra.status?.Descricao_status_compra || 'N/A'}
+                                        </p>
+                                    </div>
                                     
                                     <div className="mt-3">
                                             <Button 

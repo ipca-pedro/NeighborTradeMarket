@@ -153,4 +153,29 @@ textarea.form-control {
 
 .avaliacoes-list .text-warning {
     color: #ffc107 !important;
+}
+
+.compra-detalhes {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.compra-detalhes p {
+    margin-bottom: 0.5rem;
+}
+
+.compra-detalhes p:last-child {
+    margin-bottom: 0;
+}
+
+.compra-detalhes small {
+    font-size: 0.875rem;
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2c3e50;
 } 
