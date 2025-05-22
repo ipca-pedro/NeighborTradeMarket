@@ -27,13 +27,6 @@ const CategoryGrid = () => (
           </Card>
         </Col>
       ))}
-      <Col>
-        <Card as={Link} to="/categorias" className="category-card text-center h-100 shadow border-primary border-2">
-          <Card.Body className="d-flex flex-column align-items-center justify-content-center py-4">
-            <span className="fw-bold text-primary">Ver Todas as Categorias</span>
-          </Card.Body>
-        </Card>
-      </Col>
     </Row>
   </div>
 );

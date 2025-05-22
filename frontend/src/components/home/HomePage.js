@@ -147,7 +147,7 @@ const HomePage = () => {
                 <Container>
                     <div className="d-flex justify-content-between align-items-center mb-4">
                         <h2 className="section-title mb-0">Compre por Categoria</h2>
-                        <Link to="/categorias" className="btn btn-outline-primary">
+                        <Link to="/anuncios" className="btn btn-outline-primary">
                             Ver Todas <i className="fas fa-arrow-right ms-1"></i>
                         </Link>
                     </div>
