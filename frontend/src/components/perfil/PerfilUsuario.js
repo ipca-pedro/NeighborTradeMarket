@@ -100,25 +100,6 @@ const PerfilUtilizador = () => {
                     {message && <Alert variant="success">{message}</Alert>}
                     {error && <Alert variant="danger">{error}</Alert>}
 
-                    <div className="profile-header">
-                        <div className="profile-image">
-                            <Image 
-                                src={profileImage}
-                                roundedCircle
-                                className="profile-image mb-3"
-                                onError={(e) => {
-                                    e.target.onerror = null;
-                                    e.target.src = fallbackImage;
-                                }}
-                                alt={`Foto de perfil de ${currentUser?.Name || 'usuário'}`}
-                            />
-                        </div>
-                        <div className="profile-info">
-                            <h2>{currentUser?.Name}</h2>
-                            <p>@{currentUser?.User_Name}</p>
-                        </div>
-                    </div>
-
                     <Form onSubmit={handleSubmit}>
                         <Row>
                             <Col md={6}>
