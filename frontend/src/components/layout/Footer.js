@@ -14,7 +14,7 @@ const Footer = () => {
                         <div className="mb-3">
                             <Link to="/" className="text-white text-decoration-none">
                                 <img 
-                                    src="/images/logo-white.png" 
+                                    src="/images/logotipo.png" 
                                     alt="NeighborTrade" 
                                     height="40" 
                                     className="d-inline-block align-top"
