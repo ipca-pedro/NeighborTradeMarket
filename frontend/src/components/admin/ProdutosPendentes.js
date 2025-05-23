@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Button, Modal, Form, Alert, Card, Badge, Spinner, Row, Col, Image, Carousel, ListGroup } from 'react-bootstrap';
-import api, { adminService } from '../../services/api';
+import api, { adminService, getImageUrl } from '../../services/api';
 import Header from '../layout/Header';
 
 // Helper function to get the base URL for storage
@@ -149,7 +149,7 @@ const ProdutosPendentes = () => {
             return (
                 <div style={style}>
                     <img
-                        src={`${storageBaseUrl}/storage/${images[0].imagem.Caminho}`}
+                        src={getImageUrl({ imagem: images[0].imagem })}
                         alt="Imagem do produto"
                         className={className}
                         style={{ height: '100%', width: '100%', objectFit: 'contain' }}
@@ -164,7 +164,7 @@ const ProdutosPendentes = () => {
                 {images.map((img, index) => (
                     <Carousel.Item key={img.ID_Imagem || index}>
                         <img
-                            src={`${storageBaseUrl}/storage/${img.imagem.Caminho}`}
+                            src={getImageUrl({ imagem: img.imagem })}
                             alt={`Imagem ${index + 1}`}
                             style={{ height: '100%', width: '100%', objectFit: 'contain' }}
                             onError={(e) => { e.target.onerror = null; e.target.src = '/img/no-image.png' }}

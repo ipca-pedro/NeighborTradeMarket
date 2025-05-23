@@ -162,7 +162,7 @@ const MeusAnuncios = () => {
                                             {anuncio.item_imagems && anuncio.item_imagems.length > 0 && anuncio.item_imagems[0]?.imagem ? (
                                                 <Card.Img 
                                                     variant="top" 
-                                                    src={getImageUrl(anuncio.item_imagems[0])}
+                                                    src={getImageUrl({ imagem: anuncio.item_imagems[0].imagem })}
                                                     onError={(e) => {
                                                         console.log('Erro ao carregar imagem:', e);
                                                         e.target.onerror = null;

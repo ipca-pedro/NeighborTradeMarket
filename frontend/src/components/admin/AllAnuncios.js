@@ -22,10 +22,9 @@ const formatCurrency = (value) => {
 
 // Helper para obter URL da imagem
 const getImgUrl = (item) => {
-    if (!item?.imagem?.Caminho) return 'https://via.placeholder.com/100x100?text=Sem+Imagem';
-    // Garante que o caminho não tem 'public/' e monta o URL absoluto
-    const caminho = item.imagem.Caminho.replace(/^public\//, '');
-    return `${getStorageBaseUrl()}/storage/${caminho}`;
+    if (!item?.imagem) return 'https://via.placeholder.com/100x100?text=Sem+Imagem';
+    // Usar a função getImageUrl padronizada
+    return getImageUrl(item);
 };
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---

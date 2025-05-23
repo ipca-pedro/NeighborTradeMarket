@@ -127,7 +127,7 @@ const DetalhesProduto = () => {
                 onClick={() => setSelectedImg(index)}
             >
                 <img 
-                    src={getImageUrl(img)} 
+                    src={getImageUrl({ imagem: img.imagem })} 
                     alt={`Imagem ${index + 1} do produto`} 
                     onError={(e) => {
                         console.log('Erro ao carregar imagem:', e);
@@ -171,7 +171,7 @@ const DetalhesProduto = () => {
                                     {anuncio.item_imagems && anuncio.item_imagems.length > 0 ? (
                                         <div className="position-relative bg-white" style={{borderRadius: '0.5rem 0.5rem 0 0'}}>
                                             <Image 
-                                                src={getImageUrl(anuncio.item_imagems[imagemPrincipal])}
+                                                src={getImageUrl({ imagem: anuncio.item_imagems[imagemPrincipal].imagem })}
                                                 fluid 
                                                 className="w-100"
                                                 style={{ maxHeight: '480px', objectFit: 'contain', borderRadius: '0.5rem 0.5rem 0 0', background: '#f8f9fa', cursor: 'zoom-in' }}
@@ -197,7 +197,7 @@ const DetalhesProduto = () => {
                                                 {anuncio.item_imagems.map((item, index) => (
                                                     <Col key={index} xs={3} sm={2} md={2} lg={2} className="mb-2">
                                                         <Image 
-                                                            src={getImageUrl(item)}
+                                                            src={getImageUrl({ imagem: item.imagem })}
                                                             thumbnail
                                                             className={`cursor-pointer ${imagemPrincipal === index ? 'border-primary' : ''}`}
                                                             style={{ 
@@ -352,7 +352,7 @@ const DetalhesProduto = () => {
                     <Modal.Body className="p-0 bg-dark">
                         <div className="position-relative">
                             <Image 
-                                src={getImageUrl(anuncio.item_imagems[selectedImg])}
+                                src={getImageUrl({ imagem: anuncio.item_imagems[selectedImg].imagem })}
                                 fluid
                                 style={{ maxHeight: '80vh', width: '100%', objectFit: 'contain' }}
                                 onClick={() => setShowImgModal(false)}
@@ -433,8 +433,8 @@ const DetalhesProduto = () => {
                                     <Card>
                                         <Card.Img 
                                             variant="top" 
-                                            src={meuAnuncio.item_imagems?.[0]?.Caminho 
-                                                ? `http://localhost:8000/storage/${meuAnuncio.item_imagems[0].Caminho.replace(/^public\//, '')}`
+                                            src={meuAnuncio.item_imagems?.[0]?.imagem 
+                                                ? getImageUrl({ imagem: meuAnuncio.item_imagems[0].imagem })
                                                 : '/images/no-image.jpg'} 
                                             style={{ height: '200px', objectFit: 'cover' }}
                                         />

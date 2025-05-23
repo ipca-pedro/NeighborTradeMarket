@@ -54,8 +54,8 @@ const HomePage = () => {
                 <div className="product-image-container">
                     <Card.Img 
                         variant="top" 
-                        src={anuncio.item_imagems && anuncio.item_imagems.length > 0 
-                            ? getImageUrl(anuncio.item_imagems[0]) 
+                        src={anuncio.item_imagems && anuncio.item_imagems.length > 0 && anuncio.item_imagems[0]?.imagem
+                            ? getImageUrl({ imagem: anuncio.item_imagems[0].imagem }) 
                             : '/images/no-image.jpg'} 
                         alt={anuncio.Titulo}
                         className="product-image"
@@ -125,8 +125,8 @@ const HomePage = () => {
                                             </Col>
                                             <Col md={6} className="text-center">
                                                 <img 
-                                                    src={produto.item_imagems && produto.item_imagems.length > 0 
-                                                        ? getImageUrl(produto.item_imagems[0]) 
+                                                    src={produto.item_imagems && produto.item_imagems.length > 0 && produto.item_imagems[0]?.imagem
+                                                        ? getImageUrl({ imagem: produto.item_imagems[0].imagem }) 
                                                         : '/images/no-image.jpg'} 
                                                     alt={produto.Titulo} 
                                                     className="img-fluid"

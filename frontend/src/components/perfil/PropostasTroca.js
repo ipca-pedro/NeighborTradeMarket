@@ -4,6 +4,7 @@ import trocaService from '../../services/trocaService';
 import { toast } from 'react-toastify';
 import { formatarPreco } from '../../utils/formatUtils';
 import { Link } from 'react-router-dom';
+import { getImageUrl } from '../../services/api';
 
 const PropostasTroca = () => {
     const [propostasRecebidas, setPropostasRecebidas] = useState([]);
@@ -99,10 +100,10 @@ const PropostasTroca = () => {
                         <Col md={4} key={proposta.ID_Troca}>
                             <Card className="h-100 shadow-sm">
                                 {/* Imagem do anúncio oferecido */}
-                                {proposta.item_oferecido?.item_imagems?.[0]?.imagem?.Caminho && (
+                                {proposta.item_oferecido?.item_imagems?.[0]?.imagem && (
                                     <Card.Img 
                                         variant="top" 
-                                        src={`/storage/${proposta.item_oferecido.item_imagems[0].imagem.Caminho.replace(/^public\//, '')}`}
+                                        src={getImageUrl({ imagem: proposta.item_oferecido.item_imagems[0].imagem })}
                                         style={{ height: '180px', objectFit: 'cover' }}
                                     />
                                 )}
@@ -168,10 +169,10 @@ const PropostasTroca = () => {
                         <Col md={4} key={proposta.ID_Troca}>
                             <Card className="h-100 shadow-sm">
                                 {/* Imagem do anúncio solicitado */}
-                                {proposta.item_solicitado?.item_imagems?.[0]?.imagem?.Caminho && (
+                                {proposta.item_solicitado?.item_imagems?.[0]?.imagem && (
                                     <Card.Img 
                                         variant="top" 
-                                        src={`/storage/${proposta.item_solicitado.item_imagems[0].imagem.Caminho.replace(/^public\//, '')}`}
+                                        src={getImageUrl({ imagem: proposta.item_solicitado.item_imagems[0].imagem })}
                                         style={{ height: '180px', objectFit: 'cover' }}
                                     />
                                 )}

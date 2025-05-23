@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Form, Alert, Nav, Image } from 'react-bootstrap';
 import { useAuth } from '../../contexts/AuthContext';
-import { authService } from '../../services/api';
+import { authService, getImageUrl } from '../../services/api';
 import { FaUser, FaTags, FaStore, FaShoppingBag, FaCreditCard, FaEnvelope, FaExclamationCircle, FaExchangeAlt } from 'react-icons/fa';
 import Header from '../layout/Header';
 import MeusAnuncios from './MeusAnuncios';
@@ -32,7 +32,7 @@ const PerfilUtilizador = () => {
             Rua: ''
         }
     });
-    const [profileImage, setProfileImage] = useState(currentUser?.imagem?.Caminho ? `http://localhost:8000/storage/${currentUser.imagem.Caminho}` : fallbackImage);
+    const [profileImage, setProfileImage] = useState(currentUser?.imagem ? getImageUrl({ imagem: currentUser.imagem }) : fallbackImage);
 
     useEffect(() => {
         if (currentUser) {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Badge, Alert, Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { anuncioService } from '../../services/api';
+import { anuncioService, getImageUrl } from '../../services/api';
 import Header from '../layout/Header';
 import Footer from '../layout/Footer';
 
@@ -141,7 +141,7 @@ const MeusAnuncios = () => {
                                         {anuncio.imagens && anuncio.imagens.length > 0 ? (
                                             <Card.Img 
                                                 variant="top" 
-                                                src={`/storage/${anuncio.imagens[0].Caminho.replace('public/', '')}`} 
+                                                src={getImageUrl({ imagem: anuncio.imagens[0] })} 
                                                 style={{ height: '200px', objectFit: 'cover' }} 
                                             />
                                         ) : (

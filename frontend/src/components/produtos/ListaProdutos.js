@@ -4,6 +4,7 @@ import { Container, Row, Col, Card, Badge, Button } from 'react-bootstrap';
 import { Link, useParams, useLocation } from 'react-router-dom';
 import NoProductsFound from './NoProductsFound';
 import { getAnuncios, getAnunciosPorCategoria, getCategorias } from '../../services/anuncioService';
+import { getImageUrl } from '../../services/api';
 
 const ListaProdutos = () => {
     // Suporta ambos os formatos: parâmetros de rota e query parameters
@@ -78,10 +79,9 @@ const ListaProdutos = () => {
         let imgUrl = '/images/no-image.jpg';
         if (produto.imagens && produto.imagens.length > 0) {
             imgUrl = produto.imagens[0]?.URL || imgUrl;
-        } else if (produto.item_imagems && produto.item_imagems.length > 0) {
-            imgUrl = produto.item_imagems[0]?.imagem?.Caminho
-                ? `${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/storage/${produto.item_imagems[0].imagem.Caminho}`
-                : imgUrl;
+        } else if (produto.item_imagems && produto.item_imagems.length > 0 && produto.item_imagems[0]?.imagem) {
+            // Usar a função getImageUrl para padronizar o acesso às imagens
+            imgUrl = getImageUrl({ imagem: produto.item_imagems[0].imagem });
         }
 
         // Verificar se o produto está reservado (status 8)

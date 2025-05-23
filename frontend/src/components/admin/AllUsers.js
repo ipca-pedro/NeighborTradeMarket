@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Container, Table, Button, Modal, Form, Alert, Card, Badge, Spinner, Dropdown, InputGroup, FormControl, Row, Col, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import api, { adminService } from '../../services/api';
+import api, { adminService, getImageUrl } from '../../services/api';
 import Header from '../layout/Header';
 import Footer from '../layout/Footer';
 

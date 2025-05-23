@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Form, Button, Alert, Row, Col, Card, Spinner } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { anuncioService } from '../../services/api';
+import { anuncioService, getImageUrl } from '../../services/api';
 import Header from '../layout/Header';
 import Footer from '../layout/Footer';
 
@@ -523,7 +523,7 @@ const CriarProduto = () => {
                                                                         <span>&times;</span>
                                                                     </Button>
                                                                     <img 
-                                                                        src={`http://localhost:8000/storage/${img.Caminho.replace(/^public\//, '')}`} 
+                                                                        src={getImageUrl({ imagem: { Caminho: img.Caminho } })} 
                                                                         alt={`Imagem ${index}`} 
                                                                         style={{ width: '100px', height: '100px', objectFit: 'cover' }}
                                                                         className="rounded"

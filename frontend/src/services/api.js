@@ -83,8 +83,13 @@ export const getImageUrl = (item) => {
         return `${api.defaults.baseURL}/files/id/${item.imagem.ID_Imagem}`;
     }
     
-    // Fallback para URL direto (para compatibilidade)
-    const caminho = item.imagem.Caminho.replace(/^public\//, '');
+    // Standardize path handling by always removing 'public/' prefix if it exists
+    let caminho = item.imagem.Caminho;
+    if (caminho.startsWith('public/')) {
+        caminho = caminho.substring(7); // Remove 'public/' prefix
+    }
+    
+    // Return the complete storage URL
     return `${api.defaults.baseURL.replace('/api', '')}/storage/${caminho}`;
 };
 
