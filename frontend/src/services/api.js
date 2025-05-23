@@ -101,6 +101,8 @@ export const getImageUrl = (item) => {
  */
 export const getPdfUrl = (userId = null, pdfName = null) => {
     // Base URL para comprovativos
+    // O Laravel cria um link simbólico de 'public/storage' para 'storage/app/public'
+    // então usamos '/storage/comprovativos/pdfs' para acessar os arquivos em 'storage/app/public/comprovativos/pdfs'
     const baseUrl = `${api.defaults.baseURL.replace('/api', '')}/storage/comprovativos/pdfs`;
     
     // Se não tiver nenhum parâmetro, retorna a URL base para a pasta de comprovativos
@@ -145,7 +147,15 @@ export const getPdfUrlFromPath = (fullPath) => {
         caminho = caminho.substring(7); // Remove 'public/' prefix
     }
     
-    // Retorna a URL completa para o PDF
+    // Se o caminho não começar com 'comprovativos/pdfs', ajusta para esse diretório
+    if (!caminho.startsWith('comprovativos/pdfs/')) {
+        // Se o caminho é apenas um nome de arquivo, assume que está em comprovativos/pdfs
+        if (!caminho.includes('/')) {
+            caminho = `comprovativos/pdfs/${caminho}`;
+        }
+    }
+    
+    // Retorna a URL completa para o PDF através do link simbólico do storage
     return `${api.defaults.baseURL.replace('/api', '')}/storage/${caminho}`;
 };
 
