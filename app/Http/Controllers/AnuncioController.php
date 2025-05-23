@@ -318,26 +318,43 @@ class AnuncioController extends Controller
         try {
             DB::beginTransaction();
             
+            // Registrar o início do processo para depuração
+            \Log::info('Iniciando aprovação do anúncio ID: ' . $id);
+            
             $anuncio = Anuncio::findOrFail($id);
+            \Log::info('Anúncio encontrado: ' . $anuncio->Titulo);
+            
             $anuncio->Status_AnuncioID_Status_Anuncio = 1; // Status aprovado
             $anuncio->save();
+            \Log::info('Anúncio atualizado com status 1 (aprovado)');
             
             // Criar notificação para o vendedor
-            DB::table('Notificacao')->insert([
+            $notificationData = [
                 'Mensagem' => 'Seu anúncio "' . $anuncio->Titulo . '" foi aprovado e está agora visível para outros usuários.',
                 'DataNotificacao' => now(),
                 'ReferenciaID' => $anuncio->ID_Anuncio,
                 'UtilizadorID_User' => $anuncio->UtilizadorID_User,
                 'ReferenciaTipoID_ReferenciaTipo' => 1, // Anúncios
-                'TIpo_notificacaoID_TipoNotificacao' => 12 // Anúncio aprovado
-                ]);
+                'TIpo_notificacaoID_TipoNotificacao' => 12, // Anúncio aprovado
+                'Estado_notificacaoID_estado_notificacao' => 1 // Não lida
+            ];
+            
+            \Log::info('Dados da notificação: ' . json_encode($notificationData));
+            DB::table('Notificacao')->insert($notificationData);
+            \Log::info('Notificação criada com sucesso');
             
             DB::commit();
+            \Log::info('Transação confirmada com sucesso');
             return response()->json(['message' => 'Anúncio aprovado com sucesso']);
             
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['error' => $e->getMessage()], 500);
+            \Log::error('Erro ao aprovar anúncio: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            return response()->json([
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ], 500);
         }
     }
     
@@ -348,27 +365,42 @@ class AnuncioController extends Controller
     {
         try {
             DB::beginTransaction();
+            \Log::info('Iniciando rejeição do anúncio ID: ' . $id);
 
             $anuncio = Anuncio::findOrFail($id);
-            $anuncio->Status_AnuncioID_Status_Anuncio = 2; // Status rejeitado
+            \Log::info('Anúncio encontrado: ' . $anuncio->Titulo);
+            
+            $anuncio->Status_AnuncioID_Status_Anuncio = 7; // Status 7 para rejeitado (confirmado nos logs como 7, não 2)
             $anuncio->save();
+            \Log::info('Anúncio atualizado com status 7 (rejeitado)');
 
             // Criar notificação para o vendedor
-            DB::table('Notificacao')->insert([
+            $notificationData = [
                 'Mensagem' => 'Seu anúncio "' . $anuncio->Titulo . '" foi rejeitado. Por favor, revise as políticas do site.',
                 'DataNotificacao' => now(),
                 'ReferenciaID' => $anuncio->ID_Anuncio,
                 'UtilizadorID_User' => $anuncio->UtilizadorID_User,
                 'ReferenciaTipoID_ReferenciaTipo' => 1, // Anúncios
-                'TIpo_notificacaoID_TipoNotificacao' => 13 // Anúncio rejeitado
-            ]);
+                'TIpo_notificacaoID_TipoNotificacao' => 13, // Anúncio rejeitado
+                'Estado_notificacaoID_estado_notificacao' => 1 // Não lida
+            ];
+            
+            \Log::info('Dados da notificação de rejeição: ' . json_encode($notificationData));
+            DB::table('Notificacao')->insert($notificationData);
+            \Log::info('Notificação de rejeição criada com sucesso');
 
             DB::commit();
+            \Log::info('Transação de rejeição confirmada com sucesso');
             return response()->json(['message' => 'Anúncio rejeitado com sucesso']);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['error' => $e->getMessage()], 500);
+            \Log::error('Erro ao rejeitar anúncio: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            return response()->json([
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ], 500);
         }
     }
     
