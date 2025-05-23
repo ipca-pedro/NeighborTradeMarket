@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import Header from '../layout/Header';
 import CategoryGrid from '../layout/CategoryGrid';
 import './HomePage.css';
+import '../produtos/ProductCard.css';
 import { getImageUrl } from '../../services/api';
 
 const HomePage = () => {
@@ -58,7 +59,8 @@ const HomePage = () => {
                             ? getImageUrl({ imagem: anuncio.item_imagems[0].imagem }) 
                             : '/images/no-image.jpg'} 
                         alt={anuncio.Titulo}
-                        className="product-image"
+                        style={{ maxHeight: '180px', objectFit: 'contain', width: 'auto' }}
+                        onError={(e) => { e.target.onerror = null; e.target.src = '/images/no-image.jpg'; }}
                     />
                 </div>
                 <Card.Body className="d-flex flex-column">
@@ -91,7 +93,7 @@ const HomePage = () => {
             {/* Banner Principal - Produtos em Destaque */}
             <section className="hero-section mb-5">
                 {loading ? (
-                    <div className="d-flex align-items-center justify-content-center" style={{ height: '500px', backgroundColor: '#f0f0f0' }}>
+                    <div className="d-flex align-items-center justify-content-center" style={{ height: '400px', backgroundColor: '#f0f0f0' }}>
                         <div className="spinner-border text-primary" role="status">
                             <span className="visually-hidden">A carregar...</span>
                         </div>
@@ -100,7 +102,7 @@ const HomePage = () => {
                     <Carousel>
                         {produtosDestaque.map((produto, index) => (
                             <Carousel.Item key={produto.ID_Anuncio || index}>
-                                <div className="d-flex align-items-center" style={{ backgroundColor: '#f0f0f0', height: '500px' }}>
+                                <div className="d-flex align-items-center" style={{ backgroundColor: '#f0f0f0', height: '400px' }}>
                                     <Container>
                                         <Row className="align-items-center">
                                             <Col md={6}>

@@ -96,22 +96,7 @@
     padding: 3rem 0;
 }
 
-.product-card {
-    margin-bottom: 2rem;
-    transition: transform 0.2s;
-    position: relative;
-    border: none;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.product-card:hover {
-    transform: translateY(-5px);
-}
-
-.product-card .card-img-top {
-    height: 200px;
-    object-fit: cover;
-}
+/* Estilos específicos para produtos na página inicial são agora importados de ProductCard.css */
 
 .discount-badge {
     position: absolute;

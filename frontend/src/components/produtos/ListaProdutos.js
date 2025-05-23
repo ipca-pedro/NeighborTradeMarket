@@ -5,6 +5,7 @@ import { Link, useParams, useLocation } from 'react-router-dom';
 import NoProductsFound from './NoProductsFound';
 import { getAnuncios, getAnunciosPorCategoria, getCategorias } from '../../services/anuncioService';
 import { getImageUrl } from '../../services/api';
+import './ProductCard.css';
 
 const ListaProdutos = () => {
     // Suporta ambos os formatos: parâmetros de rota e query parameters
@@ -90,12 +91,12 @@ const ListaProdutos = () => {
         return (
             <Col key={produto.ID_Item || produto.id} xs={12} sm={6} md={4} lg={3} className="mb-4">
                 <Card className="h-100 shadow-sm product-card">
-                    <div className="product-image-container" style={{height: '220px', background: '#f8f9fa', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                    <div className="product-image-container">
                                 <Card.Img 
                                     variant="top" 
                             src={imgUrl} 
                             alt={produto.Titulo}
-                            style={{ maxHeight: '200px', objectFit: 'contain', width: 'auto' }}
+                            style={{ maxHeight: '180px', objectFit: 'contain', width: 'auto' }}
                             onError={(e) => { e.target.onerror = null; e.target.src = '/images/no-image.jpg'; }}
                         />
                         {isReservado && (

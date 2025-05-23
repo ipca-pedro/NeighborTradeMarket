@@ -5,6 +5,7 @@ import { FaPlus, FaImage, FaCalendarAlt, FaEdit, FaTrashAlt } from 'react-icons/
 import { anuncioService, getImageUrl } from '../../services/api';
 import Header from '../layout/Header';
 import './MeusAnuncios.css';
+import '../produtos/ProductCard.css';
 
 // Fallback image as base64 - light gray placeholder
 const fallbackImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mN88R8AAtUB6S/lhm4AAAAASUVORK5CYII=';
@@ -132,7 +133,7 @@ const MeusAnuncios = () => {
                     <div className="d-flex justify-content-between align-items-center mb-4">
                         <h5 className="mb-0">Meus Anúncios</h5>
                         <Link to="/anuncios/novo">
-                            <Button variant="primary" className="btn-add-anuncio">
+                            <Button variant="primary" className="btn-add-anuncio" style={{ backgroundColor: '#F97316', borderColor: '#F97316' }}>
                                 <FaPlus className="me-2" />
                                 Novo Anúncio
                             </Button>
@@ -142,27 +143,28 @@ const MeusAnuncios = () => {
                     {error && <Alert variant="danger" className="mb-4">{error}</Alert>}
 
                     {anuncios.length === 0 ? (
-                        <div className="empty-state">
-                            <FaImage className="mb-3" />
-                            <h5>Você ainda não tem anúncios</h5>
-                            <p>Comece a vender ou trocar seus itens agora mesmo!</p>
+                        <div className="empty-state p-5 text-center bg-light rounded">
+                            <FaImage className="mb-3" size={50} color="#adb5bd" />
+                            <h5 className="mt-3">Você ainda não tem anúncios</h5>
+                            <p className="text-muted">Comece a vender ou trocar seus itens agora mesmo!</p>
                             <Link to="/anuncios/novo">
-                                <Button variant="primary">
+                                <Button variant="primary" style={{ backgroundColor: '#F97316', borderColor: '#F97316' }}>
                                     <FaPlus className="me-2" />
                                     Criar Anúncio
                                 </Button>
                             </Link>
                         </div>
                     ) : (
-                        <Row xs={1} md={2} lg={isStandalone ? 3 : 2} className="g-4">
+                        <Row xs={1} sm={2} md={3} lg={isStandalone ? 4 : 3} className="g-4">
                             {anuncios.map(anuncio => (
-                                <Col key={anuncio.ID_Anuncio}>
-                                    <Card className="anuncio-card">
-                                        <div className="position-relative">
+                                <Col key={anuncio.ID_Anuncio} className="mb-4">
+                                    <Card className="product-card">
+                                        <div className="product-image-container position-relative">
                                             {anuncio.item_imagems && anuncio.item_imagems.length > 0 && anuncio.item_imagems[0]?.imagem ? (
                                                 <Card.Img 
                                                     variant="top" 
                                                     src={getImageUrl({ imagem: anuncio.item_imagems[0].imagem })}
+                                                    style={{ maxHeight: '180px', objectFit: 'contain', width: 'auto' }}
                                                     onError={(e) => {
                                                         console.log('Erro ao carregar imagem:', e);
                                                         e.target.onerror = null;
@@ -171,7 +173,7 @@ const MeusAnuncios = () => {
                                                     alt={anuncio.Titulo}
                                                 />
                                             ) : (
-                                                <div className="placeholder-img d-flex align-items-center justify-content-center bg-light" style={{ height: '200px' }}>
+                                                <div className="d-flex align-items-center justify-content-center bg-light" style={{ height: '180px', width: '100%' }}>
                                                     <FaImage size={40} className="text-secondary" />
                                                 </div>
                                             )}
@@ -179,9 +181,9 @@ const MeusAnuncios = () => {
                                                 {getStatusBadge(anuncio.Status_AnuncioID_Status_Anuncio)}
                                             </div>
                                         </div>
-                                        <Card.Body>
-                                            <Card.Title>{anuncio.Titulo}</Card.Title>
-                                            <Card.Text>
+                                        <Card.Body className="d-flex flex-column">
+                                            <Card.Title className="product-title">{anuncio.Titulo}</Card.Title>
+                                            <Card.Text className="product-description text-muted mb-3">
                                                 {anuncio.Descricao ? (
                                                     anuncio.Descricao.length > 100 
                                                         ? `${anuncio.Descricao.substring(0, 100)}...`
@@ -191,18 +193,18 @@ const MeusAnuncios = () => {
                                                 )}
                                             </Card.Text>
                                             <div className="d-flex flex-wrap gap-2 mb-3">
-                                                <span className="categoria-badge">
+                                                <Badge bg="secondary" className="me-2">
                                                     {anuncio.categorium?.Descricao_Categoria || 'Sem categoria'}
-                                                </span>
-                                                <span className="tipo-item-badge">
+                                                </Badge>
+                                                <Badge bg="info">
                                                     {anuncio.tipo_item?.Descricao_TipoItem || 'Não especificado'}
-                                                </span>
+                                                </Badge>
                                             </div>
-                                            <div className="anuncio-preco">
+                                            <div className="product-price mt-auto">
                                                 {anuncio.Preco ? formatCurrency(anuncio.Preco) : 'Preço não definido'}
                                             </div>
                                         </Card.Body>
-                                        <Card.Footer className="anuncio-footer">
+                                        <Card.Footer className="bg-light border-top-0">
                                             <div className="d-flex justify-content-between align-items-center">
                                                 <small className="text-muted">
                                                     <FaCalendarAlt className="me-1" />
@@ -213,13 +215,13 @@ const MeusAnuncios = () => {
                                                             : 'Pendente'
                                                     }
                                                 </small>
-                                                <div className="anuncio-actions">
+                                                <div className="d-flex gap-2">
                                                     <Button 
                                                         variant="outline-primary" 
                                                         size="sm"
                                                         as={Link}
                                                         to={`/anuncios/${anuncio.ID_Anuncio}/editar`}
-                                                        className="me-2"
+                                                        style={{ borderRadius: '20px' }}
                                                     >
                                                         <FaEdit className="me-1" /> Editar
                                                     </Button>
@@ -227,6 +229,7 @@ const MeusAnuncios = () => {
                                                         variant="outline-danger" 
                                                         size="sm"
                                                         onClick={() => handleRemoverClick(anuncio)}
+                                                        style={{ borderRadius: '20px' }}
                                                     >
                                                         <FaTrashAlt className="me-1" /> Remover
                                                     </Button>

@@ -1,3 +1,4 @@
+/* Styles for the Meus Anuncios component that are not covered by ProductCard.css */
 .anuncios-container {
     padding: 1.5rem;
     background-color: #fff;
@@ -5,83 +6,11 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.anuncio-card {
-    transition: all 0.3s ease;
-    height: 100%;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    border: 1px solid #eee;
-}
-
-.anuncio-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-.anuncio-card .card-img-top {
-    height: 200px;
-    object-fit: cover;
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
-}
-
-.anuncio-card .card-body {
-    padding: 1.25rem;
-}
-
-.anuncio-card .card-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: 0.75rem;
-    color: #2c3e50;
-}
-
-.anuncio-card .card-text {
-    color: #6c757d;
-    font-size: 0.9rem;
-    line-height: 1.5;
-    margin-bottom: 1rem;
-}
-
-.anuncio-card .badge {
-    font-weight: 500;
-    padding: 0.5rem 0.75rem;
-    border-radius: 20px;
-}
-
 .anuncio-status {
     position: absolute;
     top: 10px;
     right: 10px;
     z-index: 2;
-}
-
-.anuncio-preco {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #28a745;
-    margin-top: 10px;
-}
-
-.anuncio-footer {
-    background-color: #f8f9fa;
-    padding: 10px 15px;
-}
-
-.anuncio-footer .text-muted {
-    font-size: 0.85rem;
-}
-
-.anuncio-actions {
-    display: flex;
-    gap: 8px;
-}
-
-.anuncio-actions .btn {
-    flex: 1;
-    border-radius: 20px;
-    padding: 0.5rem 1rem;
-    font-weight: 500;
-    transition: all 0.2s ease;
 }
 
 .empty-state {
@@ -97,51 +26,20 @@
     color: #adb5bd;
 }
 
-.placeholder-img {
-    border-top-left-radius: calc(0.25rem - 1px);
-    border-top-right-radius: calc(0.25rem - 1px);
-}
-
-.btn-add-anuncio {
-    display: flex;
-    align-items: center;
-}
-
-.categoria-badge, .tipo-item-badge {
-    display: inline-block;
-    background-color: #f0f0f0;
-    color: #555;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.75rem;
-}
-
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .anuncios-container {
         padding: 1rem;
     }
-
-    .anuncio-card .card-img-top {
-        height: 160px;
-    }
-
-    .anuncio-card .card-body {
-        padding: 1rem;
-    }
-
-    .anuncio-footer {
-        padding: 0.75rem 1rem;
-    }
 }
 
 @media (max-width: 767.98px) {
-    .anuncio-actions {
+    .d-flex.gap-2 {
         flex-direction: column;
         gap: 5px;
     }
     
-    .anuncio-actions button {
+    .d-flex.gap-2 button {
         width: 100%;
     }
-} 
+}
