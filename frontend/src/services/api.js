@@ -93,6 +93,62 @@ export const getImageUrl = (item) => {
     return `${api.defaults.baseURL.replace('/api', '')}/storage/${caminho}`;
 };
 
+/**
+ * Função utilitária para obter URLs de documentos PDF (comprovativos)
+ * @param {string} userId - ID do usuário (opcional)
+ * @param {string} pdfName - Nome do arquivo PDF (opcional)
+ * @returns {string} URL do documento PDF
+ */
+export const getPdfUrl = (userId = null, pdfName = null) => {
+    // Base URL para comprovativos
+    const baseUrl = `${api.defaults.baseURL.replace('/api', '')}/storage/comprovativos/pdfs`;
+    
+    // Se não tiver nenhum parâmetro, retorna a URL base para a pasta de comprovativos
+    if (!userId && !pdfName) {
+        return baseUrl; 
+    }
+    
+    // Se tiver apenas userId, retorna todos os documentos daquele usuário
+    if (userId && !pdfName) {
+        return `${baseUrl}/user_${userId}_`;
+    }
+    
+    // Se tiver caminho completo, usa-o diretamente
+    if (userId && pdfName) {
+        // Verifica se o nome do PDF já inclui o prefixo do usuário
+        if (pdfName.startsWith(`user_${userId}_`)) {
+            return `${baseUrl}/${pdfName}`;
+        } else {
+            return `${baseUrl}/user_${userId}_${pdfName}`;
+        }
+    }
+    
+    // Se tiver apenas o nome do arquivo
+    if (!userId && pdfName) {
+        return `${baseUrl}/${pdfName}`;
+    }
+    
+    return baseUrl;
+};
+
+/**
+ * Função utilitária para obter URL de PDF a partir do caminho completo
+ * @param {string} fullPath - Caminho completo do PDF
+ * @returns {string} URL do documento PDF
+ */
+export const getPdfUrlFromPath = (fullPath) => {
+    if (!fullPath) return '';
+    
+    // Padroniza o caminho removendo 'public/' se existir
+    let caminho = fullPath;
+    if (caminho.startsWith('public/')) {
+        caminho = caminho.substring(7); // Remove 'public/' prefix
+    }
+    
+    // Retorna a URL completa para o PDF
+    return `${api.defaults.baseURL.replace('/api', '')}/storage/${caminho}`;
+};
+
 export const moradaService = {
     getMoradas: async () => {
         try {
