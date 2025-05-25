@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Row, Col } from 'react-bootstrap';
+import { Card, Container } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import './CategoryGrid.css';
 
@@ -15,20 +15,20 @@ const categories = [
 ];
 
 const CategoryGrid = () => (
-  <div className="category-grid-container">
-    <Row xs={2} sm={3} md={4} lg={4} className="g-3">
+  <Container className="py-4">
+    <div className="d-flex flex-wrap justify-content-center gap-4">
       {categories.map(category => (
-        <Col key={category.id}>
-          <Card as={Link} to={`/anuncios/categoria/${category.id}`} className="category-card text-center h-100 shadow-sm border-0">
-            <Card.Body className="d-flex flex-column align-items-center justify-content-center py-4">
-              <i className={`${category.icon} category-icon mb-2`}></i>
-              <div className="fw-semibold small mb-1">{category.name}</div>
+        <div key={category.id} className="category-card-wrapper">
+          <Card as={Link} to={`/anuncios/categoria/${category.id}`} className="category-card">
+            <Card.Body className="d-flex flex-column align-items-center justify-content-center p-4">
+              <i className={`${category.icon} category-icon`}></i>
+              <div className="category-name mt-2">{category.name}</div>
             </Card.Body>
           </Card>
-        </Col>
+        </div>
       ))}
-    </Row>
-  </div>
+    </div>
+  </Container>
 );
 
 export default CategoryGrid;
