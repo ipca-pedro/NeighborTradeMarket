@@ -2,7 +2,7 @@ import api from './api';
 
 export const criarAvaliacao = async (data) => {
     try {
-        const response = await api.post('/avaliacoes', data);
+        const response = await api.post('/avaliacoes/compra', data);
         return response.data;
     } catch (error) {
         throw new Error(error.response?.data?.message || 'Erro ao criar avaliação');
