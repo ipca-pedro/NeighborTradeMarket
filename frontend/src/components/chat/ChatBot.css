@@ -105,7 +105,6 @@
 }
 
 .message-content {
-    background: #f0f2f5;
     padding: 10px 15px;
     border-radius: 15px;
     max-width: 80%;
@@ -114,8 +113,14 @@
 }
 
 .message.user .message-content {
-    background: #007bff;
-    color: white;
+    background-color: #007bff !important;
+    color: white !important;
+}
+
+.message:not(.user) .message-content {
+    background-color: #ffffff !important;
+    color: #333333 !important;
+    border: 1px solid #e0e0e0;
 }
 
 .bot-avatar {

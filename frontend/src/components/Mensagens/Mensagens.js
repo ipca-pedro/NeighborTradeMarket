@@ -233,9 +233,9 @@ const Mensagens = () => {
               {messages.map(message => (
                 <div
                   key={message.ID_Mensagem}
-                  className={`mensagem ${message.isMine ? 'mine' : ''}`}
+                  className={`message ${message.isMine ? 'mine' : ''}`}
                 >
-                  <div className="mensagem-content">
+                  <div className="message-content">
                     {!message.isMine && (
                       <div className="sender-info">
                         <span className="sender-name">{message.SenderName}</span>

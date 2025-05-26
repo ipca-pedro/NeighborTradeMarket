@@ -36,29 +36,39 @@ const IniciarConversa = ({ anuncioId, onConversaIniciada }) => {
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-      <div style={{ background: 'white', borderRadius: 12, boxShadow: '0 2px 16px rgba(0,0,0,0.08)', padding: 32, minWidth: 350, maxWidth: 500, width: '100%' }}>
-        <h2 style={{ textAlign: 'center', marginBottom: 24, color: '#1976d2' }}>Conversar com o Vendedor</h2>
-        {erro && (
-          <div className="erro-mensagem" style={{ marginBottom: 16, color: 'red', textAlign: 'center' }}>
-            {erro}
+    <div className="mensagens-wrapper">
+      <div className="mensagens-container">
+        <div className="mensagens-detalhe">
+          <div className="anuncio-header">
+            <h3>Nova Conversa</h3>
           </div>
-        )}
-        <div className="mensagem-input" style={{ flexDirection: 'column', gap: 16 }}>
-          <textarea
-            value={mensagem}
-            onChange={(e) => setMensagem(e.target.value)}
-            placeholder="Digite sua mensagem..."
-            disabled={enviando}
-            style={{ minHeight: 80, fontSize: 16, marginBottom: 16 }}
-          />
-          <button
-            onClick={handleEnviarMensagem}
-            disabled={!mensagem.trim() || enviando}
-            style={{ width: '100%', padding: '12px 0', fontSize: 16 }}
-          >
-            {enviando ? 'Enviando...' : 'Enviar'}
-          </button>
+          
+          <div className="mensagens-lista">
+            {erro && (
+              <div className="message error">
+                <div className="message-content">
+                  <div className="message-bubble error">
+                    {erro}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="mensagem-input">
+            <textarea
+              value={mensagem}
+              onChange={(e) => setMensagem(e.target.value)}
+              placeholder="Digite sua mensagem..."
+              disabled={enviando}
+            />
+            <button
+              onClick={handleEnviarMensagem}
+              disabled={!mensagem.trim() || enviando}
+            >
+              {enviando ? 'Enviando...' : 'Enviar'}
+            </button>
+          </div>
         </div>
       </div>
     </div>
