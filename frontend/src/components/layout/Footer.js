@@ -7,7 +7,7 @@ const Footer = () => {
     const [showHelpModal, setShowHelpModal] = useState(false);
 
     return (
-        <footer className="bg-dark text-white pt-4 pb-3">
+        <footer className="bg-dark text-white pt-4 pb-3 mt-auto">
             <Container>
                 <Row>
                     <Col md={4} className="mb-3">
