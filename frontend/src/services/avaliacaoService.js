@@ -12,7 +12,6 @@ export const criarAvaliacao = async (data) => {
 export const buscarAvaliacoesRecebidas = async (vendedorId) => {
     try {
         const response = await api.get(`/avaliacoes/recebidas/${vendedorId}`);
-        console.log('Avaliações recebidas:', response.data);
         return response.data;
     } catch (error) {
         console.error('Erro ao buscar avaliações recebidas:', error);
