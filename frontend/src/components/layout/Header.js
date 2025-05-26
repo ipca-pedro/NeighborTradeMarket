@@ -164,8 +164,9 @@ const Header = () => {
                         <img 
                             src="/images/logotipo.png" 
                             alt="NeighborTrade" 
-                            height="45" 
+                            height="70" 
                             className="d-inline-block align-top"
+                            style={{ filter: 'brightness(0) invert(1)' }}
                         />
                     </Navbar.Brand>
 
