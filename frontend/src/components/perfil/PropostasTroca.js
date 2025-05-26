@@ -100,10 +100,10 @@ const PropostasTroca = () => {
                         <Col md={4} key={proposta.ID_Troca}>
                             <Card className="h-100 shadow-sm">
                                 {/* Imagem do anúncio oferecido */}
-                                {proposta.item_oferecido?.item_imagems?.[0]?.imagem && (
+                                {proposta.anuncio_oferecido?.item_imagems?.[0]?.imagem && (
                                     <Card.Img 
                                         variant="top" 
-                                        src={getImageUrl({ imagem: proposta.item_oferecido.item_imagems[0].imagem })}
+                                        src={getImageUrl({ imagem: proposta.anuncio_oferecido.item_imagems[0].imagem })}
                                         style={{ height: '180px', objectFit: 'cover' }}
                                     />
                                 )}
@@ -117,18 +117,18 @@ const PropostasTroca = () => {
                                         <div className="mb-2">
                                             <strong>Anúncio solicitado:</strong><br/>
                                             <Link to={`/anuncios/${proposta.ItemID_Solicitado}`}>
-                                                {proposta.item_solicitado?.Titulo || "Anúncio indisponível"}
+                                                {proposta.anuncio_solicitado?.Titulo || "Anúncio indisponível"}
                                             </Link>
                                         </div>
                                         <div className="mb-2">
                                             <strong>Em troca de:</strong><br/>
                                             <Link to={`/anuncios/${proposta.ItemID_ItemOferecido}`}>
-                                                {proposta.item_oferecido?.Titulo || "Anúncio indisponível"} {proposta.item_oferecido?.Preco && `(${formatarPreco(proposta.item_oferecido.Preco)})`}
+                                                {proposta.anuncio_oferecido?.Titulo || "Anúncio indisponível"} {proposta.anuncio_oferecido?.Preco && `(${formatarPreco(proposta.anuncio_oferecido.Preco)})`}
                                             </Link>
                                         </div>
                                         <div className="mb-2">
                                             <strong>Proposto por:</strong><br/>
-                                            {proposta.item_oferecido?.utilizador?.Name || "Usuário desconhecido"}
+                                            {proposta.anuncio_oferecido?.utilizador?.Name || "Usuário desconhecido"}
                                         </div>
                                     </Card.Text>
                                     {proposta.Status_TrocaID_Status_Troca === 1 && (
@@ -169,10 +169,10 @@ const PropostasTroca = () => {
                         <Col md={4} key={proposta.ID_Troca}>
                             <Card className="h-100 shadow-sm">
                                 {/* Imagem do anúncio solicitado */}
-                                {proposta.item_solicitado?.item_imagems?.[0]?.imagem && (
+                                {proposta.anuncio_solicitado?.item_imagems?.[0]?.imagem && (
                                     <Card.Img 
                                         variant="top" 
-                                        src={getImageUrl({ imagem: proposta.item_solicitado.item_imagems[0].imagem })}
+                                        src={getImageUrl({ imagem: proposta.anuncio_solicitado.item_imagems[0].imagem })}
                                         style={{ height: '180px', objectFit: 'cover' }}
                                     />
                                 )}
@@ -186,18 +186,18 @@ const PropostasTroca = () => {
                                         <div className="mb-2">
                                             <strong>Anúncio desejado:</strong><br/>
                                             <Link to={`/anuncios/${proposta.ItemID_Solicitado}`}>
-                                                {proposta.item_solicitado?.Titulo || "Anúncio indisponível"} {proposta.item_solicitado?.Preco && `(${formatarPreco(proposta.item_solicitado.Preco)})`}
+                                                {proposta.anuncio_solicitado?.Titulo || "Anúncio indisponível"} {proposta.anuncio_solicitado?.Preco && `(${formatarPreco(proposta.anuncio_solicitado.Preco)})`}
                                             </Link>
                                         </div>
                                         <div className="mb-2">
                                             <strong>Oferecendo:</strong><br/>
                                             <Link to={`/anuncios/${proposta.ItemID_ItemOferecido}`}>
-                                                {proposta.item_oferecido?.Titulo || "Anúncio indisponível"}
+                                                {proposta.anuncio_oferecido?.Titulo || "Anúncio indisponível"}
                                             </Link>
                                         </div>
                                         <div className="mb-2">
                                             <strong>Proprietário:</strong><br/>
-                                            {proposta.item_solicitado?.utilizador?.Name || "Usuário desconhecido"}
+                                            {proposta.anuncio_solicitado?.utilizador?.Name || "Usuário desconhecido"}
                                         </div>
                                     </Card.Text>
                                     {proposta.Status_TrocaID_Status_Troca === 1 && (

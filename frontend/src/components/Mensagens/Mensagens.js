@@ -221,10 +221,9 @@ const Mensagens = () => {
             </div>
 
             <div 
-              className="mensagens-lista" 
+              className="mensagens-lista"
               ref={messagesListRef}
               onScroll={handleScroll}
-              style={{ minHeight: '500px', height: '75vh', maxHeight: '85vh' }}
             >
               {loadingMore && (
                 <div className="loading-messages">
@@ -239,13 +238,6 @@ const Mensagens = () => {
                   <div className="mensagem-content">
                     {!message.isMine && (
                       <div className="sender-info">
-                        {message.SenderImage && (
-                          <img
-                            src={`/api/files/id/${message.SenderImage}`}
-                            className="sender-avatar"
-                            alt={message.SenderName}
-                          />
-                        )}
                         <span className="sender-name">{message.SenderName}</span>
                       </div>
                     )}

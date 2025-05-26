@@ -220,8 +220,8 @@ const PerfilUtilizador = () => {
     return (
         <>
             <Header />
-            <Container className="py-4">
-                <Row>
+            <Container className="py-4 flex-grow-1 d-flex">
+                <Row className="flex-grow-1 w-100">
                     <Col md={3}>
                         <Card className="mb-4">
                             <Card.Body className="text-center">
@@ -294,12 +294,10 @@ const PerfilUtilizador = () => {
                             </Card.Body>
                         </Card>
                     </Col>
-                    <Col md={9}>
-                        <Card>
-                            <Card.Body>
-                                {renderProfileContent()}
-                            </Card.Body>
-                        </Card>
+                    <Col md={9} className="flex-grow-1 d-flex flex-column">
+                        <div className="flex-grow-1 d-flex flex-column">
+                            {renderProfileContent()}
+                        </div>
                     </Col>
                 </Row>
             </Container>

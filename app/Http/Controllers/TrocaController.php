@@ -528,12 +528,23 @@ class TrocaController extends Controller
     public function allReceived()
     {
         $user = auth()->user();
+        
+        // Adicionar logging para depuração
+        \Log::info('Fetching all received trade proposals', ['userId' => $user->ID_User]);
+
         $trocas = Troca::with(['anuncioSolicitado.utilizador', 'anuncioOferecido.utilizador', 'statusTroca'])
             ->whereHas('anuncioSolicitado', function ($query) use ($user) {
                 $query->where('UtilizadorID_User', $user->ID_User);
             })
             ->orderBy('DataTroca', 'desc')
             ->get();
+
+        // Adicionar logging para depuração
+        \Log::info('Finished fetching all received trade proposals', [
+            'userId' => $user->ID_User,
+            'count' => $trocas->count(),
+            'trocas_data' => $trocas->toArray() // Log os dados das trocas
+        ]);
 
         return response()->json($trocas);
     }
