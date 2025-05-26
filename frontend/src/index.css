@@ -27,14 +27,9 @@ body {
 
 footer {
   flex-shrink: 0;
-  margin-top: auto;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
-}
-
-main {
-  flex: 1 0 auto;
 }

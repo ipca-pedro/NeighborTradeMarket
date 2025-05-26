@@ -2,7 +2,6 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import './index.css';
 
 // Contextos
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -90,51 +89,49 @@ function App() {
     <AuthProvider>
       <ChatProvider>
         <Router>
-          <div className="app-wrapper d-flex flex-column min-vh-100">
-            <main className="flex-grow-1">
-              <Routes>
-                {/* Rotas Públicas */}
-                <Route path="/" element={<HomePage />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/registar" element={<Register />} />
-                <Route path="/registration-success" element={<RegistrationSuccess />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                
-                {/* Rotas de Informação */}
-                <Route path="/sobre-nos" element={<About />} />
-                <Route path="/faq" element={<FAQ />} />
-                <Route path="/privacidade" element={<Privacy />} />
-                <Route path="/termos" element={<Terms />} />
-                <Route path="/seguranca" element={<Security />} />
-                
-                {/* Rotas de Produtos */}
-                <Route path="/anuncios" element={<ListaProdutos />} />
-                <Route path="/anuncios/categoria/:categoriaId" element={<ListaProdutos />} />
-                <Route path="/anuncios/:id" element={<DetalhesProduto />} />
-                
-                {/* Rotas Protegidas (requerem login) */}
-                <Route path="/perfil" element={<ProtectedRoute><PerfilUtilizador /></ProtectedRoute>} />
-                <Route path="/anuncios/novo" element={<ProtectedRoute><CriarProduto /></ProtectedRoute>} />
-                <Route path="/anuncios/:id/editar" element={<ProtectedRoute><CriarProduto /></ProtectedRoute>} />
-                <Route path="/meus-anuncios" element={<ProtectedRoute><MeusAnuncios /></ProtectedRoute>} />
-                <Route path="/minhas-reclamacoes" element={<ProtectedRoute><MinhasReclamacoes /></ProtectedRoute>} />
-                <Route path="/reclamacoes/:id" element={<ProtectedRoute><DetalhesReclamacao /></ProtectedRoute>} />
-                <Route path="/minhas-propostas" element={<ProtectedRoute><PropostasTroca /></ProtectedRoute>} />
-                
-                {/* Rotas de Admin */}
-                <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
-                <Route path="/admin/produtos-pendentes" element={<AdminRoute><ProdutosPendentes /></AdminRoute>} />
-                <Route path="/admin/users-pendentes" element={<AdminRoute><PendingUsers /></AdminRoute>} />
-                <Route path="/admin/users" element={<AdminRoute><AllUsers /></AdminRoute>} />
-                <Route path="/admin/anuncios" element={<AdminRoute><AllAnuncios /></AdminRoute>} />
-                <Route path="/admin/reclamacoes" element={<AdminRoute><GestaoReclamacoes /></AdminRoute>} />
-                <Route path="/admin/reclamacoes/:id" element={<AdminRoute><AdminReclamacaoDetail /></AdminRoute>} />
-                
-                {/* Rota para URLs não encontrados */}
-                <Route path="*" element={<Navigate to="/" />} />
-              </Routes>
-            </main>
+          <div className="App d-flex flex-column min-vh-100">
+            <Routes>
+              {/* Rotas Públicas */}
+              <Route path="/" element={<HomePage />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/registar" element={<Register />} />
+              <Route path="/registration-success" element={<RegistrationSuccess />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              
+              {/* Rotas de Informação */}
+              <Route path="/sobre-nos" element={<About />} />
+              <Route path="/faq" element={<FAQ />} />
+              <Route path="/privacidade" element={<Privacy />} />
+              <Route path="/termos" element={<Terms />} />
+              <Route path="/seguranca" element={<Security />} />
+              
+              {/* Rotas de Produtos */}
+              <Route path="/anuncios" element={<ListaProdutos />} />
+              <Route path="/anuncios/categoria/:categoriaId" element={<ListaProdutos />} />
+              <Route path="/anuncios/:id" element={<DetalhesProduto />} />
+              
+              {/* Rotas Protegidas (requerem login) */}
+              <Route path="/perfil" element={<ProtectedRoute><PerfilUtilizador /></ProtectedRoute>} />
+              <Route path="/anuncios/novo" element={<ProtectedRoute><CriarProduto /></ProtectedRoute>} />
+              <Route path="/anuncios/:id/editar" element={<ProtectedRoute><CriarProduto /></ProtectedRoute>} />
+              <Route path="/meus-anuncios" element={<ProtectedRoute><MeusAnuncios /></ProtectedRoute>} />
+              <Route path="/minhas-reclamacoes" element={<ProtectedRoute><MinhasReclamacoes /></ProtectedRoute>} />
+              <Route path="/reclamacoes/:id" element={<ProtectedRoute><DetalhesReclamacao /></ProtectedRoute>} />
+              <Route path="/minhas-propostas" element={<ProtectedRoute><PropostasTroca /></ProtectedRoute>} />
+              
+              {/* Rotas de Admin */}
+              <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+              <Route path="/admin/produtos-pendentes" element={<AdminRoute><ProdutosPendentes /></AdminRoute>} />
+              <Route path="/admin/users-pendentes" element={<AdminRoute><PendingUsers /></AdminRoute>} />
+              <Route path="/admin/users" element={<AdminRoute><AllUsers /></AdminRoute>} />
+              <Route path="/admin/anuncios" element={<AdminRoute><AllAnuncios /></AdminRoute>} />
+              <Route path="/admin/reclamacoes" element={<AdminRoute><GestaoReclamacoes /></AdminRoute>} />
+              <Route path="/admin/reclamacoes/:id" element={<AdminRoute><AdminReclamacaoDetail /></AdminRoute>} />
+              
+              {/* Rota para URLs não encontrados */}
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
             <Footer />
           </div>
         </Router>
