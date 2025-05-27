@@ -3,8 +3,8 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 27-Abr-2025 às 18:40
--- Versão do servidor: 10.4.32-MariaDB-log
+-- Tempo de geração: 27-Maio-2025 às 21:40
+-- Versão do servidor: 10.4.32-MariaDB
 -- versão do PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -44,23 +44,18 @@ CREATE TABLE `anuncio` (
 --
 
 INSERT INTO `anuncio` (`ID_Anuncio`, `Titulo`, `Descricao`, `Preco`, `UtilizadorID_User`, `AprovacaoID_aprovacao`, `Tipo_ItemID_Tipo`, `CategoriaID_Categoria`, `Status_AnuncioID_Status_Anuncio`) VALUES
-(1, 'teste', 'teste', 100.99, 2, 19, 1, 1, 3),
-(2, 'teste2', 'teste', 100.00, 2, 20, 2, 2, 1),
-(3, 'portatil', 'portátil como novo', 250.00, 2, 21, 1, 1, 3),
-(4, 'bicicleta', 'como nova', 450.00, 2, 31, 1, 9, 1),
+(3, 'Portátil Lenovo P14s', 'Vendo portátil Lenovo Gen1 P14s\r\n16gb de Ram\r\nNvidia Quadro 2gb\r\n1TB SSD', 250.00, 2, 21, 1, 1, 3),
+(4, 'Bicicleta Giant TCR Advanced', 'Vendo bicicleta Bicicleta Giant TCR Advanced com algumas marcas de uso.', 450.00, 2, 31, 1, 9, 1),
 (5, 'rato logitech', 'como novo', 30.00, 2, 32, 1, 1, 3),
-(6, 'bicicleta', 'como nova', 600.00, 2, 45, 1, 9, 1),
 (7, 'airpods', 'usados duas vezes', 75.00, 2, 47, 1, 1, 3),
 (8, 'apple watch', 'com algumas marcas de uso', 150.00, 2, 48, 1, 1, 3),
-(10, 'Iphone 16 Pro', 'Novo', 500.00, 2, 61, 1, 7, 1),
-(11, 'Crime do padre amaro', 'Usado', 120.00, 11, 62, 1, 4, 1),
-(13, 'Habitos atómicos 2', '321', 100.00, 11, 64, 1, 4, 1),
-(14, 'Movel de sala', 'asd', 100.00, 2, 65, 1, 2, 3),
-(15, 'Canalizador profisisonal', '20€/h', 20.00, 1, 67, 2, 10, 3),
-(16, 'Teste rejeição anúncio', 'Testing rejeição', 20.00, 1, 68, 2, 10, 1),
-(17, 'Testing images', '111', 111.00, 1, 69, 1, 3, 1),
-(19, 'Havaianas', 'Made in Brasil', 32.99, 1, 3, 1, 3, 3),
-(20, 'Ford Fiesta', '345000 KM', 4500.00, 11, 4, 1, 7, 1);
+(18, 'Bananas ao kg', 'Vendo ou troco bananas. 1€/kg', 1.00, 11, 10, 1, 10, 1),
+(19, 'Canalização/Canalizador', 'Realizo todo o tipo de serviços de canalização e saneamento, quer obras de raiz, quer remodelação quer reparação.\r\nBons preços e qualidade.\r\nAlguma questão estamos ao dispor.\r\nPreço por hora no anúncio.', 20.00, 11, 11, 2, 10, 1),
+(20, 'Vendo/Troco Batata Vermelha', 'Vendo batatas ou troco batatas. Para mais informações entre em contato comigo.\r\n5€/kg', 5.00, 3, 12, 1, 10, 4),
+(21, 'Camisolas CR7', 'Nunca usadas. Tamanho L', 75.00, 11, 13, 1, 3, 1),
+(22, 'Honda VTX', '3400Km feitos em autoestrada. Pneus novos.\r\nOferta do capacete.', 7860.00, 7, 14, 1, 7, 1),
+(23, 'Vendo vinho caseiro', 'Vinho verde branco caseiro.\r\n1,70€ a garrafa (750ml). \r\n14 graus.', 1.70, 13, 17, 1, 10, 1),
+(24, 'Mesa de Ping Pong', 'Usada 1 vez.', 100.00, 15, 20, 1, 9, 4);
 
 -- --------------------------------------------------------
 
@@ -87,7 +82,17 @@ INSERT INTO `aprovacao` (`ID_aprovacao`, `Comentario`, `Data_Submissao`, `Data_A
 (3, NULL, '2025-04-26 13:07:29', '2025-04-26 13:44:34', 1, 3),
 (4, NULL, '2025-04-26 13:40:20', '2025-04-26 13:56:39', 1, 2),
 (8, NULL, NULL, NULL, 1, 1),
-(9, NULL, '2025-04-27 15:32:13', NULL, 11, 1);
+(9, NULL, '2025-04-27 15:32:13', NULL, 11, 1),
+(10, NULL, '2025-05-23 17:15:05', NULL, 11, 1),
+(11, NULL, '2025-05-23 18:54:33', NULL, 11, 1),
+(12, NULL, '2025-05-23 19:01:01', NULL, 3, 1),
+(13, NULL, '2025-05-23 19:48:46', NULL, 11, 1),
+(14, NULL, '2025-05-23 20:00:27', NULL, 7, 1),
+(16, NULL, NULL, '2025-05-23 20:12:38', 1, 2),
+(17, NULL, '2025-05-23 20:25:27', NULL, 1, 1),
+(18, NULL, NULL, NULL, 1, 1),
+(19, NULL, NULL, '2025-05-26 17:45:28', 1, 2),
+(20, NULL, '2025-05-26 17:52:05', NULL, 15, 1);
 
 -- --------------------------------------------------------
 
@@ -149,9 +154,9 @@ INSERT INTO `cartao` (`ID_Cartao`, `Numero`, `CVC`, `Data`) VALUES
 (2, '2147483647', 0, '2025-04-30'),
 (3, '2147483647', 111, '2025-05-01'),
 (4, '2147483647', 0, '2025-05-14'),
+(5, '2147483647', 111, '2025-05-01'),
 (6, '2147483647', 555, '2025-11-13'),
-(7, '2147483647', 222, '2026-02-14'),
-(8, '2334453436636337', 567, '2028-10-21');
+(7, '2147483647', 222, '2026-02-14');
 
 -- --------------------------------------------------------
 
@@ -219,8 +224,7 @@ CREATE TABLE `compra_reclamacao` (
 --
 
 INSERT INTO `compra_reclamacao` (`CompraID_Compra`, `ReclamacaoID_Reclamacao`) VALUES
-(8, 3),
-(10, 4);
+(8, 3);
 
 -- --------------------------------------------------------
 
@@ -274,7 +278,6 @@ CREATE TABLE `imagem` (
 
 INSERT INTO `imagem` (`ID_Imagem`, `Caminho`) VALUES
 (1, 'public/perfil/default.png'),
-(2, 'anuncios/1744330785_0_transferir.jpeg'),
 (3, 'anuncios/1744331079_0_transferir.jpeg'),
 (4, 'comprovativos/pdfs/user_3_20250414201839.pdf'),
 (5, 'comprovativos/pdfs/user_4_20250414203244.pdf'),
@@ -284,28 +287,24 @@ INSERT INTO `imagem` (`ID_Imagem`, `Caminho`) VALUES
 (9, 'anuncios/4/67fd935498f0f_2.jpg'),
 (10, 'anuncios/4/67fd93549aad7_3.jpg'),
 (11, 'anuncios/5/67fd96c783272_0.jpeg'),
-(12, 'anuncios/6/67fdb0ceb98a2_0.jpg'),
-(13, 'anuncios/6/67fdb0cec4813_1.jpg'),
-(14, 'anuncios/6/67fdb0cec58f7_2.jpg'),
-(15, 'anuncios/6/67fdb0cec72ba_3.jpg'),
 (16, 'anuncios/7/67fdb3e200bfc_0.jpeg'),
 (17, 'anuncios/8/67fdbd72e3749_0.jpeg'),
 (18, 'comprovativos/pdfs/user_6_20250415160606.pdf'),
 (19, 'comprovativos/pdfs/user_7_20250415185650.pdf'),
 (23, 'comprovativos/imagens/user_8_20250424211441.jpg'),
 (24, 'comprovativos/imagens/user_12_20250424211904.jpg'),
-(26, 'anuncios/10/680aad43cc1df_0.jpg'),
-(27, 'anuncios/11/680aade5a7bdc_0.jpg'),
-(28, 'anuncios/13/680ab8a452f93_0.jpg'),
-(29, 'anuncios/14/680ac79982821_0.jpeg'),
-(30, 'anuncios/15/680b7e2e5b627_0.jpg'),
-(31, 'anuncios/16/680b83471942d_0.jpg'),
-(32, 'anuncios/17/680b848d919bd_0.jpg'),
-(37, 'anuncios/13/1745587428_0.jpeg'),
-(38, 'comprovativos/imagens/user_13_20250426134247.png'),
-(40, 'anuncios/19/680ce8a1a8439_0.jpg'),
-(41, 'anuncios/20/680cf05498421_0.jpg'),
-(46, 'comprovativos/pdfs/user_14_20250426180446.pdf');
+(38, 'anuncios/18/6830bb2946622_0.jpeg'),
+(39, 'anuncios/19/6830d27967795_0.jpg'),
+(40, 'anuncios/20/6830d3fd85ccd_0.png'),
+(41, 'anuncios/21/6830df2ed9f90_0.jpg'),
+(42, 'anuncios/21/6830df2ee16b2_1.jpg'),
+(43, 'anuncios/22/6830e1eb60169_0.png'),
+(45, 'comprovativos/pdfs/user_13_20250523211151.pdf'),
+(48, 'anuncios/23/1748035746_0.jpg'),
+(49, 'anuncios/23/1748035746_1.jpg'),
+(50, 'comprovativos/pdfs/user_14_20250526183245.pdf'),
+(51, 'comprovativos/pdfs/user_14_20250526184303.pdf'),
+(52, 'anuncios/24/6834b85580be6_0.jpg');
 
 -- --------------------------------------------------------
 
@@ -323,29 +322,23 @@ CREATE TABLE `item_imagem` (
 --
 
 INSERT INTO `item_imagem` (`ItemID_Item`, `ImagemID_Imagem`) VALUES
-(2, 2),
 (3, 3),
 (4, 7),
 (4, 8),
 (4, 9),
 (4, 10),
 (5, 11),
-(6, 12),
-(6, 13),
-(6, 14),
-(6, 15),
 (7, 16),
 (8, 17),
-(10, 26),
-(11, 27),
-(13, 28),
-(13, 37),
-(14, 29),
-(15, 30),
-(16, 31),
-(17, 32),
-(19, 40),
-(20, 41);
+(18, 38),
+(19, 39),
+(20, 40),
+(21, 41),
+(21, 42),
+(22, 43),
+(23, 48),
+(23, 49),
+(24, 52);
 
 -- --------------------------------------------------------
 
@@ -375,7 +368,29 @@ INSERT INTO `jobs` (`id`, `queue`, `payload`, `attempts`, `reserved_at`, `availa
 (5, 'default', '{\"uuid\":\"6d081007-dd0c-434e-96aa-606c06252fa4\",\"displayName\":\"App\\\\Events\\\\MensagemEnviada\",\"job\":\"Illuminate\\\\Queue\\\\CallQueuedHandler@call\",\"maxTries\":null,\"maxExceptions\":null,\"failOnTimeout\":false,\"backoff\":null,\"timeout\":null,\"retryUntil\":null,\"data\":{\"commandName\":\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\",\"command\":\"O:38:\\\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\\\":14:{s:5:\\\"event\\\";O:26:\\\"App\\\\Events\\\\MensagemEnviada\\\":1:{s:8:\\\"mensagem\\\";O:45:\\\"Illuminate\\\\Contracts\\\\Database\\\\ModelIdentifier\\\":5:{s:5:\\\"class\\\";s:19:\\\"App\\\\Models\\\\Mensagem\\\";s:2:\\\"id\\\";i:9;s:9:\\\"relations\\\";a:0:{}s:10:\\\"connection\\\";s:5:\\\"mysql\\\";s:15:\\\"collectionClass\\\";N;}}s:5:\\\"tries\\\";N;s:7:\\\"timeout\\\";N;s:7:\\\"backoff\\\";N;s:13:\\\"maxExceptions\\\";N;s:10:\\\"connection\\\";N;s:5:\\\"queue\\\";N;s:5:\\\"delay\\\";N;s:11:\\\"afterCommit\\\";N;s:10:\\\"middleware\\\";a:0:{}s:7:\\\"chained\\\";a:0:{}s:15:\\\"chainConnection\\\";N;s:10:\\\"chainQueue\\\";N;s:19:\\\"chainCatchCallbacks\\\";N;}\"}}', 0, NULL, 1744841222, 1744841222),
 (6, 'default', '{\"uuid\":\"e4f87899-d46d-4605-bf81-08a0d85f90a4\",\"displayName\":\"App\\\\Events\\\\MensagemEnviada\",\"job\":\"Illuminate\\\\Queue\\\\CallQueuedHandler@call\",\"maxTries\":null,\"maxExceptions\":null,\"failOnTimeout\":false,\"backoff\":null,\"timeout\":null,\"retryUntil\":null,\"data\":{\"commandName\":\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\",\"command\":\"O:38:\\\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\\\":14:{s:5:\\\"event\\\";O:26:\\\"App\\\\Events\\\\MensagemEnviada\\\":1:{s:8:\\\"mensagem\\\";O:45:\\\"Illuminate\\\\Contracts\\\\Database\\\\ModelIdentifier\\\":5:{s:5:\\\"class\\\";s:19:\\\"App\\\\Models\\\\Mensagem\\\";s:2:\\\"id\\\";i:10;s:9:\\\"relations\\\";a:0:{}s:10:\\\"connection\\\";s:5:\\\"mysql\\\";s:15:\\\"collectionClass\\\";N;}}s:5:\\\"tries\\\";N;s:7:\\\"timeout\\\";N;s:7:\\\"backoff\\\";N;s:13:\\\"maxExceptions\\\";N;s:10:\\\"connection\\\";N;s:5:\\\"queue\\\";N;s:5:\\\"delay\\\";N;s:11:\\\"afterCommit\\\";N;s:10:\\\"middleware\\\";a:0:{}s:7:\\\"chained\\\";a:0:{}s:15:\\\"chainConnection\\\";N;s:10:\\\"chainQueue\\\";N;s:19:\\\"chainCatchCallbacks\\\";N;}\"}}', 0, NULL, 1744841447, 1744841447),
 (7, 'default', '{\"uuid\":\"4d6de967-bf8b-45ca-b242-0b6e1e57ed4d\",\"displayName\":\"App\\\\Events\\\\MensagemEnviada\",\"job\":\"Illuminate\\\\Queue\\\\CallQueuedHandler@call\",\"maxTries\":null,\"maxExceptions\":null,\"failOnTimeout\":false,\"backoff\":null,\"timeout\":null,\"retryUntil\":null,\"data\":{\"commandName\":\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\",\"command\":\"O:38:\\\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\\\":14:{s:5:\\\"event\\\";O:26:\\\"App\\\\Events\\\\MensagemEnviada\\\":1:{s:8:\\\"mensagem\\\";O:45:\\\"Illuminate\\\\Contracts\\\\Database\\\\ModelIdentifier\\\":5:{s:5:\\\"class\\\";s:19:\\\"App\\\\Models\\\\Mensagem\\\";s:2:\\\"id\\\";i:11;s:9:\\\"relations\\\";a:0:{}s:10:\\\"connection\\\";s:5:\\\"mysql\\\";s:15:\\\"collectionClass\\\";N;}}s:5:\\\"tries\\\";N;s:7:\\\"timeout\\\";N;s:7:\\\"backoff\\\";N;s:13:\\\"maxExceptions\\\";N;s:10:\\\"connection\\\";N;s:5:\\\"queue\\\";N;s:5:\\\"delay\\\";N;s:11:\\\"afterCommit\\\";N;s:10:\\\"middleware\\\";a:0:{}s:7:\\\"chained\\\";a:0:{}s:15:\\\"chainConnection\\\";N;s:10:\\\"chainQueue\\\";N;s:19:\\\"chainCatchCallbacks\\\";N;}\"}}', 0, NULL, 1744841836, 1744841836),
-(8, 'default', '{\"uuid\":\"3d54ac98-89ec-4910-8149-572becdd07a5\",\"displayName\":\"App\\\\Events\\\\MensagemEnviada\",\"job\":\"Illuminate\\\\Queue\\\\CallQueuedHandler@call\",\"maxTries\":null,\"maxExceptions\":null,\"failOnTimeout\":false,\"backoff\":null,\"timeout\":null,\"retryUntil\":null,\"data\":{\"commandName\":\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\",\"command\":\"O:38:\\\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\\\":14:{s:5:\\\"event\\\";O:26:\\\"App\\\\Events\\\\MensagemEnviada\\\":1:{s:8:\\\"mensagem\\\";O:45:\\\"Illuminate\\\\Contracts\\\\Database\\\\ModelIdentifier\\\":5:{s:5:\\\"class\\\";s:19:\\\"App\\\\Models\\\\Mensagem\\\";s:2:\\\"id\\\";i:12;s:9:\\\"relations\\\";a:0:{}s:10:\\\"connection\\\";s:5:\\\"mysql\\\";s:15:\\\"collectionClass\\\";N;}}s:5:\\\"tries\\\";N;s:7:\\\"timeout\\\";N;s:7:\\\"backoff\\\";N;s:13:\\\"maxExceptions\\\";N;s:10:\\\"connection\\\";N;s:5:\\\"queue\\\";N;s:5:\\\"delay\\\";N;s:11:\\\"afterCommit\\\";N;s:10:\\\"middleware\\\";a:0:{}s:7:\\\"chained\\\";a:0:{}s:15:\\\"chainConnection\\\";N;s:10:\\\"chainQueue\\\";N;s:19:\\\"chainCatchCallbacks\\\";N;}\"}}', 0, NULL, 1744841938, 1744841938);
+(8, 'default', '{\"uuid\":\"3d54ac98-89ec-4910-8149-572becdd07a5\",\"displayName\":\"App\\\\Events\\\\MensagemEnviada\",\"job\":\"Illuminate\\\\Queue\\\\CallQueuedHandler@call\",\"maxTries\":null,\"maxExceptions\":null,\"failOnTimeout\":false,\"backoff\":null,\"timeout\":null,\"retryUntil\":null,\"data\":{\"commandName\":\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\",\"command\":\"O:38:\\\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\\\":14:{s:5:\\\"event\\\";O:26:\\\"App\\\\Events\\\\MensagemEnviada\\\":1:{s:8:\\\"mensagem\\\";O:45:\\\"Illuminate\\\\Contracts\\\\Database\\\\ModelIdentifier\\\":5:{s:5:\\\"class\\\";s:19:\\\"App\\\\Models\\\\Mensagem\\\";s:2:\\\"id\\\";i:12;s:9:\\\"relations\\\";a:0:{}s:10:\\\"connection\\\";s:5:\\\"mysql\\\";s:15:\\\"collectionClass\\\";N;}}s:5:\\\"tries\\\";N;s:7:\\\"timeout\\\";N;s:7:\\\"backoff\\\";N;s:13:\\\"maxExceptions\\\";N;s:10:\\\"connection\\\";N;s:5:\\\"queue\\\";N;s:5:\\\"delay\\\";N;s:11:\\\"afterCommit\\\";N;s:10:\\\"middleware\\\";a:0:{}s:7:\\\"chained\\\";a:0:{}s:15:\\\"chainConnection\\\";N;s:10:\\\"chainQueue\\\";N;s:19:\\\"chainCatchCallbacks\\\";N;}\"}}', 0, NULL, 1744841938, 1744841938),
+(9, 'default', '{\"uuid\":\"2cc32111-e259-43b3-a6d0-4013d780fd57\",\"displayName\":\"App\\\\Events\\\\MensagemEnviada\",\"job\":\"Illuminate\\\\Queue\\\\CallQueuedHandler@call\",\"maxTries\":null,\"maxExceptions\":null,\"failOnTimeout\":false,\"backoff\":null,\"timeout\":null,\"retryUntil\":null,\"data\":{\"commandName\":\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\",\"command\":\"O:38:\\\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\\\":14:{s:5:\\\"event\\\";O:26:\\\"App\\\\Events\\\\MensagemEnviada\\\":1:{s:8:\\\"mensagem\\\";O:45:\\\"Illuminate\\\\Contracts\\\\Database\\\\ModelIdentifier\\\":5:{s:5:\\\"class\\\";s:19:\\\"App\\\\Models\\\\Mensagem\\\";s:2:\\\"id\\\";i:13;s:9:\\\"relations\\\";a:0:{}s:10:\\\"connection\\\";s:5:\\\"mysql\\\";s:15:\\\"collectionClass\\\";N;}}s:5:\\\"tries\\\";N;s:7:\\\"timeout\\\";N;s:7:\\\"backoff\\\";N;s:13:\\\"maxExceptions\\\";N;s:10:\\\"connection\\\";N;s:5:\\\"queue\\\";N;s:5:\\\"delay\\\";N;s:11:\\\"afterCommit\\\";N;s:10:\\\"middleware\\\";a:0:{}s:7:\\\"chained\\\";a:0:{}s:15:\\\"chainConnection\\\";N;s:10:\\\"chainQueue\\\";N;s:19:\\\"chainCatchCallbacks\\\";N;}\"}}', 0, NULL, 1748286870, 1748286870),
+(10, 'default', '{\"uuid\":\"2a4eda2a-8458-445e-8ab2-ac1cc0e9ac1e\",\"displayName\":\"App\\\\Events\\\\MensagemEnviada\",\"job\":\"Illuminate\\\\Queue\\\\CallQueuedHandler@call\",\"maxTries\":null,\"maxExceptions\":null,\"failOnTimeout\":false,\"backoff\":null,\"timeout\":null,\"retryUntil\":null,\"data\":{\"commandName\":\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\",\"command\":\"O:38:\\\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\\\":14:{s:5:\\\"event\\\";O:26:\\\"App\\\\Events\\\\MensagemEnviada\\\":1:{s:8:\\\"mensagem\\\";O:45:\\\"Illuminate\\\\Contracts\\\\Database\\\\ModelIdentifier\\\":5:{s:5:\\\"class\\\";s:19:\\\"App\\\\Models\\\\Mensagem\\\";s:2:\\\"id\\\";i:14;s:9:\\\"relations\\\";a:0:{}s:10:\\\"connection\\\";s:5:\\\"mysql\\\";s:15:\\\"collectionClass\\\";N;}}s:5:\\\"tries\\\";N;s:7:\\\"timeout\\\";N;s:7:\\\"backoff\\\";N;s:13:\\\"maxExceptions\\\";N;s:10:\\\"connection\\\";N;s:5:\\\"queue\\\";N;s:5:\\\"delay\\\";N;s:11:\\\"afterCommit\\\";N;s:10:\\\"middleware\\\";a:0:{}s:7:\\\"chained\\\";a:0:{}s:15:\\\"chainConnection\\\";N;s:10:\\\"chainQueue\\\";N;s:19:\\\"chainCatchCallbacks\\\";N;}\"}}', 0, NULL, 1748290475, 1748290475),
+(11, 'default', '{\"uuid\":\"135e7ef0-2e58-4caa-bfbf-256470c7c35c\",\"displayName\":\"App\\\\Events\\\\MensagemEnviada\",\"job\":\"Illuminate\\\\Queue\\\\CallQueuedHandler@call\",\"maxTries\":null,\"maxExceptions\":null,\"failOnTimeout\":false,\"backoff\":null,\"timeout\":null,\"retryUntil\":null,\"data\":{\"commandName\":\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\",\"command\":\"O:38:\\\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\\\":14:{s:5:\\\"event\\\";O:26:\\\"App\\\\Events\\\\MensagemEnviada\\\":1:{s:8:\\\"mensagem\\\";O:45:\\\"Illuminate\\\\Contracts\\\\Database\\\\ModelIdentifier\\\":5:{s:5:\\\"class\\\";s:19:\\\"App\\\\Models\\\\Mensagem\\\";s:2:\\\"id\\\";i:15;s:9:\\\"relations\\\";a:0:{}s:10:\\\"connection\\\";s:5:\\\"mysql\\\";s:15:\\\"collectionClass\\\";N;}}s:5:\\\"tries\\\";N;s:7:\\\"timeout\\\";N;s:7:\\\"backoff\\\";N;s:13:\\\"maxExceptions\\\";N;s:10:\\\"connection\\\";N;s:5:\\\"queue\\\";N;s:5:\\\"delay\\\";N;s:11:\\\"afterCommit\\\";N;s:10:\\\"middleware\\\";a:0:{}s:7:\\\"chained\\\";a:0:{}s:15:\\\"chainConnection\\\";N;s:10:\\\"chainQueue\\\";N;s:19:\\\"chainCatchCallbacks\\\";N;}\"}}', 0, NULL, 1748290494, 1748290494),
+(12, 'default', '{\"uuid\":\"b7baba40-9a05-4d85-84c3-37c540872c80\",\"displayName\":\"App\\\\Events\\\\MensagemEnviada\",\"job\":\"Illuminate\\\\Queue\\\\CallQueuedHandler@call\",\"maxTries\":null,\"maxExceptions\":null,\"failOnTimeout\":false,\"backoff\":null,\"timeout\":null,\"retryUntil\":null,\"data\":{\"commandName\":\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\",\"command\":\"O:38:\\\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\\\":14:{s:5:\\\"event\\\";O:26:\\\"App\\\\Events\\\\MensagemEnviada\\\":1:{s:8:\\\"mensagem\\\";O:45:\\\"Illuminate\\\\Contracts\\\\Database\\\\ModelIdentifier\\\":5:{s:5:\\\"class\\\";s:19:\\\"App\\\\Models\\\\Mensagem\\\";s:2:\\\"id\\\";i:16;s:9:\\\"relations\\\";a:0:{}s:10:\\\"connection\\\";s:5:\\\"mysql\\\";s:15:\\\"collectionClass\\\";N;}}s:5:\\\"tries\\\";N;s:7:\\\"timeout\\\";N;s:7:\\\"backoff\\\";N;s:13:\\\"maxExceptions\\\";N;s:10:\\\"connection\\\";N;s:5:\\\"queue\\\";N;s:5:\\\"delay\\\";N;s:11:\\\"afterCommit\\\";N;s:10:\\\"middleware\\\";a:0:{}s:7:\\\"chained\\\";a:0:{}s:15:\\\"chainConnection\\\";N;s:10:\\\"chainQueue\\\";N;s:19:\\\"chainCatchCallbacks\\\";N;}\"}}', 0, NULL, 1748290613, 1748290613),
+(13, 'default', '{\"uuid\":\"7db8ad1e-2be7-493f-a353-b90ff20baea8\",\"displayName\":\"App\\\\Events\\\\MensagemEnviada\",\"job\":\"Illuminate\\\\Queue\\\\CallQueuedHandler@call\",\"maxTries\":null,\"maxExceptions\":null,\"failOnTimeout\":false,\"backoff\":null,\"timeout\":null,\"retryUntil\":null,\"data\":{\"commandName\":\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\",\"command\":\"O:38:\\\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\\\":14:{s:5:\\\"event\\\";O:26:\\\"App\\\\Events\\\\MensagemEnviada\\\":1:{s:8:\\\"mensagem\\\";O:45:\\\"Illuminate\\\\Contracts\\\\Database\\\\ModelIdentifier\\\":5:{s:5:\\\"class\\\";s:19:\\\"App\\\\Models\\\\Mensagem\\\";s:2:\\\"id\\\";i:17;s:9:\\\"relations\\\";a:0:{}s:10:\\\"connection\\\";s:5:\\\"mysql\\\";s:15:\\\"collectionClass\\\";N;}}s:5:\\\"tries\\\";N;s:7:\\\"timeout\\\";N;s:7:\\\"backoff\\\";N;s:13:\\\"maxExceptions\\\";N;s:10:\\\"connection\\\";N;s:5:\\\"queue\\\";N;s:5:\\\"delay\\\";N;s:11:\\\"afterCommit\\\";N;s:10:\\\"middleware\\\";a:0:{}s:7:\\\"chained\\\";a:0:{}s:15:\\\"chainConnection\\\";N;s:10:\\\"chainQueue\\\";N;s:19:\\\"chainCatchCallbacks\\\";N;}\"}}', 0, NULL, 1748290625, 1748290625),
+(14, 'default', '{\"uuid\":\"e3e06390-2d77-459c-990d-694af9af9ba5\",\"displayName\":\"App\\\\Events\\\\MensagemEnviada\",\"job\":\"Illuminate\\\\Queue\\\\CallQueuedHandler@call\",\"maxTries\":null,\"maxExceptions\":null,\"failOnTimeout\":false,\"backoff\":null,\"timeout\":null,\"retryUntil\":null,\"data\":{\"commandName\":\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\",\"command\":\"O:38:\\\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\\\":14:{s:5:\\\"event\\\";O:26:\\\"App\\\\Events\\\\MensagemEnviada\\\":1:{s:8:\\\"mensagem\\\";O:45:\\\"Illuminate\\\\Contracts\\\\Database\\\\ModelIdentifier\\\":5:{s:5:\\\"class\\\";s:19:\\\"App\\\\Models\\\\Mensagem\\\";s:2:\\\"id\\\";i:18;s:9:\\\"relations\\\";a:0:{}s:10:\\\"connection\\\";s:5:\\\"mysql\\\";s:15:\\\"collectionClass\\\";N;}}s:5:\\\"tries\\\";N;s:7:\\\"timeout\\\";N;s:7:\\\"backoff\\\";N;s:13:\\\"maxExceptions\\\";N;s:10:\\\"connection\\\";N;s:5:\\\"queue\\\";N;s:5:\\\"delay\\\";N;s:11:\\\"afterCommit\\\";N;s:10:\\\"middleware\\\";a:0:{}s:7:\\\"chained\\\";a:0:{}s:15:\\\"chainConnection\\\";N;s:10:\\\"chainQueue\\\";N;s:19:\\\"chainCatchCallbacks\\\";N;}\"}}', 0, NULL, 1748290786, 1748290786),
+(15, 'default', '{\"uuid\":\"aedf2dfb-686a-4773-ad0c-443a749714f5\",\"displayName\":\"App\\\\Events\\\\MensagemEnviada\",\"job\":\"Illuminate\\\\Queue\\\\CallQueuedHandler@call\",\"maxTries\":null,\"maxExceptions\":null,\"failOnTimeout\":false,\"backoff\":null,\"timeout\":null,\"retryUntil\":null,\"data\":{\"commandName\":\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\",\"command\":\"O:38:\\\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\\\":14:{s:5:\\\"event\\\";O:26:\\\"App\\\\Events\\\\MensagemEnviada\\\":1:{s:8:\\\"mensagem\\\";O:45:\\\"Illuminate\\\\Contracts\\\\Database\\\\ModelIdentifier\\\":5:{s:5:\\\"class\\\";s:19:\\\"App\\\\Models\\\\Mensagem\\\";s:2:\\\"id\\\";i:19;s:9:\\\"relations\\\";a:0:{}s:10:\\\"connection\\\";s:5:\\\"mysql\\\";s:15:\\\"collectionClass\\\";N;}}s:5:\\\"tries\\\";N;s:7:\\\"timeout\\\";N;s:7:\\\"backoff\\\";N;s:13:\\\"maxExceptions\\\";N;s:10:\\\"connection\\\";N;s:5:\\\"queue\\\";N;s:5:\\\"delay\\\";N;s:11:\\\"afterCommit\\\";N;s:10:\\\"middleware\\\";a:0:{}s:7:\\\"chained\\\";a:0:{}s:15:\\\"chainConnection\\\";N;s:10:\\\"chainQueue\\\";N;s:19:\\\"chainCatchCallbacks\\\";N;}\"}}', 0, NULL, 1748290860, 1748290860),
+(16, 'default', '{\"uuid\":\"9324aaee-9a3e-4438-b72d-32e3cc6f6910\",\"displayName\":\"App\\\\Events\\\\MensagemEnviada\",\"job\":\"Illuminate\\\\Queue\\\\CallQueuedHandler@call\",\"maxTries\":null,\"maxExceptions\":null,\"failOnTimeout\":false,\"backoff\":null,\"timeout\":null,\"retryUntil\":null,\"data\":{\"commandName\":\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\",\"command\":\"O:38:\\\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\\\":14:{s:5:\\\"event\\\";O:26:\\\"App\\\\Events\\\\MensagemEnviada\\\":1:{s:8:\\\"mensagem\\\";O:45:\\\"Illuminate\\\\Contracts\\\\Database\\\\ModelIdentifier\\\":5:{s:5:\\\"class\\\";s:19:\\\"App\\\\Models\\\\Mensagem\\\";s:2:\\\"id\\\";i:20;s:9:\\\"relations\\\";a:0:{}s:10:\\\"connection\\\";s:5:\\\"mysql\\\";s:15:\\\"collectionClass\\\";N;}}s:5:\\\"tries\\\";N;s:7:\\\"timeout\\\";N;s:7:\\\"backoff\\\";N;s:13:\\\"maxExceptions\\\";N;s:10:\\\"connection\\\";N;s:5:\\\"queue\\\";N;s:5:\\\"delay\\\";N;s:11:\\\"afterCommit\\\";N;s:10:\\\"middleware\\\";a:0:{}s:7:\\\"chained\\\";a:0:{}s:15:\\\"chainConnection\\\";N;s:10:\\\"chainQueue\\\";N;s:19:\\\"chainCatchCallbacks\\\";N;}\"}}', 0, NULL, 1748290876, 1748290876),
+(17, 'default', '{\"uuid\":\"10293f20-e1b6-4b0d-9d10-d4144d026ff5\",\"displayName\":\"App\\\\Events\\\\MensagemEnviada\",\"job\":\"Illuminate\\\\Queue\\\\CallQueuedHandler@call\",\"maxTries\":null,\"maxExceptions\":null,\"failOnTimeout\":false,\"backoff\":null,\"timeout\":null,\"retryUntil\":null,\"data\":{\"commandName\":\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\",\"command\":\"O:38:\\\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\\\":14:{s:5:\\\"event\\\";O:26:\\\"App\\\\Events\\\\MensagemEnviada\\\":1:{s:8:\\\"mensagem\\\";O:45:\\\"Illuminate\\\\Contracts\\\\Database\\\\ModelIdentifier\\\":5:{s:5:\\\"class\\\";s:19:\\\"App\\\\Models\\\\Mensagem\\\";s:2:\\\"id\\\";i:21;s:9:\\\"relations\\\";a:0:{}s:10:\\\"connection\\\";s:5:\\\"mysql\\\";s:15:\\\"collectionClass\\\";N;}}s:5:\\\"tries\\\";N;s:7:\\\"timeout\\\";N;s:7:\\\"backoff\\\";N;s:13:\\\"maxExceptions\\\";N;s:10:\\\"connection\\\";N;s:5:\\\"queue\\\";N;s:5:\\\"delay\\\";N;s:11:\\\"afterCommit\\\";N;s:10:\\\"middleware\\\";a:0:{}s:7:\\\"chained\\\";a:0:{}s:15:\\\"chainConnection\\\";N;s:10:\\\"chainQueue\\\";N;s:19:\\\"chainCatchCallbacks\\\";N;}\"}}', 0, NULL, 1748290962, 1748290962),
+(18, 'default', '{\"uuid\":\"e343dd46-261d-423b-9a6a-a7233901bf29\",\"displayName\":\"App\\\\Events\\\\MensagemEnviada\",\"job\":\"Illuminate\\\\Queue\\\\CallQueuedHandler@call\",\"maxTries\":null,\"maxExceptions\":null,\"failOnTimeout\":false,\"backoff\":null,\"timeout\":null,\"retryUntil\":null,\"data\":{\"commandName\":\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\",\"command\":\"O:38:\\\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\\\":14:{s:5:\\\"event\\\";O:26:\\\"App\\\\Events\\\\MensagemEnviada\\\":1:{s:8:\\\"mensagem\\\";O:45:\\\"Illuminate\\\\Contracts\\\\Database\\\\ModelIdentifier\\\":5:{s:5:\\\"class\\\";s:19:\\\"App\\\\Models\\\\Mensagem\\\";s:2:\\\"id\\\";i:22;s:9:\\\"relations\\\";a:0:{}s:10:\\\"connection\\\";s:5:\\\"mysql\\\";s:15:\\\"collectionClass\\\";N;}}s:5:\\\"tries\\\";N;s:7:\\\"timeout\\\";N;s:7:\\\"backoff\\\";N;s:13:\\\"maxExceptions\\\";N;s:10:\\\"connection\\\";N;s:5:\\\"queue\\\";N;s:5:\\\"delay\\\";N;s:11:\\\"afterCommit\\\";N;s:10:\\\"middleware\\\";a:0:{}s:7:\\\"chained\\\";a:0:{}s:15:\\\"chainConnection\\\";N;s:10:\\\"chainQueue\\\";N;s:19:\\\"chainCatchCallbacks\\\";N;}\"}}', 0, NULL, 1748290991, 1748290991),
+(19, 'default', '{\"uuid\":\"caeeba1a-5306-49d9-96e0-255e03235909\",\"displayName\":\"App\\\\Events\\\\MensagemEnviada\",\"job\":\"Illuminate\\\\Queue\\\\CallQueuedHandler@call\",\"maxTries\":null,\"maxExceptions\":null,\"failOnTimeout\":false,\"backoff\":null,\"timeout\":null,\"retryUntil\":null,\"data\":{\"commandName\":\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\",\"command\":\"O:38:\\\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\\\":14:{s:5:\\\"event\\\";O:26:\\\"App\\\\Events\\\\MensagemEnviada\\\":1:{s:8:\\\"mensagem\\\";O:45:\\\"Illuminate\\\\Contracts\\\\Database\\\\ModelIdentifier\\\":5:{s:5:\\\"class\\\";s:19:\\\"App\\\\Models\\\\Mensagem\\\";s:2:\\\"id\\\";i:23;s:9:\\\"relations\\\";a:0:{}s:10:\\\"connection\\\";s:5:\\\"mysql\\\";s:15:\\\"collectionClass\\\";N;}}s:5:\\\"tries\\\";N;s:7:\\\"timeout\\\";N;s:7:\\\"backoff\\\";N;s:13:\\\"maxExceptions\\\";N;s:10:\\\"connection\\\";N;s:5:\\\"queue\\\";N;s:5:\\\"delay\\\";N;s:11:\\\"afterCommit\\\";N;s:10:\\\"middleware\\\";a:0:{}s:7:\\\"chained\\\";a:0:{}s:15:\\\"chainConnection\\\";N;s:10:\\\"chainQueue\\\";N;s:19:\\\"chainCatchCallbacks\\\";N;}\"}}', 0, NULL, 1748291152, 1748291152),
+(20, 'default', '{\"uuid\":\"b4e48df5-62a6-4108-9cf0-5c8e96a6f5c5\",\"displayName\":\"App\\\\Events\\\\MensagemEnviada\",\"job\":\"Illuminate\\\\Queue\\\\CallQueuedHandler@call\",\"maxTries\":null,\"maxExceptions\":null,\"failOnTimeout\":false,\"backoff\":null,\"timeout\":null,\"retryUntil\":null,\"data\":{\"commandName\":\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\",\"command\":\"O:38:\\\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\\\":14:{s:5:\\\"event\\\";O:26:\\\"App\\\\Events\\\\MensagemEnviada\\\":1:{s:8:\\\"mensagem\\\";O:45:\\\"Illuminate\\\\Contracts\\\\Database\\\\ModelIdentifier\\\":5:{s:5:\\\"class\\\";s:19:\\\"App\\\\Models\\\\Mensagem\\\";s:2:\\\"id\\\";i:24;s:9:\\\"relations\\\";a:0:{}s:10:\\\"connection\\\";s:5:\\\"mysql\\\";s:15:\\\"collectionClass\\\";N;}}s:5:\\\"tries\\\";N;s:7:\\\"timeout\\\";N;s:7:\\\"backoff\\\";N;s:13:\\\"maxExceptions\\\";N;s:10:\\\"connection\\\";N;s:5:\\\"queue\\\";N;s:5:\\\"delay\\\";N;s:11:\\\"afterCommit\\\";N;s:10:\\\"middleware\\\";a:0:{}s:7:\\\"chained\\\";a:0:{}s:15:\\\"chainConnection\\\";N;s:10:\\\"chainQueue\\\";N;s:19:\\\"chainCatchCallbacks\\\";N;}\"}}', 0, NULL, 1748291221, 1748291221),
+(21, 'default', '{\"uuid\":\"98ab21e4-9d35-47fd-b0e7-90bc661bcde6\",\"displayName\":\"App\\\\Events\\\\MensagemEnviada\",\"job\":\"Illuminate\\\\Queue\\\\CallQueuedHandler@call\",\"maxTries\":null,\"maxExceptions\":null,\"failOnTimeout\":false,\"backoff\":null,\"timeout\":null,\"retryUntil\":null,\"data\":{\"commandName\":\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\",\"command\":\"O:38:\\\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\\\":14:{s:5:\\\"event\\\";O:26:\\\"App\\\\Events\\\\MensagemEnviada\\\":1:{s:8:\\\"mensagem\\\";O:45:\\\"Illuminate\\\\Contracts\\\\Database\\\\ModelIdentifier\\\":5:{s:5:\\\"class\\\";s:19:\\\"App\\\\Models\\\\Mensagem\\\";s:2:\\\"id\\\";i:25;s:9:\\\"relations\\\";a:0:{}s:10:\\\"connection\\\";s:5:\\\"mysql\\\";s:15:\\\"collectionClass\\\";N;}}s:5:\\\"tries\\\";N;s:7:\\\"timeout\\\";N;s:7:\\\"backoff\\\";N;s:13:\\\"maxExceptions\\\";N;s:10:\\\"connection\\\";N;s:5:\\\"queue\\\";N;s:5:\\\"delay\\\";N;s:11:\\\"afterCommit\\\";N;s:10:\\\"middleware\\\";a:0:{}s:7:\\\"chained\\\";a:0:{}s:15:\\\"chainConnection\\\";N;s:10:\\\"chainQueue\\\";N;s:19:\\\"chainCatchCallbacks\\\";N;}\"}}', 0, NULL, 1748291357, 1748291357),
+(22, 'default', '{\"uuid\":\"b5868dc0-fd23-4360-9aad-15e044c2221c\",\"displayName\":\"App\\\\Events\\\\MensagemEnviada\",\"job\":\"Illuminate\\\\Queue\\\\CallQueuedHandler@call\",\"maxTries\":null,\"maxExceptions\":null,\"failOnTimeout\":false,\"backoff\":null,\"timeout\":null,\"retryUntil\":null,\"data\":{\"commandName\":\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\",\"command\":\"O:38:\\\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\\\":14:{s:5:\\\"event\\\";O:26:\\\"App\\\\Events\\\\MensagemEnviada\\\":1:{s:8:\\\"mensagem\\\";O:45:\\\"Illuminate\\\\Contracts\\\\Database\\\\ModelIdentifier\\\":5:{s:5:\\\"class\\\";s:19:\\\"App\\\\Models\\\\Mensagem\\\";s:2:\\\"id\\\";i:26;s:9:\\\"relations\\\";a:0:{}s:10:\\\"connection\\\";s:5:\\\"mysql\\\";s:15:\\\"collectionClass\\\";N;}}s:5:\\\"tries\\\";N;s:7:\\\"timeout\\\";N;s:7:\\\"backoff\\\";N;s:13:\\\"maxExceptions\\\";N;s:10:\\\"connection\\\";N;s:5:\\\"queue\\\";N;s:5:\\\"delay\\\";N;s:11:\\\"afterCommit\\\";N;s:10:\\\"middleware\\\";a:0:{}s:7:\\\"chained\\\";a:0:{}s:15:\\\"chainConnection\\\";N;s:10:\\\"chainQueue\\\";N;s:19:\\\"chainCatchCallbacks\\\";N;}\"}}', 0, NULL, 1748291506, 1748291506),
+(23, 'default', '{\"uuid\":\"57189cfc-decb-451c-84f0-1b148759a8c4\",\"displayName\":\"App\\\\Events\\\\MensagemEnviada\",\"job\":\"Illuminate\\\\Queue\\\\CallQueuedHandler@call\",\"maxTries\":null,\"maxExceptions\":null,\"failOnTimeout\":false,\"backoff\":null,\"timeout\":null,\"retryUntil\":null,\"data\":{\"commandName\":\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\",\"command\":\"O:38:\\\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\\\":14:{s:5:\\\"event\\\";O:26:\\\"App\\\\Events\\\\MensagemEnviada\\\":1:{s:8:\\\"mensagem\\\";O:45:\\\"Illuminate\\\\Contracts\\\\Database\\\\ModelIdentifier\\\":5:{s:5:\\\"class\\\";s:19:\\\"App\\\\Models\\\\Mensagem\\\";s:2:\\\"id\\\";i:27;s:9:\\\"relations\\\";a:0:{}s:10:\\\"connection\\\";s:5:\\\"mysql\\\";s:15:\\\"collectionClass\\\";N;}}s:5:\\\"tries\\\";N;s:7:\\\"timeout\\\";N;s:7:\\\"backoff\\\";N;s:13:\\\"maxExceptions\\\";N;s:10:\\\"connection\\\";N;s:5:\\\"queue\\\";N;s:5:\\\"delay\\\";N;s:11:\\\"afterCommit\\\";N;s:10:\\\"middleware\\\";a:0:{}s:7:\\\"chained\\\";a:0:{}s:15:\\\"chainConnection\\\";N;s:10:\\\"chainQueue\\\";N;s:19:\\\"chainCatchCallbacks\\\";N;}\"}}', 0, NULL, 1748291693, 1748291693),
+(24, 'default', '{\"uuid\":\"a1acb03d-552b-4372-9e64-555d60a4184b\",\"displayName\":\"App\\\\Events\\\\MensagemEnviada\",\"job\":\"Illuminate\\\\Queue\\\\CallQueuedHandler@call\",\"maxTries\":null,\"maxExceptions\":null,\"failOnTimeout\":false,\"backoff\":null,\"timeout\":null,\"retryUntil\":null,\"data\":{\"commandName\":\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\",\"command\":\"O:38:\\\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\\\":14:{s:5:\\\"event\\\";O:26:\\\"App\\\\Events\\\\MensagemEnviada\\\":1:{s:8:\\\"mensagem\\\";O:45:\\\"Illuminate\\\\Contracts\\\\Database\\\\ModelIdentifier\\\":5:{s:5:\\\"class\\\";s:19:\\\"App\\\\Models\\\\Mensagem\\\";s:2:\\\"id\\\";i:28;s:9:\\\"relations\\\";a:0:{}s:10:\\\"connection\\\";s:5:\\\"mysql\\\";s:15:\\\"collectionClass\\\";N;}}s:5:\\\"tries\\\";N;s:7:\\\"timeout\\\";N;s:7:\\\"backoff\\\";N;s:13:\\\"maxExceptions\\\";N;s:10:\\\"connection\\\";N;s:5:\\\"queue\\\";N;s:5:\\\"delay\\\";N;s:11:\\\"afterCommit\\\";N;s:10:\\\"middleware\\\";a:0:{}s:7:\\\"chained\\\";a:0:{}s:15:\\\"chainConnection\\\";N;s:10:\\\"chainQueue\\\";N;s:19:\\\"chainCatchCallbacks\\\";N;}\"}}', 0, NULL, 1748291793, 1748291793),
+(25, 'default', '{\"uuid\":\"52b1bdd1-3860-4c88-8203-92724c0c122c\",\"displayName\":\"App\\\\Events\\\\MensagemEnviada\",\"job\":\"Illuminate\\\\Queue\\\\CallQueuedHandler@call\",\"maxTries\":null,\"maxExceptions\":null,\"failOnTimeout\":false,\"backoff\":null,\"timeout\":null,\"retryUntil\":null,\"data\":{\"commandName\":\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\",\"command\":\"O:38:\\\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\\\":14:{s:5:\\\"event\\\";O:26:\\\"App\\\\Events\\\\MensagemEnviada\\\":1:{s:8:\\\"mensagem\\\";O:45:\\\"Illuminate\\\\Contracts\\\\Database\\\\ModelIdentifier\\\":5:{s:5:\\\"class\\\";s:19:\\\"App\\\\Models\\\\Mensagem\\\";s:2:\\\"id\\\";i:29;s:9:\\\"relations\\\";a:0:{}s:10:\\\"connection\\\";s:5:\\\"mysql\\\";s:15:\\\"collectionClass\\\";N;}}s:5:\\\"tries\\\";N;s:7:\\\"timeout\\\";N;s:7:\\\"backoff\\\";N;s:13:\\\"maxExceptions\\\";N;s:10:\\\"connection\\\";N;s:5:\\\"queue\\\";N;s:5:\\\"delay\\\";N;s:11:\\\"afterCommit\\\";N;s:10:\\\"middleware\\\";a:0:{}s:7:\\\"chained\\\";a:0:{}s:15:\\\"chainConnection\\\";N;s:10:\\\"chainQueue\\\";N;s:19:\\\"chainCatchCallbacks\\\";N;}\"}}', 0, NULL, 1748294113, 1748294113),
+(26, 'default', '{\"uuid\":\"ff33690f-6a98-4711-a1c0-a63f2b77a17d\",\"displayName\":\"App\\\\Events\\\\MensagemEnviada\",\"job\":\"Illuminate\\\\Queue\\\\CallQueuedHandler@call\",\"maxTries\":null,\"maxExceptions\":null,\"failOnTimeout\":false,\"backoff\":null,\"timeout\":null,\"retryUntil\":null,\"data\":{\"commandName\":\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\",\"command\":\"O:38:\\\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\\\":14:{s:5:\\\"event\\\";O:26:\\\"App\\\\Events\\\\MensagemEnviada\\\":1:{s:8:\\\"mensagem\\\";O:45:\\\"Illuminate\\\\Contracts\\\\Database\\\\ModelIdentifier\\\":5:{s:5:\\\"class\\\";s:19:\\\"App\\\\Models\\\\Mensagem\\\";s:2:\\\"id\\\";i:30;s:9:\\\"relations\\\";a:0:{}s:10:\\\"connection\\\";s:5:\\\"mysql\\\";s:15:\\\"collectionClass\\\";N;}}s:5:\\\"tries\\\";N;s:7:\\\"timeout\\\";N;s:7:\\\"backoff\\\";N;s:13:\\\"maxExceptions\\\";N;s:10:\\\"connection\\\";N;s:5:\\\"queue\\\";N;s:5:\\\"delay\\\";N;s:11:\\\"afterCommit\\\";N;s:10:\\\"middleware\\\";a:0:{}s:7:\\\"chained\\\";a:0:{}s:15:\\\"chainConnection\\\";N;s:10:\\\"chainQueue\\\";N;s:19:\\\"chainCatchCallbacks\\\";N;}\"}}', 0, NULL, 1748294128, 1748294128),
+(27, 'default', '{\"uuid\":\"c5e9c5f6-11ae-4513-b09e-246eb21beb9d\",\"displayName\":\"App\\\\Events\\\\MensagemEnviada\",\"job\":\"Illuminate\\\\Queue\\\\CallQueuedHandler@call\",\"maxTries\":null,\"maxExceptions\":null,\"failOnTimeout\":false,\"backoff\":null,\"timeout\":null,\"retryUntil\":null,\"data\":{\"commandName\":\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\",\"command\":\"O:38:\\\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\\\":14:{s:5:\\\"event\\\";O:26:\\\"App\\\\Events\\\\MensagemEnviada\\\":1:{s:8:\\\"mensagem\\\";O:45:\\\"Illuminate\\\\Contracts\\\\Database\\\\ModelIdentifier\\\":5:{s:5:\\\"class\\\";s:19:\\\"App\\\\Models\\\\Mensagem\\\";s:2:\\\"id\\\";i:31;s:9:\\\"relations\\\";a:0:{}s:10:\\\"connection\\\";s:5:\\\"mysql\\\";s:15:\\\"collectionClass\\\";N;}}s:5:\\\"tries\\\";N;s:7:\\\"timeout\\\";N;s:7:\\\"backoff\\\";N;s:13:\\\"maxExceptions\\\";N;s:10:\\\"connection\\\";N;s:5:\\\"queue\\\";N;s:5:\\\"delay\\\";N;s:11:\\\"afterCommit\\\";N;s:10:\\\"middleware\\\";a:0:{}s:7:\\\"chained\\\";a:0:{}s:15:\\\"chainConnection\\\";N;s:10:\\\"chainQueue\\\";N;s:19:\\\"chainCatchCallbacks\\\";N;}\"}}', 0, NULL, 1748294240, 1748294240),
+(28, 'default', '{\"uuid\":\"a79beabb-8455-4e49-9bbd-d611d12f56b4\",\"displayName\":\"App\\\\Events\\\\MensagemEnviada\",\"job\":\"Illuminate\\\\Queue\\\\CallQueuedHandler@call\",\"maxTries\":null,\"maxExceptions\":null,\"failOnTimeout\":false,\"backoff\":null,\"timeout\":null,\"retryUntil\":null,\"data\":{\"commandName\":\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\",\"command\":\"O:38:\\\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\\\":14:{s:5:\\\"event\\\";O:26:\\\"App\\\\Events\\\\MensagemEnviada\\\":1:{s:8:\\\"mensagem\\\";O:45:\\\"Illuminate\\\\Contracts\\\\Database\\\\ModelIdentifier\\\":5:{s:5:\\\"class\\\";s:19:\\\"App\\\\Models\\\\Mensagem\\\";s:2:\\\"id\\\";i:32;s:9:\\\"relations\\\";a:0:{}s:10:\\\"connection\\\";s:5:\\\"mysql\\\";s:15:\\\"collectionClass\\\";N;}}s:5:\\\"tries\\\";N;s:7:\\\"timeout\\\";N;s:7:\\\"backoff\\\";N;s:13:\\\"maxExceptions\\\";N;s:10:\\\"connection\\\";N;s:5:\\\"queue\\\";N;s:5:\\\"delay\\\";N;s:11:\\\"afterCommit\\\";N;s:10:\\\"middleware\\\";a:0:{}s:7:\\\"chained\\\";a:0:{}s:15:\\\"chainConnection\\\";N;s:10:\\\"chainQueue\\\";N;s:19:\\\"chainCatchCallbacks\\\";N;}\"}}', 0, NULL, 1748294250, 1748294250),
+(29, 'default', '{\"uuid\":\"bdc43316-ec27-4f8f-ac80-127714236852\",\"displayName\":\"App\\\\Events\\\\MensagemEnviada\",\"job\":\"Illuminate\\\\Queue\\\\CallQueuedHandler@call\",\"maxTries\":null,\"maxExceptions\":null,\"failOnTimeout\":false,\"backoff\":null,\"timeout\":null,\"retryUntil\":null,\"data\":{\"commandName\":\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\",\"command\":\"O:38:\\\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\\\":14:{s:5:\\\"event\\\";O:26:\\\"App\\\\Events\\\\MensagemEnviada\\\":1:{s:8:\\\"mensagem\\\";O:45:\\\"Illuminate\\\\Contracts\\\\Database\\\\ModelIdentifier\\\":5:{s:5:\\\"class\\\";s:19:\\\"App\\\\Models\\\\Mensagem\\\";s:2:\\\"id\\\";i:33;s:9:\\\"relations\\\";a:0:{}s:10:\\\"connection\\\";s:5:\\\"mysql\\\";s:15:\\\"collectionClass\\\";N;}}s:5:\\\"tries\\\";N;s:7:\\\"timeout\\\";N;s:7:\\\"backoff\\\";N;s:13:\\\"maxExceptions\\\";N;s:10:\\\"connection\\\";N;s:5:\\\"queue\\\";N;s:5:\\\"delay\\\";N;s:11:\\\"afterCommit\\\";N;s:10:\\\"middleware\\\";a:0:{}s:7:\\\"chained\\\";a:0:{}s:15:\\\"chainConnection\\\";N;s:10:\\\"chainQueue\\\";N;s:19:\\\"chainCatchCallbacks\\\";N;}\"}}', 0, NULL, 1748294297, 1748294297),
+(30, 'default', '{\"uuid\":\"ab1ae607-43a4-45ae-84f6-fc1b4335df93\",\"displayName\":\"App\\\\Events\\\\MensagemEnviada\",\"job\":\"Illuminate\\\\Queue\\\\CallQueuedHandler@call\",\"maxTries\":null,\"maxExceptions\":null,\"failOnTimeout\":false,\"backoff\":null,\"timeout\":null,\"retryUntil\":null,\"data\":{\"commandName\":\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\",\"command\":\"O:38:\\\"Illuminate\\\\Broadcasting\\\\BroadcastEvent\\\":14:{s:5:\\\"event\\\";O:26:\\\"App\\\\Events\\\\MensagemEnviada\\\":1:{s:8:\\\"mensagem\\\";O:45:\\\"Illuminate\\\\Contracts\\\\Database\\\\ModelIdentifier\\\":5:{s:5:\\\"class\\\";s:19:\\\"App\\\\Models\\\\Mensagem\\\";s:2:\\\"id\\\";i:34;s:9:\\\"relations\\\";a:0:{}s:10:\\\"connection\\\";s:5:\\\"mysql\\\";s:15:\\\"collectionClass\\\";N;}}s:5:\\\"tries\\\";N;s:7:\\\"timeout\\\";N;s:7:\\\"backoff\\\";N;s:13:\\\"maxExceptions\\\";N;s:10:\\\"connection\\\";N;s:5:\\\"queue\\\";N;s:5:\\\"delay\\\";N;s:11:\\\"afterCommit\\\";N;s:10:\\\"middleware\\\";a:0:{}s:7:\\\"chained\\\";a:0:{}s:15:\\\"chainConnection\\\";N;s:10:\\\"chainQueue\\\";N;s:19:\\\"chainCatchCallbacks\\\";N;}\"}}', 0, NULL, 1748294347, 1748294347);
 
 -- --------------------------------------------------------
 
@@ -400,7 +415,8 @@ INSERT INTO `mensagem` (`ID_Mensagem`, `Conteudo`, `Data_mensagem`, `ItemID_Item
 (9, '25 euros', '2025-04-16 21:07:02', 5, 2),
 (10, 'disponivel?', '2025-04-16 21:10:47', 5, 2),
 (11, 'nao', '2025-04-16 21:17:16', 5, 2),
-(12, 'mas  posso vender por 20 euros', '2025-04-16 21:18:58', 5, 2);
+(12, 'mas  posso vender por 20 euros', '2025-04-16 21:18:58', 5, 2),
+(34, 'Olá', '2025-05-26 20:19:07', 23, 2);
 
 -- --------------------------------------------------------
 
@@ -422,7 +438,10 @@ INSERT INTO `mensagem_utilizador` (`MensagemID_Mensagem`, `UtilizadorID_User`) V
 (9, 3),
 (10, 3),
 (11, 2),
-(12, 2);
+(12, 2),
+(14, 13),
+(34, 13),
+(34, 15);
 
 -- --------------------------------------------------------
 
@@ -517,19 +536,27 @@ CREATE TABLE `notificacao` (
 --
 
 INSERT INTO `notificacao` (`ID_Notificacao`, `Mensagem`, `DataNotificacao`, `ReferenciaID`, `UtilizadorID_User`, `ReferenciaTipoID_ReferenciaTipo`, `TIpo_notificacaoID_TipoNotificacao`, `Estado_notificacaoID_estado_notificacao`) VALUES
-(3, 'Nova reclamação recebida para sua venda', '2025-04-19 13:29:51', 3, 2, 4, 5, 2),
-(4, 'Nova reclamação necessita de moderação', '2025-04-19 13:29:51', 3, 1, 4, 5, 2),
-(8, 'Novo pedido de registo pendente: VM', '2025-04-24 20:14:41', 11, 1, 1, 1, 2),
-(9, 'Novo pedido de registo pendente: Bug', '2025-04-24 20:19:04', 12, 1, 1, 1, 2),
-(10, 'Nova solicitação de compra para o anúncio: teste', '2025-04-25 00:28:38', 9, 2, 6, 8, 2),
-(11, 'Nova solicitação de compra para o anúncio: Movel de sala', '2025-04-25 11:23:34', 10, 2, 6, 8, 2),
-(12, 'Novo pedido de registo pendente: CR7', '2025-04-26 12:42:47', 13, 1, 1, 1, 2),
-(13, 'Novo pedido de registo pendente: Pedro Boas', '2025-04-26 17:04:46', 17, 1, 1, 1, 2),
-(14, 'Você recebeu uma nova proposta de troca para seu anúncio \"bicicleta\".', '2025-04-27 13:36:17', 5, 2, 4, 9, 2),
-(15, 'Você recebeu uma nova proposta de troca para seu anúncio \"bicicleta\".', '2025-04-27 14:26:21', 6, 2, 4, 9, 1),
-(16, 'Sua proposta de troca foi aceita para o anúncio: bicicleta', '2025-04-27 14:34:34', 6, 11, 4, 9, 2),
-(17, 'Você recebeu uma nova proposta de troca para seu anúncio \"bicicleta\".', '2025-04-27 14:51:40', 7, 2, 4, 9, 1),
-(18, 'Sua proposta de troca foi rejeitada para o anúncio: bicicleta', '2025-04-27 15:24:58', 7, 11, 4, 9, 1);
+(3, 'Nova reclamação recebida para sua venda', '2025-04-19 13:29:51', 3, 2, 4, 5, 0),
+(4, 'Nova reclamação necessita de moderação', '2025-04-19 13:29:51', 3, 1, 4, 5, 0),
+(8, 'Novo pedido de registo pendente: VM', '2025-04-24 20:14:41', 11, 1, 1, 1, 0),
+(9, 'Novo pedido de registo pendente: Bug', '2025-04-24 20:19:04', 12, 1, 1, 1, 0),
+(10, 'Nova solicitação de compra para o anúncio: teste', '2025-04-25 00:28:38', 9, 2, 6, 8, 0),
+(11, 'Nova solicitação de compra para o anúncio: Movel de sala', '2025-04-25 11:23:34', 10, 2, 6, 8, 0),
+(12, 'Seu anúncio \"Bananas ao kg\" foi aprovado e está agora visível para outros usuários.', '2025-05-23 18:02:14', 18, 11, 1, 12, 1),
+(13, 'Seu anúncio \"Canalização/Canalizador\" foi aprovado e está agora visível para outros usuários.', '2025-05-23 18:55:21', 19, 11, 1, 12, 1),
+(14, 'Seu anúncio \"Vendo/Troco Batata Vermelha\" foi aprovado e está agora visível para outros usuários.', '2025-05-23 19:01:25', 20, 3, 1, 12, 2),
+(15, 'Seu anúncio \"Camisolas CR7\" foi aprovado e está agora visível para outros usuários.', '2025-05-23 19:49:27', 21, 11, 1, 12, 1),
+(16, 'Seu anúncio \"Honda VTX\" foi aprovado e está agora visível para outros usuários.', '2025-05-23 20:01:09', 22, 7, 1, 12, 1),
+(17, 'Novo pedido de registo pendente: Marega', '2025-05-23 20:11:51', 13, 1, 1, 1, 2),
+(18, 'Seu anúncio \"Vendo vinho caseiro\" foi aprovado e está agora visível para outros usuários.', '2025-05-23 20:26:30', 23, 13, 1, 12, 1),
+(19, 'Seu anúncio \"Vendo vinho caseiro\" foi aprovado e está agora visível para outros usuários.', '2025-05-23 20:30:25', 23, 13, 1, 12, 1),
+(20, 'Você recebeu uma nova proposta de troca para seu anúncio \"Vendo/Troco Batata Vermelha\".', '2025-05-23 20:31:56', 2, 3, 4, 9, 2),
+(21, 'Sua proposta de troca foi rejeitada para o anúncio: Vendo/Troco Batata Vermelha', '2025-05-23 20:34:05', 2, 13, 4, 9, 1),
+(22, 'Novo pedido de registo pendente: Ricardo Marques', '2025-05-26 17:32:45', 14, 1, 1, 1, 1),
+(23, 'Novo pedido de registo pendente: Ricardo Marques', '2025-05-26 17:43:03', 15, 1, 1, 1, 1),
+(24, 'Seu anúncio \"Mesa de Ping Pong\" foi aprovado e está agora visível para outros usuários.', '2025-05-26 17:52:47', 24, 15, 1, 12, 1),
+(25, 'Você recebeu uma nova proposta de troca para seu anúncio \"Mesa de Ping Pong\".', '2025-05-26 17:53:43', 3, 15, 4, 9, 1),
+(48, 'Nova mensagem recebida sobre o seu anúncio: Vendo vinho caseiro', '2025-05-26 20:19:07', 34, 13, 2, 5, 1);
 
 -- --------------------------------------------------------
 
@@ -689,7 +716,7 @@ INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `n
 (111, 'App\\Models\\Utilizador', 3, 'auth-token', '88f422e37695d01b8f6cc2ce916137496cebe53830ced5fa2e75eac25934987d', '[\"*\"]', '2025-04-19 14:12:36', NULL, '2025-04-19 13:38:52', '2025-04-19 14:12:36'),
 (112, 'App\\Models\\Utilizador', 1, 'auth-token', 'e4ba11d9a4d0cd9eacb7a6dcd56157400cf4716f14f2144a65eaf480dd5738b0', '[\"*\"]', '2025-04-19 13:54:05', NULL, '2025-04-19 13:53:56', '2025-04-19 13:54:05'),
 (113, 'App\\Models\\Utilizador', 1, 'auth-token', 'a2ef8c2ee7ac9f2b3695b466371a443d198fb623931fd1995cf41bb6c71cb0b7', '[\"*\"]', '2025-04-19 13:54:38', NULL, '2025-04-19 13:54:19', '2025-04-19 13:54:38'),
-(114, 'App\\Models\\Utilizador', 1, 'auth-token', 'cbdddaef60cade19dfc3a91c8fbb75c331ba6aeb2f963050fdac5e90a56ea0eb', '[\"*\"]', '2025-04-27 14:16:15', NULL, '2025-04-19 13:54:49', '2025-04-27 14:16:15'),
+(114, 'App\\Models\\Utilizador', 1, 'auth-token', 'cbdddaef60cade19dfc3a91c8fbb75c331ba6aeb2f963050fdac5e90a56ea0eb', '[\"*\"]', '2025-04-19 14:28:39', NULL, '2025-04-19 13:54:49', '2025-04-19 14:28:39'),
 (115, 'App\\Models\\Utilizador', 2, 'auth-token', 'a615214c256eaeade83fcd7433ed8b11b6a5f936ca40b9f7d7754a540a63c509', '[\"*\"]', '2025-04-24 19:51:13', NULL, '2025-04-24 19:30:30', '2025-04-24 19:51:13'),
 (116, 'App\\Models\\Utilizador', 2, 'auth-token', 'd962fad9383f022644154ebb3aa2fdf5a69395702a9a0fec7004a12ff3f1e088', '[\"*\"]', '2025-04-24 19:55:35', NULL, '2025-04-24 19:51:25', '2025-04-24 19:55:35'),
 (117, 'App\\Models\\Utilizador', 1, 'auth-token', 'b547d21f6d66ef2536299a0bd253f13c2d02408a402f359e87b51532a46f2f10', '[\"*\"]', '2025-04-24 20:17:15', NULL, '2025-04-24 20:16:23', '2025-04-24 20:17:15'),
@@ -729,31 +756,44 @@ INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `n
 (151, 'App\\Models\\Utilizador', 1, 'auth-token', 'ee8dba8f5e22e9cac4af1137dbc38829aea3cc4f001b830ce281733e97d7c218', '[\"*\"]', '2025-04-26 10:09:29', NULL, '2025-04-26 10:09:11', '2025-04-26 10:09:29'),
 (152, 'App\\Models\\Utilizador', 11, 'auth-token', 'aedc45273161318064c9ebce5ae865b7e946918f5be4b528f288b564c583cfb8', '[\"*\"]', '2025-04-26 11:37:21', NULL, '2025-04-26 10:09:40', '2025-04-26 11:37:21'),
 (153, 'App\\Models\\Utilizador', 11, 'auth-token', 'c036363044a8def5f76119a4993f60f18364fccadec94070dfa5621328ea8e3a', '[\"*\"]', '2025-04-26 11:47:09', NULL, '2025-04-26 11:39:47', '2025-04-26 11:47:09'),
-(154, 'App\\Models\\Utilizador', 1, 'auth-token', '0d2cf6cc0e36ee3aefae367c6dc3488f0ef069031919248f52c6ebb0014dc014', '[\"*\"]', '2025-04-26 12:41:26', NULL, '2025-04-26 12:41:03', '2025-04-26 12:41:26'),
-(155, 'App\\Models\\Utilizador', 1, 'auth-token', 'de8612fe3b7f5c974a8dc5a026a0ab7de4fabc0477880413ade83d4e00d5dca9', '[\"*\"]', '2025-04-26 12:44:29', NULL, '2025-04-26 12:44:21', '2025-04-26 12:44:29'),
-(156, 'App\\Models\\Utilizador', 11, 'auth-token', '2ed901fb592834dfacd3ec51492cc2636968839e1d251b1a7bfcd5b6050735e5', '[\"*\"]', '2025-04-26 13:02:49', NULL, '2025-04-26 12:59:05', '2025-04-26 13:02:49'),
-(157, 'App\\Models\\Utilizador', 1, 'auth-token', '1ad547f106eb34940b0b2f813b0e8afb068e045b4058dd76de6ca8c2146cd025', '[\"*\"]', '2025-04-26 13:03:38', NULL, '2025-04-26 13:03:25', '2025-04-26 13:03:38'),
-(158, 'App\\Models\\Utilizador', 11, 'auth-token', 'abd73783f290d7779e3fcd95d8c56e2332e3d445c1f581afe330badb4a3c6db2', '[\"*\"]', '2025-04-26 13:04:04', NULL, '2025-04-26 13:03:58', '2025-04-26 13:04:04'),
-(159, 'App\\Models\\Utilizador', 1, 'auth-token', '1bc960410d92909ad6c950d7b1807a68f215426c0f44e338d4c4ce5623907af6', '[\"*\"]', '2025-04-26 13:05:15', NULL, '2025-04-26 13:05:10', '2025-04-26 13:05:15'),
-(160, 'App\\Models\\Utilizador', 3, 'auth-token', '39e5bd9ec49207ee95fe66c2a6149d8d147bdb7a1a42425a4b3b9be7511f4ac4', '[\"*\"]', '2025-04-26 13:07:32', NULL, '2025-04-26 13:05:46', '2025-04-26 13:07:32'),
-(161, 'App\\Models\\Utilizador', 1, 'auth-token', '43c553a3b9a809a054d11a5ad2e0f8c9fe8228761bc1b2210a14896d1d0e9ba7', '[\"*\"]', '2025-04-26 13:24:52', NULL, '2025-04-26 13:07:46', '2025-04-26 13:24:52'),
-(162, 'App\\Models\\Utilizador', 11, 'auth-token', '03afa0abdade5353d3298c945489f05d287e76206964f48360c29493e18eb644', '[\"*\"]', '2025-04-26 13:40:23', NULL, '2025-04-26 13:36:38', '2025-04-26 13:40:23'),
-(163, 'App\\Models\\Utilizador', 1, 'auth-token', '23887bddcbab2d7ea206687012ea7b4a2fcaf01c20927bf4a46c25b5acdfc0c2', '[\"*\"]', '2025-04-26 13:41:05', NULL, '2025-04-26 13:40:52', '2025-04-26 13:41:05'),
-(164, 'App\\Models\\Utilizador', 11, 'auth-token', 'ac848fd659ec986b726b945ad53d5aa7ffc5c7e8caa9a5e98a13d2b2952ab16f', '[\"*\"]', '2025-04-26 13:43:58', NULL, '2025-04-26 13:43:52', '2025-04-26 13:43:58'),
-(165, 'App\\Models\\Utilizador', 1, 'auth-token', 'e77e87af0e8fe2e66f0959f3e16d7a5155990176363e4f6c12ed38890c682d6d', '[\"*\"]', '2025-04-26 13:44:34', NULL, '2025-04-26 13:44:19', '2025-04-26 13:44:34'),
-(166, 'App\\Models\\Utilizador', 11, 'auth-token', 'd14cd1967dd242d1d12d1ffbf5cd604e80d29855712d1201044c87ccfaa20b25', '[\"*\"]', '2025-04-26 13:45:16', NULL, '2025-04-26 13:44:54', '2025-04-26 13:45:16'),
-(167, 'App\\Models\\Utilizador', 1, 'auth-token', 'e8019f0a158277b9f63860b1959ced1abf906123e892e9ed0717fe45aa1fb983', '[\"*\"]', '2025-04-26 13:45:40', NULL, '2025-04-26 13:45:30', '2025-04-26 13:45:40'),
-(168, 'App\\Models\\Utilizador', 11, 'auth-token', 'b1f4c723c8e04b6925793823c9dbf9dcc3989908cef58dc2c278ee4abf154565', '[\"*\"]', '2025-04-26 13:55:51', NULL, '2025-04-26 13:46:04', '2025-04-26 13:55:51'),
-(169, 'App\\Models\\Utilizador', 1, 'auth-token', 'dbe9d210973611ede7419f2cab3bd0472e02b0f6867ba507e681d8cb44f0e317', '[\"*\"]', '2025-04-26 14:08:47', NULL, '2025-04-26 13:56:06', '2025-04-26 14:08:47'),
-(170, 'App\\Models\\Utilizador', 3, 'auth-token', '51d551a5f6e871754db95caa70f0c7ccba0f746b2abadcc48da5e7b7d64a510c', '[\"*\"]', '2025-04-26 14:34:21', NULL, '2025-04-26 14:16:04', '2025-04-26 14:34:21'),
-(171, 'App\\Models\\Utilizador', 11, 'auth-token', '6e224aeca178ed5d231ff9eab6a91786c109e2f13e44080dbb3650dbbe1e9da5', '[\"*\"]', '2025-04-26 15:07:05', NULL, '2025-04-26 14:34:51', '2025-04-26 15:07:05'),
-(172, 'App\\Models\\Utilizador', 1, 'auth-token', '645d5cb9747c5349128184558dccef62a0c5f009474154bc853c0a746e515883', '[\"*\"]', '2025-04-26 16:29:41', NULL, '2025-04-26 16:16:46', '2025-04-26 16:29:41'),
-(173, 'App\\Models\\Utilizador', 11, 'auth-token', '89e001b285031ed3c624310523dcc3ccb036640d0e8651c9a69df0c6564cbf6b', '[\"*\"]', '2025-04-26 16:48:28', NULL, '2025-04-26 16:43:47', '2025-04-26 16:48:28'),
-(174, 'App\\Models\\Utilizador', 1, 'auth-token', 'a79ee84650b891a5e80c1f58d5289b26c902b343225aaa6a3a63857abae3c97b', '[\"*\"]', '2025-04-26 17:34:28', NULL, '2025-04-26 17:05:53', '2025-04-26 17:34:28'),
-(175, 'App\\Models\\Utilizador', 11, 'auth-token', '814d8c5168b842730fc6e30570356107efbef2802f24996fb008569c42d44d94', '[\"*\"]', '2025-04-27 10:48:29', NULL, '2025-04-26 17:34:39', '2025-04-27 10:48:29'),
-(176, 'App\\Models\\Utilizador', 11, 'auth-token', '67d9313753118aaec8a702374534ace67817fdc3ae2994568ce7f23fd462faff', '[\"*\"]', '2025-04-27 15:40:12', NULL, '2025-04-27 10:51:25', '2025-04-27 15:40:12'),
-(177, 'App\\Models\\Utilizador', 2, 'auth-token', '2ced5de64bbbe325cc9409a73d8eb0499c87a63b09ed8da2d1d3533b98ae667a', '[\"*\"]', '2025-04-27 15:39:32', NULL, '2025-04-27 14:16:28', '2025-04-27 15:39:32'),
-(178, 'App\\Models\\Utilizador', 11, 'auth-token', '75c947c5414e7451d81a259bfb8e88cfcaf7d6191accd32bb3ec75b23c0c6a07', '[\"*\"]', '2025-04-27 15:39:26', NULL, '2025-04-27 14:26:02', '2025-04-27 15:39:26');
+(154, 'App\\Models\\Utilizador', 11, 'auth-token', 'b2a3c6f055c78767e3dd17f82d3e6146b4ff961317712cdbb05b6a395c98f3b3', '[\"*\"]', '2025-05-23 17:15:34', NULL, '2025-05-22 20:14:52', '2025-05-23 17:15:34'),
+(155, 'App\\Models\\Utilizador', 1, 'auth-token', 'fb5cfacacdede6865c15e7a88e09b85d6e8f2b3c8c2bf338022ed810a4b4140a', '[\"*\"]', '2025-05-23 18:02:49', NULL, '2025-05-23 17:15:50', '2025-05-23 18:02:49'),
+(156, 'App\\Models\\Utilizador', 11, 'auth-token', 'b62a8127c3fbb93ff0671ba7e323f47f360b08ad72214073a6a581b0cbb56043', '[\"*\"]', '2025-05-23 18:14:08', NULL, '2025-05-23 18:02:57', '2025-05-23 18:14:08'),
+(157, 'App\\Models\\Utilizador', 1, 'auth-token', 'a45a4b56bd0709aa6ec7738334812abe2116aa3158548f8d8bfda52bcab96333', '[\"*\"]', '2025-05-23 18:16:08', NULL, '2025-05-23 18:14:17', '2025-05-23 18:16:08'),
+(158, 'App\\Models\\Utilizador', 2, 'auth-token', 'd389ff5adf537029b641fcf6969b23d50ca18b9ee276780f56da334c8a8f563c', '[\"*\"]', '2025-05-23 18:34:05', NULL, '2025-05-23 18:16:17', '2025-05-23 18:34:05'),
+(159, 'App\\Models\\Utilizador', 1, 'auth-token', 'd518b24d5be3aae368eae77bc4e94689574950c4bdaf8a9f8490b293d99c3d73', '[\"*\"]', '2025-05-23 18:37:48', NULL, '2025-05-23 18:34:11', '2025-05-23 18:37:48'),
+(160, 'App\\Models\\Utilizador', 11, 'auth-token', 'c55ed0b6faacadac7c5cf5d80162ba7ad4b1a5e1cf4513b50d8daaee2c12995b', '[\"*\"]', '2025-05-23 18:54:41', NULL, '2025-05-23 18:37:57', '2025-05-23 18:54:41'),
+(161, 'App\\Models\\Utilizador', 1, 'auth-token', '2bf8c2ec2d7a583bcf32df52937e9adf39e1e70c82d723585dfcab4a2c1b40b0', '[\"*\"]', '2025-05-23 18:55:54', NULL, '2025-05-23 18:54:51', '2025-05-23 18:55:54'),
+(162, 'App\\Models\\Utilizador', 3, 'auth-token', '78744bc1669e8f61a279b94a7584e8efebc36f7d03c1547816aba8e014524cf8', '[\"*\"]', '2025-05-23 19:01:06', NULL, '2025-05-23 18:56:42', '2025-05-23 19:01:06'),
+(163, 'App\\Models\\Utilizador', 1, 'auth-token', 'feead9348762e61e99fba402bc649546bf5fc98fe41c53f5fff7aa22f391c0ee', '[\"*\"]', '2025-05-23 19:31:00', NULL, '2025-05-23 19:01:14', '2025-05-23 19:31:00'),
+(164, 'App\\Models\\Utilizador', 11, 'auth-token', '339a10788190122fab5421bdb61218c13346c84177d2eebd2d526c972837c052', '[\"*\"]', '2025-05-23 19:43:32', NULL, '2025-05-23 19:31:10', '2025-05-23 19:43:32'),
+(165, 'App\\Models\\Utilizador', 11, 'auth-token', '6e9cd10f86844e2e965a74763ce7fba2399545d21f629003ea5478f328eaeb26', '[\"*\"]', '2025-05-23 19:48:55', NULL, '2025-05-23 19:46:50', '2025-05-23 19:48:55'),
+(166, 'App\\Models\\Utilizador', 1, 'auth-token', 'c091a21fa72a33ea065721aa13268ee4ce2a91807e9270c2460227c08dd961ff', '[\"*\"]', '2025-05-23 19:54:56', NULL, '2025-05-23 19:49:09', '2025-05-23 19:54:56'),
+(167, 'App\\Models\\Utilizador', 7, 'auth-token', '16701be20bf8cf5acb4c392da6200fd9dc1abaa0c0a829a30b9b7699045c4305', '[\"*\"]', '2025-05-23 20:00:35', NULL, '2025-05-23 19:58:30', '2025-05-23 20:00:35'),
+(168, 'App\\Models\\Utilizador', 1, 'auth-token', '72c1f2dfae5525f4f6ed1271e31ee3c47dfdf93a12ed87d3b1c26f580ebecc4f', '[\"*\"]', '2025-05-23 20:08:42', NULL, '2025-05-23 20:00:51', '2025-05-23 20:08:42'),
+(169, 'App\\Models\\Utilizador', 1, 'auth-token', '6e3168250de5a59be99c94c8a6a56de40f51486ce23ebbcbffb3b4bb8a45a0ff', '[\"*\"]', '2025-05-23 20:10:12', NULL, '2025-05-23 20:09:49', '2025-05-23 20:10:12'),
+(170, 'App\\Models\\Utilizador', 1, 'auth-token', '2f8f49e1de4e6caee94f0789668a35f5e0f0673b0dad7ea1c47df3a6a4df60f7', '[\"*\"]', '2025-05-23 20:21:04', NULL, '2025-05-23 20:12:06', '2025-05-23 20:21:04'),
+(171, 'App\\Models\\Utilizador', 13, 'auth-token', '1fcc870396c9e9504dcdb05851341587ddbed57968627052f967d95bffb6e999', '[\"*\"]', '2025-05-23 20:25:40', NULL, '2025-05-23 20:21:17', '2025-05-23 20:25:40'),
+(172, 'App\\Models\\Utilizador', 1, 'auth-token', 'b78a4fcaa28c344818b0aa8fb873e590398adce9ed87022bd3262b00cc623c79', '[\"*\"]', '2025-05-23 20:26:32', NULL, '2025-05-23 20:25:53', '2025-05-23 20:26:32'),
+(173, 'App\\Models\\Utilizador', 13, 'auth-token', 'd226aeb3891c9b280293f597152f72e96750b09e92079a17283f0f5b137e2612', '[\"*\"]', '2025-05-23 20:29:49', NULL, '2025-05-23 20:26:49', '2025-05-23 20:29:49'),
+(174, 'App\\Models\\Utilizador', 1, 'auth-token', 'f2c8f33eee4d4d9a837f4c32fc08eff30103e6100d6aa01fcd82cb98334e74ce', '[\"*\"]', '2025-05-23 20:30:27', NULL, '2025-05-23 20:30:06', '2025-05-23 20:30:27'),
+(175, 'App\\Models\\Utilizador', 13, 'auth-token', '772aac0a486f51059aaab916a59b168fb02fb6f0f91f1347b87f01df064244f9', '[\"*\"]', '2025-05-23 20:32:07', NULL, '2025-05-23 20:30:39', '2025-05-23 20:32:07'),
+(176, 'App\\Models\\Utilizador', 3, 'auth-token', '12d3a416b11882023dfc4713084af41b0ff4833727f1f1aaa608e6429fdd7c44', '[\"*\"]', '2025-05-23 20:34:42', NULL, '2025-05-23 20:33:04', '2025-05-23 20:34:42'),
+(177, 'App\\Models\\Utilizador', 1, 'auth-token', 'fd6d57dc399e7077a44ae209fab5c9bd1ddbc98d201f410f3f862912b4340eba', '[\"*\"]', '2025-05-23 20:58:09', NULL, '2025-05-23 20:37:25', '2025-05-23 20:58:09'),
+(178, 'App\\Models\\Utilizador', 1, 'auth-token', '40773c7dfd696ad9971bf6cd834c0adff5a69718d060fe04b36a32a3f8605045', '[\"*\"]', '2025-05-26 18:12:55', NULL, '2025-05-26 17:33:07', '2025-05-26 18:12:55'),
+(179, 'App\\Models\\Utilizador', 1, 'auth-token', '227a9d0df2a709ec5125c9bace862734596de1b713851d877d469b387cb8b012', '[\"*\"]', '2025-05-26 17:38:31', NULL, '2025-05-26 17:35:51', '2025-05-26 17:38:31'),
+(180, 'App\\Models\\Utilizador', 1, 'auth-token', '3b6b1a8b3e8285a1f7ce624789ff12b76d5822c0ca159f12c692ac2a0fbe862c', '[\"*\"]', '2025-05-26 17:46:31', NULL, '2025-05-26 17:43:22', '2025-05-26 17:46:31'),
+(181, 'App\\Models\\Utilizador', 15, 'auth-token', '8780b49b433d602dd92ebbfc01b441e94392e3470e82cee178cfbb8121def631', '[\"*\"]', '2025-05-26 17:48:45', NULL, '2025-05-26 17:46:48', '2025-05-26 17:48:45'),
+(182, 'App\\Models\\Utilizador', 15, 'auth-token', 'bfab72ad122568fddafe090dcae0b3f93effaf134ee57440b075dd886585a466', '[\"*\"]', '2025-05-26 17:50:58', NULL, '2025-05-26 17:49:38', '2025-05-26 17:50:58'),
+(183, 'App\\Models\\Utilizador', 15, 'auth-token', '07a81c91195c7b5289fb2970424614bd10590dbe88c9618a6000e1f2e52cb596', '[\"*\"]', '2025-05-26 17:52:18', NULL, '2025-05-26 17:51:34', '2025-05-26 17:52:18'),
+(184, 'App\\Models\\Utilizador', 1, 'auth-token', '59ba98cd4d9d60dc4e601412b382ad515507f85c66e181cbc26608c413511f58', '[\"*\"]', '2025-05-26 17:53:01', NULL, '2025-05-26 17:52:28', '2025-05-26 17:53:01'),
+(185, 'App\\Models\\Utilizador', 3, 'auth-token', '41b3110562d407c3fd7bb7a7bd8dfc2770733d4df24f750f517c23cfc9a3586b', '[\"*\"]', '2025-05-26 17:53:54', NULL, '2025-05-26 17:53:16', '2025-05-26 17:53:54'),
+(186, 'App\\Models\\Utilizador', 15, 'auth-token', '52c5807f4bfba250a764e61673616b0e422a1225898a1a9884669815c1bf61b8', '[\"*\"]', '2025-05-26 18:06:05', NULL, '2025-05-26 17:54:17', '2025-05-26 18:06:05'),
+(187, 'App\\Models\\Utilizador', 3, 'auth-token', '1bc4ed930196dc32c36d0170e27c182d7b8a5eb175a45ae79644186bed22ec71', '[\"*\"]', '2025-05-26 18:07:41', NULL, '2025-05-26 18:06:14', '2025-05-26 18:07:41'),
+(188, 'App\\Models\\Utilizador', 13, 'auth-token', '06b70c28b8417c071342286f4233c784888eb6a5f7b45514f28c711b063dc30e', '[\"*\"]', '2025-05-26 18:12:25', NULL, '2025-05-26 18:08:09', '2025-05-26 18:12:25'),
+(189, 'App\\Models\\Utilizador', 15, 'auth-token', '453aa13b48a1fb8216e1d13435ca3852245ead0f9576c38c474f41ecc5bee681', '[\"*\"]', '2025-05-26 20:19:32', NULL, '2025-05-26 18:13:06', '2025-05-26 20:19:32'),
+(190, 'App\\Models\\Utilizador', 13, 'auth-token', '5f072592a3234ff5e079412007d143b96345ac7df03a06b2b48249ad83b7bb0c', '[\"*\"]', '2025-05-26 19:37:31', NULL, '2025-05-26 18:15:20', '2025-05-26 19:37:31'),
+(191, 'App\\Models\\Utilizador', 13, 'auth-token', '14f79e391d311e4754fb0f9853c395d6f589209a2f4f09077c367cbe1620add9', '[\"*\"]', '2025-05-26 20:19:35', NULL, '2025-05-26 20:13:20', '2025-05-26 20:19:35');
 
 -- --------------------------------------------------------
 
@@ -774,8 +814,7 @@ CREATE TABLE `reclamacao` (
 --
 
 INSERT INTO `reclamacao` (`ID_Reclamacao`, `Descricao`, `DataReclamacao`, `AprovacaoID_aprovacao`, `Status_ReclamacaoID_Status_Reclamacao`) VALUES
-(3, 'nao conforme', '2025-04-19 13:29:51', 54, 1),
-(4, 'nao conforme', '2025-04-27 15:32:13', 9, 1);
+(3, 'nao conforme', '2025-04-19 13:29:51', 54, 1);
 
 -- --------------------------------------------------------
 
@@ -845,8 +884,7 @@ INSERT INTO `status_anuncio` (`ID_Status_Anuncio`, `Descricao_status_anuncio`) V
 (2, 'Inativo'),
 (3, 'Vendido'),
 (4, 'Pendente'),
-(7, 'Rejeitado'),
-(8, 'Reservado');
+(7, 'Rejeitado');
 
 -- --------------------------------------------------------
 
@@ -927,9 +965,12 @@ CREATE TABLE `status_troca` (
 
 INSERT INTO `status_troca` (`ID_Status_Troca`, `Descricao_status_troca`) VALUES
 (1, 'Pendente'),
-(2, 'Aceite'),
+(2, 'Aceita'),
 (3, 'Rejeitada'),
-(4, 'Cancelada');
+(4, 'Cancelada'),
+(5, 'Solicitada'),
+(7, 'Recusada'),
+(8, 'Concluída');
 
 -- --------------------------------------------------------
 
@@ -1041,7 +1082,8 @@ CREATE TABLE `troca` (
 
 INSERT INTO `troca` (`ID_Troca`, `DataTroca`, `ItemID_ItemOferecido`, `ItemID_Solicitado`, `Status_TrocaID_Status_Troca`) VALUES
 (1, '2025-04-26 11:30:01', 15, 16, 1),
-(7, '2025-04-27 14:51:40', 11, 6, 3);
+(2, '2025-05-23 20:31:56', 23, 20, 3),
+(3, '2025-05-26 17:53:43', 20, 24, 2);
 
 -- --------------------------------------------------------
 
@@ -1072,15 +1114,15 @@ CREATE TABLE `utilizador` (
 INSERT INTO `utilizador` (`ID_User`, `User_Name`, `Name`, `Data_Nascimento`, `Password`, `CC`, `Email`, `MoradaID_Morada`, `AprovacaoID_aprovacao`, `cartaoID_Cartao`, `TipoUserID_TipoUser`, `ImagemID_Imagem`, `Status_UtilizadorID_status_utilizador`) VALUES
 (1, 'admin', 'Administrador', '1990-01-01', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 12345678, 'admin@example.com', 1, 1, NULL, 1, 1, 2),
 (2, 'user', 'Usuário Normal', '1995-05-05', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 87654321, 'user@example.com', 2, 2, NULL, 2, 1, 2),
-(3, 'VitorLeite', 'Vitor', '1999-10-01', '$2y$12$F4RUEOD4RAh4lRjvvhe2GeTHn9Jbfrit29D9nNb4jhDopLOE22heG', 212233333, 'vitor@example.com', 15, 22, 8, 2, 4, 2),
+(3, 'VitorLeite', 'Vitor', '1999-10-01', '$2y$12$F4RUEOD4RAh4lRjvvhe2GeTHn9Jbfrit29D9nNb4jhDopLOE22heG', 212233333, 'vitor@example.com', 15, 22, 5, 2, 4, 2),
 (4, 'JoanaBabe', 'Joana', '2001-05-29', '$2y$12$qkiovJb2MBGnrlWBPTMti.eiRRZShJwzfuQYUW6roQMbqoSAmZogq', 45345346, 'joana@example.com', 1, 24, NULL, 2, 5, 8),
 (5, 'vilastheboy', 'Vilas', '2003-01-07', '$2y$12$O6s6K9ioXISMkN127QNJUeJra1MDyYT4ZW8kBnO9AEb36WnyNKloe', 34354363, 'vilas@example.com', 3, 51, NULL, 2, 6, 8),
 (6, 'jose pereira', 'jose', '2007-07-18', '$2y$12$tqYSBQcJPGuGk5IT4SHRPOAxQJhh9UwWd5Dm8q/hcKgZmH7DjbXDq', 10203040, 'pereira@email.com', 20, 66, NULL, 2, 18, 8),
 (7, 'arturmatos', 'artur', '2004-02-10', '$2y$12$tGCqhR98ur1km84p0pgJ0.bTpvG1WHjSq0A5OuS.jiKSIeFW7vAJu', 20304050, 'amatos@email.com', 30, 50, NULL, 2, 19, 2),
 (11, 'vm', 'VM', '2000-02-14', '$2y$12$ZFV33XTrhxlKMMrHsrWTVOCjq8popp92LT32KRR5/iHSeYEMCXLEO', 123123123, 'vm@ipca.pt', 7, 58, 7, 2, 23, 2),
 (12, 'Bug', 'Bug', '1996-02-18', '$2y$12$96H1JUJrm3rhV630RXiFU.2jdn1Jkn5etVM4BC/cC7JQRZ0csW6Oy', 123123123, 'bug@ipca.pt', 6, 59, NULL, 2, 24, 2),
-(13, 'Cris', 'CR7', '2004-02-17', '$2y$12$cRzEpR7sIRxh4B0ADMEGtufF1hIIjGBSPBtUAaBTZ/noz8Xrco6Ji', 435332662, 'cr7@ipca.pt', 20, 1, NULL, 2, 38, 1),
-(17, 'ordep', 'Pedro Boas', '1990-06-19', '$2y$12$Ut2kAM4WE2lmZkap45GwneBX.IUeHmswJjd9RPTztC90E.AOZI4jO', 12345678, 'pedro@ipca.pt', 9, 8, NULL, 2, 46, 1);
+(13, 'marega', 'Marega', '1973-06-10', '$2y$12$sFofc1RkIXuMr5lAEXJVxO9kDOC.GOLMr7CimkVX0TtLwD0VgUi32', 23476519, 'marega@ipca.pt', 30, 16, NULL, 2, 45, 2),
+(15, 'r.marques', 'Ricardo Marques', '2000-02-18', '$2y$12$fO4X1UqQ8oJnDWXxsXNPm.OInDbh1Zpek.1mEGcbCIGJfebjyTKXK', 12345678, 'ricardo@example.com', 1, 19, NULL, 2, 51, 2);
 
 --
 -- Índices para tabelas despejadas
@@ -1344,13 +1386,13 @@ ALTER TABLE `utilizador`
 -- AUTO_INCREMENT de tabela `anuncio`
 --
 ALTER TABLE `anuncio`
-  MODIFY `ID_Anuncio` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `ID_Anuncio` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT de tabela `aprovacao`
 --
 ALTER TABLE `aprovacao`
-  MODIFY `ID_aprovacao` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `ID_aprovacao` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT de tabela `avaliacao`
@@ -1362,7 +1404,7 @@ ALTER TABLE `avaliacao`
 -- AUTO_INCREMENT de tabela `cartao`
 --
 ALTER TABLE `cartao`
-  MODIFY `ID_Cartao` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `ID_Cartao` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de tabela `categoria`
@@ -1392,19 +1434,19 @@ ALTER TABLE `failed_jobs`
 -- AUTO_INCREMENT de tabela `imagem`
 --
 ALTER TABLE `imagem`
-  MODIFY `ID_Imagem` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+  MODIFY `ID_Imagem` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
 
 --
 -- AUTO_INCREMENT de tabela `jobs`
 --
 ALTER TABLE `jobs`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT de tabela `mensagem`
 --
 ALTER TABLE `mensagem`
-  MODIFY `ID_Mensagem` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `ID_Mensagem` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
 -- AUTO_INCREMENT de tabela `morada`
@@ -1422,7 +1464,7 @@ ALTER TABLE `nota`
 -- AUTO_INCREMENT de tabela `notificacao`
 --
 ALTER TABLE `notificacao`
-  MODIFY `ID_Notificacao` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `ID_Notificacao` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
 
 --
 -- AUTO_INCREMENT de tabela `pagamento`
@@ -1434,13 +1476,13 @@ ALTER TABLE `pagamento`
 -- AUTO_INCREMENT de tabela `personal_access_tokens`
 --
 ALTER TABLE `personal_access_tokens`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=179;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=192;
 
 --
 -- AUTO_INCREMENT de tabela `reclamacao`
 --
 ALTER TABLE `reclamacao`
-  MODIFY `ID_Reclamacao` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `ID_Reclamacao` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de tabela `referenciatipo`
@@ -1452,7 +1494,7 @@ ALTER TABLE `referenciatipo`
 -- AUTO_INCREMENT de tabela `status_anuncio`
 --
 ALTER TABLE `status_anuncio`
-  MODIFY `ID_Status_Anuncio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `ID_Status_Anuncio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de tabela `status_aprovacao`
@@ -1506,27 +1548,17 @@ ALTER TABLE `tipo_notificacao`
 -- AUTO_INCREMENT de tabela `troca`
 --
 ALTER TABLE `troca`
-  MODIFY `ID_Troca` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `ID_Troca` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de tabela `utilizador`
 --
 ALTER TABLE `utilizador`
-  MODIFY `ID_User` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `ID_User` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- Restrições para despejos de tabelas
 --
-
---
--- Limitadores para a tabela `anuncio`
---
-ALTER TABLE `anuncio`
-  ADD CONSTRAINT `FKAnuncio107882` FOREIGN KEY (`AprovacaoID_aprovacao`) REFERENCES `aprovacao` (`ID_aprovacao`),
-  ADD CONSTRAINT `FKAnuncio47220` FOREIGN KEY (`Tipo_ItemID_Tipo`) REFERENCES `tipo_item` (`ID_Tipo`),
-  ADD CONSTRAINT `FKAnuncio546000` FOREIGN KEY (`Status_AnuncioID_Status_Anuncio`) REFERENCES `status_anuncio` (`ID_Status_Anuncio`),
-  ADD CONSTRAINT `FKAnuncio617781` FOREIGN KEY (`CategoriaID_Categoria`) REFERENCES `categoria` (`ID_Categoria`),
-  ADD CONSTRAINT `FKAnuncio623345` FOREIGN KEY (`UtilizadorID_User`) REFERENCES `utilizador` (`ID_User`);
 
 --
 -- Limitadores para a tabela `aprovacao`
@@ -1534,90 +1566,6 @@ ALTER TABLE `anuncio`
 ALTER TABLE `aprovacao`
   ADD CONSTRAINT `FKAprovacao495119` FOREIGN KEY (`UtilizadorID_Admin`) REFERENCES `utilizador` (`ID_User`),
   ADD CONSTRAINT `FKAprovacao52084` FOREIGN KEY (`Status_AprovacaoID_Status_Aprovacao`) REFERENCES `status_aprovacao` (`ID_Status_Aprovacao`);
-
---
--- Limitadores para a tabela `avaliacao`
---
-ALTER TABLE `avaliacao`
-  ADD CONSTRAINT `FKAvaliacao214094` FOREIGN KEY (`NotaID_Nota`) REFERENCES `nota` (`ID_Nota`),
-  ADD CONSTRAINT `FKAvaliacao286296` FOREIGN KEY (`OrdemID_Produto`) REFERENCES `compra` (`ID_Compra`),
-  ADD CONSTRAINT `FKAvaliacao460566` FOREIGN KEY (`AprovacaoID_aprovacao`) REFERENCES `aprovacao` (`ID_aprovacao`);
-
---
--- Limitadores para a tabela `compra`
---
-ALTER TABLE `compra`
-  ADD CONSTRAINT `FKCompra155813` FOREIGN KEY (`UtilizadorID_User`) REFERENCES `utilizador` (`ID_User`),
-  ADD CONSTRAINT `FKCompra629584` FOREIGN KEY (`AnuncioID_Anuncio`) REFERENCES `anuncio` (`ID_Anuncio`);
-
---
--- Limitadores para a tabela `compra_reclamacao`
---
-ALTER TABLE `compra_reclamacao`
-  ADD CONSTRAINT `FKCompra_Rec211866` FOREIGN KEY (`ReclamacaoID_Reclamacao`) REFERENCES `reclamacao` (`ID_Reclamacao`),
-  ADD CONSTRAINT `FKCompra_Rec509146` FOREIGN KEY (`CompraID_Compra`) REFERENCES `compra` (`ID_Compra`);
-
---
--- Limitadores para a tabela `item_imagem`
---
-ALTER TABLE `item_imagem`
-  ADD CONSTRAINT `FKItem_Image234733` FOREIGN KEY (`ItemID_Item`) REFERENCES `anuncio` (`ID_Anuncio`),
-  ADD CONSTRAINT `FKItem_Image648731` FOREIGN KEY (`ImagemID_Imagem`) REFERENCES `imagem` (`ID_Imagem`);
-
---
--- Limitadores para a tabela `mensagem`
---
-ALTER TABLE `mensagem`
-  ADD CONSTRAINT `FKMensagem252913` FOREIGN KEY (`ItemID_Item`) REFERENCES `anuncio` (`ID_Anuncio`),
-  ADD CONSTRAINT `FKMensagem481071` FOREIGN KEY (`Status_MensagemID_Status_Mensagem`) REFERENCES `status_mensagem` (`ID_Status_Mensagem`);
-
---
--- Limitadores para a tabela `mensagem_utilizador`
---
-ALTER TABLE `mensagem_utilizador`
-  ADD CONSTRAINT `FKMensagem_U307261` FOREIGN KEY (`UtilizadorID_User`) REFERENCES `utilizador` (`ID_User`),
-  ADD CONSTRAINT `FKMensagem_U481429` FOREIGN KEY (`MensagemID_Mensagem`) REFERENCES `mensagem` (`ID_Mensagem`);
-
---
--- Limitadores para a tabela `notificacao`
---
-ALTER TABLE `notificacao`
-  ADD CONSTRAINT `FKNotificaca154395` FOREIGN KEY (`ReferenciaTipoID_ReferenciaTipo`) REFERENCES `referenciatipo` (`ID_ReferenciaTipo`),
-  ADD CONSTRAINT `FKNotificaca560186` FOREIGN KEY (`Estado_notificacaoID_estado_notificacao`) REFERENCES `estado_notificacao` (`ID_estado_notificacao`) ON UPDATE CASCADE,
-  ADD CONSTRAINT `FKNotificaca714377` FOREIGN KEY (`TIpo_notificacaoID_TipoNotificacao`) REFERENCES `tipo_notificacao` (`ID_TipoNotificacao`),
-  ADD CONSTRAINT `FKNotificaca913403` FOREIGN KEY (`UtilizadorID_User`) REFERENCES `utilizador` (`ID_User`);
-
---
--- Limitadores para a tabela `pagamento`
---
-ALTER TABLE `pagamento`
-  ADD CONSTRAINT `FKPagamento115243` FOREIGN KEY (`CompraID_Compra`) REFERENCES `compra` (`ID_Compra`);
-
---
--- Limitadores para a tabela `reclamacao`
---
-ALTER TABLE `reclamacao`
-  ADD CONSTRAINT `FKReclamacao606601` FOREIGN KEY (`Status_ReclamacaoID_Status_Reclamacao`) REFERENCES `status_reclamacao` (`ID_Status_Reclamacao`),
-  ADD CONSTRAINT `FKReclamacao876623` FOREIGN KEY (`AprovacaoID_aprovacao`) REFERENCES `aprovacao` (`ID_aprovacao`);
-
---
--- Limitadores para a tabela `troca`
---
-ALTER TABLE `troca`
-  ADD CONSTRAINT `FKTroca249283` FOREIGN KEY (`ItemID_ItemOferecido`) REFERENCES `anuncio` (`ID_Anuncio`),
-  ADD CONSTRAINT `FKTroca415305` FOREIGN KEY (`Status_TrocaID_Status_Troca`) REFERENCES `status_troca` (`ID_Status_Troca`),
-  ADD CONSTRAINT `FKTroca815193` FOREIGN KEY (`ItemID_Solicitado`) REFERENCES `anuncio` (`ID_Anuncio`);
-
---
--- Limitadores para a tabela `utilizador`
---
-ALTER TABLE `utilizador`
-  ADD CONSTRAINT `FKUtilizador244028` FOREIGN KEY (`Status_UtilizadorID_status_utilizador`) REFERENCES `status_utilizador` (`ID_status_utilizador`),
-  ADD CONSTRAINT `FKUtilizador373700` FOREIGN KEY (`cartaoID_Cartao`) REFERENCES `cartao` (`ID_Cartao`),
-  ADD CONSTRAINT `FKUtilizador462334` FOREIGN KEY (`AprovacaoID_aprovacao`) REFERENCES `aprovacao` (`ID_aprovacao`),
-  ADD CONSTRAINT `FKUtilizador680017` FOREIGN KEY (`MoradaID_Morada`) REFERENCES `morada` (`ID_Morada`),
-  ADD CONSTRAINT `FKUtilizador772568` FOREIGN KEY (`ImagemID_Imagem`) REFERENCES `imagem` (`ID_Imagem`),
-  ADD CONSTRAINT `FKUtilizador979318` FOREIGN KEY (`TipoUserID_TipoUser`) REFERENCES `tipouser` (`ID_TipoUser`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
